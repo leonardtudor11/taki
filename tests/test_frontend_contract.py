@@ -44,3 +44,11 @@ def test_synergy_and_claim_shape():
     claim = b["account_brief"]["hiring_signals"][0]
     assert "text" in claim and "citations" in claim
     assert "url" in claim["citations"][0]
+
+
+def test_handoff_shape_for_cascade_flow():
+    b = json.loads(BRIEF.read_text())
+    assert b["handoffs"], "expected handoffs in example brief"
+    h = b["handoffs"][0]
+    for k in ("from_dept", "to_dept", "message"):
+        assert k in h, f"handoff missing: {k}"

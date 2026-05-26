@@ -73,6 +73,22 @@
     padding: 9px 16px; font-weight: 600; cursor: not-allowed; opacity: .55;
   }
   #error { color: var(--bad); padding: 20px; }
+  .flow { margin-bottom: 26px; }
+  .flow-nodes { display: flex; gap: 12px; margin-bottom: 14px; }
+  .node { flex: 1; text-align: center; padding: 12px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--panel); font-weight: 600; }
+  .node.gtm { color: var(--gtm); border-color: var(--gtm); }
+  .node.finance { color: var(--finance); border-color: var(--finance); }
+  .node.security { color: var(--security); border-color: var(--security); }
+  .handoff { display: flex; align-items: center; gap: 10px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
+    margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; }
+  .hchip { font-size: 11px; padding: 2px 8px; border-radius: 6px;
+    border: 1px solid var(--line); text-transform: uppercase; letter-spacing: .5px; }
+  .hchip.gtm { color: var(--gtm); } .hchip.finance { color: var(--finance); }
+  .hchip.security { color: var(--security); }
+  .harrow { color: var(--muted); }
+  .hmsg { color: var(--text); }
   @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -86,6 +102,7 @@
 <main id="app">
   <div id="error" class="hidden"></div>
 </main>
+<script src="cascade-flow.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
