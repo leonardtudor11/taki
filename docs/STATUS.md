@@ -7,7 +7,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S0.1 | Repo scaffold | ✅ done | n/a | n/a | (initial) | dirs + venv + git + env template |
 | S0.2 | Bright Data client + live smoke | ⏳ pending | — | — | — | **BLOCKED: needs BRIGHTDATA_API_KEY + zones in .env** |
 | S0.3 | Shared cache + Pydantic schemas | ✅ done | 8/8 | self | (S0.3) | data contract + fixture w/ planted PII+confidential |
-| S1.1 | GTM agent → AccountBrief | ⏳ pending | — | — | — | independent |
+| S1.1 | GTM agent → AccountBrief | ✅ done | 2/2 | self | (S1.1) | + agent base + injectable LLM + fake_llm fixtures |
 | S1.2 | Finance agent → MarketSignal | ⏳ pending | — | — | — | independent |
 | S1.3 | Security agent → RiskProfile | ⏳ pending | — | — | — | independent |
 | S2.1 | Grounding/citation guard | ✅ done | 3/3 | self | (S2.1) | drops hallucinated + uncited claims |
