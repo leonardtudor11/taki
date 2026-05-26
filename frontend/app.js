@@ -111,13 +111,30 @@ function renderBadges(report) {
   return wrap;
 }
 
+// known dept keys used by the focus-filter CSS in index.html
+const _DEPT_KEYS = ["gtm", "finance", "security"];
+
+function _deptKeyFor(name) {
+  const n = String(name || "").toLowerCase();
+  if (n.includes("gtm") || n.includes("revenue")) return "gtm";
+  if (n.includes("finance") || n.includes("market")) return "finance";
+  if (n.includes("security") || n.includes("compliance") || n.includes("risk")) return "security";
+  return null;
+}
+
 function renderSynergies(synergies) {
   if (!synergies || !synergies.length) return null;
   const wrap = el("div");
   wrap.appendChild(el("div", { class: "section-title" }, "Cross-department synergy"));
   const grid = el("div", { class: "synergy-grid" });
   synergies.forEach((s) => {
-    const card = el("div", { class: "synergy" });
+    // tag each synergy with `has-<dept>` per contributing department so the
+    // focus-filter CSS can keep relevant synergies bright when a dept is selected.
+    const depts = (s.contributing_depts || [])
+      .map(_deptKeyFor)
+      .filter((d) => _DEPT_KEYS.includes(d));
+    const classes = ["synergy", ...depts.map((d) => `has-${d}`)];
+    const card = el("div", { class: classes.join(" ") });
     card.appendChild(el("div", { class: "depts" }, (s.contributing_depts || []).join(" + ")));
     card.appendChild(el("div", null, String(s.text || "")));
     grid.appendChild(card);
@@ -150,7 +167,8 @@ function render(brief) {
   app.appendChild(renderBadges(brief.guardrail_report || {}));
 
   if (typeof renderCascadeFlow === "function") {
-    const flow = renderCascadeFlow(brief.handoffs || []);
+    // pass the whole brief — V3 cytoscape graph reads handoffs + synergies + depts.
+    const flow = renderCascadeFlow(brief);
     if (flow) app.appendChild(flow);
   }
 

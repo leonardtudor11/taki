@@ -236,8 +236,33 @@
     line-height: 1.45;
   }
 
-  /* ───────── cascade flow ───────── */
+  /* ───────── cascade flow — V3 cytoscape graph + text fallback ───────── */
   .flow { margin-bottom: 42px; }
+  .cascade-graph {
+    width: 100%;
+    height: 420px;
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.012), transparent 70%);
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    margin: 0 0 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cascade-graph--fallback { height: auto; padding: 8px 12px; border: 1px solid var(--rule); }
+  .cascade-tip {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    color: var(--paper-dim);
+    letter-spacing: 0.04em;
+    padding: 8px 4px 0;
+    min-height: 2.2em;
+    transition: color 0.2s ease;
+    line-height: 1.5;
+  }
+  .cascade-tip[data-active] { color: var(--paper); }
+
+  /* legacy text-fallback rows (used only when CDN unreachable) */
   .flow-nodes {
     display: flex;
     gap: 14px;
@@ -262,7 +287,6 @@
   .node.gtm      { color: var(--gtm);      border-color: var(--gtm); }
   .node.finance  { color: var(--finance);  border-color: var(--finance); }
   .node.security { color: var(--security); border-color: var(--security); }
-
   .handoff {
     display: flex;
     align-items: center;
@@ -293,6 +317,19 @@
     font-family: "Fraunces", Georgia, serif;
     font-style: italic;
     font-size: 15px;
+  }
+
+  /* ───────── focus filter — dim non-focused panels/synergies ───────── */
+  .panel, .synergy { transition: opacity 0.32s ease, filter 0.32s ease; }
+  body[data-focus="gtm"]      .panel:not(.gtm),
+  body[data-focus="finance"]  .panel:not(.finance),
+  body[data-focus="security"] .panel:not(.security) {
+    opacity: 0.22; filter: saturate(0.4);
+  }
+  body[data-focus="gtm"]      .synergy:not(.has-gtm),
+  body[data-focus="finance"]  .synergy:not(.has-finance),
+  body[data-focus="security"] .synergy:not(.has-security) {
+    opacity: 0.22; filter: saturate(0.4);
   }
 
   /* ───────── departments ───────── */
@@ -421,6 +458,10 @@
 <main id="app">
   <div id="error" class="hidden"></div>
 </main>
+<!-- cytoscape: interactive cascade graph · GSAP: scripted entry timing.
+     Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
+<script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="cascade-flow.js"></script>
 <script src="app.js"></script>
 </body>
