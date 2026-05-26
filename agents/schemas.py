@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 def _now() -> datetime:
@@ -57,10 +57,42 @@ class Citation(BaseModel):
     source_type: SourceType = SourceType.OTHER
 
 
+_CONFIDENCE_WORDS = {
+    "very high": 0.95, "high": 0.85, "medium high": 0.7, "med high": 0.7,
+    "medium": 0.5, "med": 0.5, "moderate": 0.5,
+    "medium low": 0.3, "med low": 0.3, "low": 0.25, "very low": 0.1, "none": 0.0,
+}
+
+
 class Claim(BaseModel):
     text: str
     citations: list[Citation] = Field(default_factory=list)
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _coerce_confidence(cls, v):
+        """LLMs love returning 'high'/'medium'/'low' or percent strings. Coerce."""
+        if v is None:
+            return 0.5
+        if isinstance(v, (int, float)):
+            f = float(v)
+            if f > 1.0:  # treat 0-100 as percent for consistency w/ string branch
+                f /= 100.0
+            return max(0.0, min(1.0, f))
+        if isinstance(v, str):
+            s = v.strip().lower().rstrip("%")
+            if s in _CONFIDENCE_WORDS:
+                return _CONFIDENCE_WORDS[s]
+            try:
+                f = float(s)
+                # treat 0-100 as percent
+                if f > 1.0:
+                    f /= 100.0
+                return max(0.0, min(1.0, f))
+            except ValueError:
+                return 0.5
+        return 0.5
 
 
 # --- Department outputs ---

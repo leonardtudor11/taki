@@ -37,6 +37,19 @@ def test_claim_with_citation():
     assert 0.0 <= c.confidence <= 1.0
 
 
+def test_confidence_coerces_word_labels():
+    assert Claim(text="t", confidence="high").confidence == 0.85
+    assert Claim(text="t", confidence="LOW").confidence == 0.25
+    assert Claim(text="t", confidence="medium").confidence == 0.5
+
+
+def test_confidence_coerces_percent_and_garbage():
+    assert Claim(text="t", confidence="85%").confidence == 0.85
+    assert Claim(text="t", confidence=75).confidence == 0.75    # 0-100 -> percent
+    assert Claim(text="t", confidence="not a number").confidence == 0.5
+    assert Claim(text="t", confidence=None).confidence == 0.5
+
+
 def test_department_outputs_aggregate_claims():
     claim = Claim(text="x")
     ab = AccountBrief(target="t", buying_signals=[claim], hiring_signals=[claim])

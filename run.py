@@ -44,12 +44,23 @@ def generate_and_cache(
     return brief
 
 
-def run_live(target: str, urls: list[tuple[str, SourceType]]) -> CascadeBrief:
-    # imported lazily so offline tests never touch the network layer
-    from services.brightdata import BrightDataClient, build_bundle
+def run_live(
+    target: str,
+    urls: list[tuple[str, SourceType]],
+    reuse_cache: bool = True,
+) -> CascadeBrief:
+    """Live pipeline. If a cached bundle exists for the target and reuse_cache
+    is True (default), skip the Bright Data pulls — only the LLM + cascade run.
+    """
+    bundle = cache.load_bundle(target) if reuse_cache else None
+    if bundle is None:
+        # imported lazily so offline tests never touch the network layer
+        from services.brightdata import BrightDataClient, build_bundle
 
-    client = BrightDataClient()
-    bundle = build_bundle(target, client, urls)
+        client = BrightDataClient()
+        bundle = build_bundle(target, client, urls)
+    else:
+        print(f"reusing cached bundle for {target} ({len(bundle.sources)} sources)")
     return generate_and_cache(bundle)
 
 
