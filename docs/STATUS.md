@@ -5,7 +5,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | Session | What | State | Tested | Audited | Commit | Notes / blockers |
 |---|---|---|---|---|---|---|
 | S0.1 | Repo scaffold | ✅ done | n/a | n/a | (initial) | dirs + venv + git + env template |
-| S0.2 | Bright Data client + live smoke | 🟡 code done | 4/4 pure | self | (S0.2) | client+spend-cap built & unit-tested; **LIVE smoke BLOCKED on keys** |
+| S0.2 | Bright Data client + live smoke | ✅ done | 4/4 + live | self | (S0.2) | live smoke on example.com returned 528B, spent $0.001 |
 | S0.3 | Shared cache + Pydantic schemas | ✅ done | 8/8 | self | (S0.3) | data contract + fixture w/ planted PII+confidential |
 | S1.1 | GTM agent → AccountBrief | ✅ done | 2/2 | self | (S1.1) | + agent base + injectable LLM + fake_llm fixtures |
 | S1.2 | Finance agent → MarketSignal | ✅ done | 2/2 | self | (S1.2) | grounded, injectable LLM |
