@@ -1,0 +1,163 @@
+{
+  "target": "Northwind Analytics",
+  "generated_at": "2026-05-26T01:17:44.701079Z",
+  "account_brief": {
+    "target": "Northwind Analytics",
+    "buying_signals": [
+      {
+        "text": "Recently raised a large round to expand into the EU.",
+        "citations": [
+          {
+            "url": "https://news.example/northwind-series-b",
+            "snippet": "closed a $40M Series B led by Acme Ventures",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "competitor_moves": [],
+    "hiring_signals": [
+      {
+        "text": "Scaling enterprise sales headcount.",
+        "citations": [
+          {
+            "url": "https://northwind.example/careers",
+            "snippet": "hiring 12 enterprise account executives",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "outreach_angle": "Congratulate on the Series B; tie to EU go-to-market.",
+    "generated_at": "2026-05-26T01:17:44.700792Z"
+  },
+  "market_signal": {
+    "target": "Northwind Analytics",
+    "pricing_trend": [
+      {
+        "text": "Raised Pro pricing ~60% and dropped the free tier.",
+        "citations": [
+          {
+            "url": "https://northwind.example/pricing",
+            "snippet": "raised its Pro plan from $49 to $79",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "expansion_contraction": [
+      {
+        "text": "Headcount expansion signals growth.",
+        "citations": [
+          {
+            "url": "https://northwind.example/careers",
+            "snippet": "hiring 12 enterprise account executives",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.7
+      }
+    ],
+    "web_traffic_proxy": [],
+    "vendor_health_flags": [],
+    "generated_at": "2026-05-26T01:17:44.700836Z"
+  },
+  "risk_profile": {
+    "target": "Northwind Analytics",
+    "exposure_indicators": [],
+    "reputational_signals": [
+      {
+        "text": "Support quality complaints after pricing change.",
+        "citations": [
+          {
+            "url": "https://reviews.example/northwind",
+            "snippet": "report slow support response times",
+            "source_type": "review"
+          }
+        ],
+        "confidence": 0.6
+      }
+    ],
+    "regulatory_signals": [],
+    "third_party_risk": [],
+    "generated_at": "2026-05-26T01:17:44.700865Z"
+  },
+  "synergy_signals": [
+    {
+      "text": "Pricing increase coincides with support/reputation complaints — churn risk; time GTM outreach around retention, not upsell.",
+      "contributing_depts": [
+        "finance",
+        "security"
+      ],
+      "citations": [
+        {
+          "url": "https://northwind.example/pricing",
+          "snippet": "raised its Pro plan from $49 to $79",
+          "source_type": "pricing"
+        },
+        {
+          "url": "https://reviews.example/northwind",
+          "snippet": "report slow support response times",
+          "source_type": "review"
+        }
+      ]
+    },
+    {
+      "text": "Hiring plus funding/expansion signals a growth account — prioritize and resource the outreach.",
+      "contributing_depts": [
+        "gtm",
+        "finance"
+      ],
+      "citations": [
+        {
+          "url": "https://northwind.example/careers",
+          "snippet": "hiring 12 enterprise account executives",
+          "source_type": "jobs"
+        },
+        {
+          "url": "https://northwind.example/careers",
+          "snippet": "hiring 12 enterprise account executives",
+          "source_type": "jobs"
+        }
+      ]
+    }
+  ],
+  "handoffs": [
+    {
+      "from_dept": "finance",
+      "to_dept": "gtm",
+      "message": "Pricing change detected — adjust outreach timing/messaging.",
+      "refs": [
+        "https://northwind.example/pricing"
+      ]
+    },
+    {
+      "from_dept": "security",
+      "to_dept": "gtm",
+      "message": "Reputational signal — frame responsibly, do not weaponize.",
+      "refs": [
+        "https://reviews.example/northwind"
+      ]
+    },
+    {
+      "from_dept": "gtm",
+      "to_dept": "security",
+      "message": "Hiring expansion — new attack surface / vendors to monitor.",
+      "refs": [
+        "https://northwind.example/careers"
+      ]
+    }
+  ],
+  "guardrail_report": {
+    "pii_redactions": 2,
+    "leak_flags": [
+      "withheld https://northwind.example/contact (matched: confidential, do not distribute, internal board deck)"
+    ],
+    "ungrounded_dropped": [],
+    "passed": true
+  },
+  "executive_summary": "Northwind Analytics: 1 buying / 1 hiring signals; 1 pricing moves; 1 risk signals. Cross-dept: Pricing increase coincides with support/reputation complaints — churn risk; time GTM outreach around retention, not upsell."
+}

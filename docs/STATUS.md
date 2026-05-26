@@ -16,7 +16,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S3.1 | Orchestrator skeleton | ✅ done | 1/1 | self | (S3.1) | runs 3 depts on shared bundle |
 | S3.2 | Cross-pollination + handoffs | ✅ done | 3/3 | self | (S3.2) | synergy needs ≥2 depts; 3 handoffs |
 | S3.3 | Wire guardrails + Cascade Brief | ✅ done | full 30/30 | self | (S3.3) | PII→leak→depts→grounding→synergy→brief; hallucination caught |
-| S4.1 | Dashboard shell + dept panels | ⏳ pending | — | — | — | — |
+| S4.1 | Dashboard shell + dept panels | ✅ done | contract 3/3 | self | (S4.1) | static HTML/JS (no npm); ⚠️ browser visual check pending |
 | S4.2 | Cascade-flow + handoff visual | ⏳ pending | — | — | — | — |
 | S4.3 | Pull Fresh live button | ⏳ pending | — | — | — | — |
 | S4.4 | Deploy Vercel + cache accounts | ⏳ pending | — | — | — | **NEEDS YOU: Vercel auth** |
