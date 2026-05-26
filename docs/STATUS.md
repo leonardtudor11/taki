@@ -24,6 +24,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S5.2 | Video + slides | 🟡 text drafted | n/a | self | (audit pass) | full 5-min script + 8-slide outline in docs/PRESENTATION.md — record/export pending |
 | S5.3 | Public repo + lablab form | 🟡 text drafted | n/a | self | (audit pass) | every form field + BD usage statement drafted — push + submit pending |
 | S6.1 | V-phase upgrade (V1+V3+V2+V3.2+V4+demo) | ✅ done | 54/54 | self | (V1.1/V3/V2/V3.2/V4/demo) | logo+identity · cytoscape graph · LangGraph backend · replay mode · UX polish · `./demo.sh` end-to-end demo + `run.py --demo` fixture path |
+| S6.2 | V5 live mode + label-clarity fix | ✅ done | 59/59 | self | (label-fix + live-mode) | Flask SSE backend (`server.py`) drives cytoscape in real time · 3 toolbar buttons (replay / live demo / live run popover) · per-edge arc classes + opaque-bg labels = no clipping/overlap · 5 new server tests |
 
 ## Stop protocol (unattended runs)
 At each session: build → test → (audit) → update this table → `git commit`. If a session is BLOCKED (missing key/auth/decision): mark it, skip to the next *independent* session that is fixture-testable, and log the blocker here. Never fake a passing test.
@@ -36,15 +37,16 @@ At each session: build → test → (audit) → update this table → `git commi
 - Real run: `data/vercel/brief.json` (2 buying / 1 hiring / 2 pricing / 9 risk; 8 ungrounded dropped → guardrail working).
 - Tests: 50/50.
 
-## Active /ultraplan upgrade — V1→V3→V2→V3.2→V4→demo
+## Active /ultraplan upgrade — V1→V3→V2→V3.2→V4→demo→live
 
-All V-phases complete. 54/54 tests pass.
+All V-phases complete. 59/59 tests pass.
 
 - **V1.1** Logo + identity reset — ✅ inline SVG monoline 滝 (3 cyan/green/amber streams w/ draw-in), warm-ink palette, Fraunces+Inter+JBMono mix, vermilion 朱 accent, left stream-lane gutter, panel-less columns.
 - **V3** Interactive cytoscape graph — ✅ 5-node graph (Bright Data · GTM · Finance · Security · CascadeBrief), feed/output/handoff/synergy edges, cascade entry animation, click-dept focus filter, hover-edge tooltip, text fallback if CDN unreachable.
 - **V2** Real LangGraph backend — ✅ `agents/cascade_graph.py` StateGraph with explicit parallel dept fan-out + grounding join + cross-pollination + assemble nodes. Each node emits JSON events to `data/<slug>/events.jsonl` + `frontend/events.jsonl`. `build_cascade_brief` delegates here.
 - **V3.2** Replay-cascade mode — ✅ "▶ replay cascade" button on the dashboard animates the entire pipeline from brief.json (PII → leak → 3 depts → grounding → handoffs → synergies → assemble) with timed cytoscape pulses + tooltip narration. No backend trace needed at deploy time.
 - **V4** UX polish — ✅ dept-coloured confidence bars on every claim; expandable "Hallucinations caught" drawer listing every dropped claim verbatim; ARIA regions; :focus-visible vermilion rings; mobile breakpoints (≤960 / ≤600); prefers-reduced-motion respected.
-- **Demo** — ✅ `./demo.sh` one-command boot (venv, deps, tests, server, browser); `run.py --demo` regenerates brief from offline fixtures (with planted Globex hallucination → grounding guard catches); README rewritten with 60-second-demo block at the top + Stack table; PRESENTATION.md video script rewritten around the new dashboard actions (replay button, click-filter, dropped drawer).
+- **Demo** — ✅ `./demo.sh` one-command boot (venv, deps, tests, server, browser); `run.py --demo` regenerates brief from offline fixtures (with planted Globex hallucination → grounding guard catches).
+- **V5 live mode** — ✅ `server.py` (Flask + flask-cors) serves the static dashboard at :5001 AND a POST /api/run SSE endpoint streaming every cascade event. Two real backend modes: `demo` (fixture + fake LLMs, no keys) and `live` (Bright Data + Vertex/Gemini, .env required). Cytoscape animates in real time from each SSE event — not scripted. `./demo.sh` now boots `server.py`. 5 new tests in `tests/test_server.py`. Edge labels: short keyword topics (no '…' clipping), per-edge arc classes so handoff labels don't stack, opaque-bg + text-outline for readability over any overlap.
 
 See `docs/RESUME.md` for the full resume prompt to paste into a fresh session.
