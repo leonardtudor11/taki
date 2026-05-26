@@ -16,9 +16,11 @@ from fixtures.sample import sample_bundle
 def test_bundle_fixture_validates():
     b = sample_bundle()
     assert b.target == "Northwind Analytics"
-    assert len(b.sources) == 5
+    # 8 sources after the V6 fixture enrichment (was 5); 1 still carries the
+    # CONFIDENTIAL marker so the leak guard withholds it downstream.
+    assert len(b.sources) == 8
     assert all(s.url.startswith("http") for s in b.sources)
-    assert len(b.texts()) == 5
+    assert len(b.texts()) == 8
 
 
 def test_claim_with_citation():

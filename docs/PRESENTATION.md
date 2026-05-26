@@ -70,14 +70,17 @@ with the bundled real Vercel brief).
 >
 > [Hover one of the curved handoff edges. Tooltip strip below the graph reveals the full message.] "Hover an edge — the full handoff text. Cross-functional reasoning, made visible."
 
-### Scene 4 — Guardrails are the enterprise unlock (2:45–3:45)
+### Scene 3.5 — The plan (the answer) (2:45–3:30)
+> [Scroll to the top — Strategic plan hero section.] "And here's what no other 'AI for sales' tool gives you: not signals, a *plan*. The Chief of Staff agent reads everything the three departments produced and synthesizes it into a single executive plan. Headline: this is an enterprise-buy window. ICP fit: high, here's why. Deal size: $80-240k ARR, here's how I got there. Urgency: act this half — and here's the named reason. Five prioritized plays, each with a timeframe, a dept owner, and a citation back to the evidence." [Click into one play's citation.] "A CRO can hand this to a seller on Monday."
+
+### Scene 4 — Guardrails are the enterprise unlock (3:30–4:15)
 > [Click the red **"Hallucinations caught — 8 ungrounded claims dropped"** drawer to expand it.]
 >
 > "Eight LLM hallucinations the grounding guard caught and dropped before they could reach the brief. Every survivor must cite a snippet that actually appears in the scraped bundle — if it doesn't, it's gone. Not flagged — gone."
 >
 > [Point at the guardrail badge row.] "PII redacted, sources withheld, ungrounded dropped, grounded:no — because we caught hallucinations, the brief is honestly marked 'not fully grounded.' That's the integrity an enterprise GRC team needs."
 
-### Scene 5 — Bright Data + close (3:45–5:00)
+### Scene 5 — Bright Data + close (4:15–5:00)
 > "None of this works without Bright Data. The whole point: live, bot-bypassable, public web data, fresh — not last week's export. SERP zone discovers the sources, Web Unlocker pulls the pages past bot-blocking. One shared cache, every department reads it. Spend cap enforced — an unattended run can never burn the credit."
 >
 > [Brief switch to terminal: `cat agents/cascade_graph.py | head -30` showing the LangGraph topology + the `g.add_edge('leak_filter', 'gtm') / .add_edge('leak_filter', 'finance') / .add_edge('leak_filter', 'security')` lines.]

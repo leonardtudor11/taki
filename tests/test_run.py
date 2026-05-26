@@ -1,7 +1,12 @@
 from agents.schemas import CascadeBrief, SourceType
 import run
 from services import cache
-from fixtures.fake_llm import fake_finance_llm, fake_gtm_llm, fake_security_llm
+from fixtures.fake_llm import (
+    fake_finance_llm,
+    fake_gtm_llm,
+    fake_security_llm,
+    fake_strategy_llm,
+)
 from fixtures.sample import sample_bundle
 
 
@@ -13,6 +18,7 @@ def test_generate_and_cache_offline(tmp_path, monkeypatch):
         gtm_llm=fake_gtm_llm,
         finance_llm=fake_finance_llm,
         security_llm=fake_security_llm,
+        strategy_llm=fake_strategy_llm,
         frontend_path=frontend,
     )
     assert isinstance(brief, CascadeBrief)

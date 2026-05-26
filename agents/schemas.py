@@ -191,6 +191,79 @@ class GuardrailReport(BaseModel):
     passed: bool = True
 
 
+class FitTier(str, Enum):
+    """Coarse ICP fit ranking — high/medium/low only, so output stays decision-ready."""
+
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+class StrategicPlay(BaseModel):
+    """One prioritized action — what to do, why, when, who owns it."""
+
+    text: str
+    priority: int = Field(default=3, ge=1, le=5)   # 1 = urgent, 5 = later
+    timeframe: str = ""                            # "30 days" / "this quarter" / etc.
+    owners: list[str] = Field(default_factory=list)  # depts that own this play
+    rationale: str = ""
+    citations: list[Citation] = Field(default_factory=list)
+
+    @field_validator("priority", mode="before")
+    @classmethod
+    def _coerce_priority(cls, v):
+        """LLMs return 'urgent', 'P1', '1', etc. Coerce to int 1..5."""
+        if isinstance(v, int):
+            return max(1, min(5, v))
+        if isinstance(v, str):
+            s = v.strip().lower().lstrip("p")
+            words = {"urgent": 1, "high": 2, "medium": 3, "med": 3, "low": 4, "later": 5}
+            if s in words:
+                return words[s]
+            try:
+                return max(1, min(5, int(float(s))))
+            except ValueError:
+                return 3
+        return 3
+
+
+class StrategicPlan(BaseModel):
+    """Strategy department output — the synthesized 'so what' for the target.
+
+    Built after grounding + cross-pollination so it can quote claims from any
+    of the three departments. The dashboard renders this hero-style above the
+    evidence panels: headline + narrative + ICP/deal-size/urgency stat grid +
+    prioritized plays + open questions.
+    """
+
+    target: str
+    headline: str = ""                             # one-sentence sharpest framing
+    narrative: str = ""                            # 2-3 paragraph exec summary
+    icp_fit: FitTier = FitTier.MEDIUM
+    icp_rationale: str = ""
+    deal_size_estimate: str = ""                   # "$50k-$200k ARR" or similar
+    deal_size_rationale: str = ""
+    urgency: str = ""                              # "act this quarter" / "monitor"
+    urgency_rationale: str = ""
+    recommended_plays: list[StrategicPlay] = Field(default_factory=list)
+    open_questions: list[str] = Field(default_factory=list)
+    generated_at: datetime = Field(default_factory=_now)
+
+    @field_validator("icp_fit", mode="before")
+    @classmethod
+    def _coerce_fit(cls, v):
+        if v is None:
+            return FitTier.MEDIUM
+        if isinstance(v, FitTier):
+            return v
+        if isinstance(v, str):
+            s = v.strip().lower()
+            for tier in FitTier:
+                if tier.value == s:
+                    return tier
+        return FitTier.MEDIUM
+
+
 class CascadeBrief(BaseModel):
     """The unified deliverable every department cascades into."""
 
@@ -203,3 +276,4 @@ class CascadeBrief(BaseModel):
     handoffs: list[HandoffMessage] = Field(default_factory=list)
     guardrail_report: GuardrailReport = Field(default_factory=GuardrailReport)
     executive_summary: str = ""
+    strategic_plan: Optional[StrategicPlan] = None

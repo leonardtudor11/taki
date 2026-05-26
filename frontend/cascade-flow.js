@@ -506,17 +506,36 @@ function replayCascade(brief, cy, tip, button) {
   });
   t += (brief.synergy_signals || []).length * 1300;
 
-  // 8. assemble
-  t += 600;
+  // 8. strategy — synthesize the plan (V6). Pulse brief node + emphasize plays.
+  t += 700;
+  at(t, () => {
+    setTip(tip, '★ strategy · Chief of Staff synthesizing the plan…', true);
+    _reveal(cy, 'edge[type = "output"]');
+  });
+  t += 900;
+  at(t, () => {
+    const plan = brief.strategic_plan;
+    if (plan) {
+      const n = (plan.recommended_plays || []).length;
+      setTip(tip,
+        `✓ plan ready · ${n} play${n === 1 ? '' : 's'} · ${plan.urgency || ''} · ${plan.icp_fit || ''} fit`,
+        true);
+    } else {
+      setTip(tip, '✓ assembly underway…', true);
+    }
+    _pulseNode(cy, 'node#brief');
+  });
+
+  // 9. assemble
+  t += 700;
   at(t, () => {
     setTip(tip, '★ CascadeBrief assembled', true);
-    _reveal(cy, 'edge[type = "output"]');
     _reveal(cy, 'node#brief');
     _pulseNode(cy, 'node#brief');
   });
 
   // 9. restore — fade panels back, clear replaying state
-  t += 1400;
+  t += 1500;
   at(t, () => {
     _restore(cy);
     document.body.classList.remove('replaying');
@@ -657,6 +676,20 @@ function _handleLiveEvent(ev, cy, tip) {
       _reveal(cy, 'edge[type = "synergy"]');
       _pulseEdge(cy, 'edge[type = "synergy"]');
       setTip(tip, `⚡ synergy (${(ev.depts || []).join(' + ')}): ${ev.text || ''}`, true);
+      break;
+    case 'strategy':
+      if (ev.status === 'start') {
+        setTip(tip, '★ strategy · Chief of Staff synthesizing the plan…', true);
+        _reveal(cy, 'edge[type = "output"]');
+      } else if (ev.status === 'done') {
+        const n = ev.plays || 0;
+        setTip(tip,
+          `✓ plan ready · ${n} play${n === 1 ? '' : 's'} · ${ev.urgency || ''} · ${ev.icp_fit || ''} fit`,
+          true);
+        _pulseNode(cy, 'node#brief');
+      } else if (ev.status === 'error') {
+        setTip(tip, `✗ strategy failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
+      }
       break;
     case 'assemble':
       _reveal(cy, 'edge[type = "output"]');

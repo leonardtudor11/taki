@@ -5,13 +5,21 @@ import json
 
 from agents import cascade_graph
 from agents.schemas import CascadeBrief
-from fixtures.fake_llm import fake_finance_llm, fake_gtm_llm, fake_security_llm
+from fixtures.fake_llm import (
+    fake_finance_llm,
+    fake_gtm_llm,
+    fake_security_llm,
+    fake_strategy_llm,
+)
 from fixtures.sample import sample_bundle
 
+# V6: include strategy_llm so the strategy node never falls back to the
+# real default LLM (which would hit Vertex/Gemini and burn tokens in tests).
 _FAKES = dict(
     gtm_llm=fake_gtm_llm,
     finance_llm=fake_finance_llm,
     security_llm=fake_security_llm,
+    strategy_llm=fake_strategy_llm,
 )
 
 

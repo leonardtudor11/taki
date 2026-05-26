@@ -268,7 +268,7 @@
         "citations": [
           {
             "url": "https://vercel.com/pricing",
-            "snippet": "Stay in control of your spending. Set a limit, get alerts, and we’ll stop usage before you go over budget.",
+            "snippet": "Stay in control of your spending. Set a limit, get alerts, and we\u2019ll stop usage before you go over budget.",
             "source_type": "other"
           }
         ],
@@ -316,7 +316,7 @@
         "citations": [
           {
             "url": "https://vercel.com/pricing",
-            "snippet": "Nuxt The progressive web framework Svelte The web’s efficient UI framework",
+            "snippet": "Nuxt The progressive web framework Svelte The web\u2019s efficient UI framework",
             "source_type": "other"
           }
         ],
@@ -327,7 +327,7 @@
   },
   "synergy_signals": [
     {
-      "text": "Pricing increase coincides with support/reputation complaints — churn risk; time GTM outreach around retention, not upsell.",
+      "text": "Pricing increase coincides with support/reputation complaints \u2014 churn risk; time GTM outreach around retention, not upsell.",
       "contributing_depts": [
         "finance",
         "security"
@@ -346,7 +346,7 @@
       ]
     },
     {
-      "text": "Hiring plus funding/expansion signals a growth account — prioritize and resource the outreach.",
+      "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach.",
       "contributing_depts": [
         "gtm",
         "finance"
@@ -369,7 +369,7 @@
     {
       "from_dept": "finance",
       "to_dept": "gtm",
-      "message": "Pricing change detected — adjust outreach timing/messaging.",
+      "message": "Pricing change detected \u2014 adjust outreach timing/messaging.",
       "refs": [
         "https://vercel.com/pricing",
         "https://vercel.com/pricing",
@@ -381,7 +381,7 @@
     {
       "from_dept": "security",
       "to_dept": "gtm",
-      "message": "Reputational signal — frame responsibly, do not weaponize.",
+      "message": "Reputational signal \u2014 frame responsibly, do not weaponize.",
       "refs": [
         "https://vercel.com/careers",
         "https://vercel.com/pricing"
@@ -390,7 +390,7 @@
     {
       "from_dept": "gtm",
       "to_dept": "security",
-      "message": "Hiring expansion — new attack surface / vendors to monitor.",
+      "message": "Hiring expansion \u2014 new attack surface / vendors to monitor.",
       "refs": [
         "https://vercel.com/careers"
       ]
@@ -411,5 +411,110 @@
     ],
     "passed": false
   },
-  "executive_summary": "Vercel: 2 buying / 1 hiring signals; 2 pricing moves; 9 risk signals. Cross-dept: Pricing increase coincides with support/reputation complaints — churn risk; time GTM outreach around retention, not upsell."
+  "executive_summary": "AI-Cloud rebrand + global headcount sprint = enterprise buy window this half; lead with retention + spend controls. \u2014 act this half.",
+  "strategic_plan": {
+    "target": "Vercel",
+    "headline": "AI-Cloud rebrand + global headcount sprint = enterprise buy window this half; lead with retention + spend controls.",
+    "narrative": "Vercel is mid-pivot from a frontend-hosting platform into a full \"AI Cloud\" suite (AI Gateway, Sandbox, Vercel Agent, Workflows, Fluid Compute). The commercial layer is repositioning to match: usage-based pricing with a freemium $0/$20 Pro tier and explicit per-action pricing on the AI products. They are hiring a dedicated Pricing Product Manager and packaging Enterprise SCIM/SSO/WAF for procurement-led deals.\n\nWhy now: the AI suite has unfinished commercial economics \u2014 bill-shock is a publicly acknowledged risk and the spend-cap UI is still being merchandised. That tells you the procurement conversation is open, and a buyer who anchors on retention + cost predictability has unusual leverage this quarter.\n\nWhere the risk lives: growth is outrunning compliance posture. EU + APAC hiring is opening data-residency and SCC questions; the subprocessor surface (managed WAF, AI Gateway models, third-party LLM providers) compounds it. Any deal at Enterprise tier should pre-empt the security review or it will stall the Q.",
+    "icp_fit": "high",
+    "icp_rationale": "Active AI-product monetization + Enterprise SCIM/SSO/WAF SKU + global hiring sprint = the profile of a buyer in active procurement mode, not just evaluation.",
+    "deal_size_estimate": "$80k-$240k ARR (year 1)",
+    "deal_size_rationale": "Anchor on the Enterprise tier (custom pricing, SCIM, dedicated support). With explicit AI-per-action billing already in market, ARR is a function of usage ceiling \u2014 start at 200-600 seats with a $10-15k floor for managed WAF + Agent usage.",
+    "urgency": "act this half",
+    "urgency_rationale": "Pricing PM hire is still open \u2014 once the new pricing lands, comparative deals will reprice and the procurement window narrows.",
+    "recommended_plays": [
+      {
+        "text": "Open at the new Pricing Product Manager / monetization lead with a head-to-head TCO model anchored on AI-action volume \u2014 beat the bill-shock anxiety before they price it themselves.",
+        "priority": 1,
+        "timeframe": "this week",
+        "owners": [
+          "gtm",
+          "finance"
+        ],
+        "rationale": "The hire is public, the AI-action pricing is published; this is the cheapest meeting to land and the highest-leverage framing.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Vercel Agent Beta $0.30 per action + pass-through token cost",
+            "source_type": "pricing"
+          }
+        ]
+      },
+      {
+        "text": "Frame the commercial around RETENTION and spend predictability \u2014 managed onboarding + per-product spend caps + named CSM. Neutralizes their public bill-shock chorus.",
+        "priority": 1,
+        "timeframe": "30 days",
+        "owners": [
+          "gtm",
+          "security"
+        ],
+        "rationale": "They themselves merchandise spend controls publicly \u2014 adopting that vocabulary in the offer shortens the procurement loop.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Stay in control of your spending. Set a limit, get alerts, and we\u2019ll stop usage",
+            "source_type": "pricing"
+          }
+        ]
+      },
+      {
+        "text": "Pre-route the procurement-grade DPA + subprocessor map (AWS, AI model providers, WAF) so the EU/APAC data-residency review doesn't stall the Q.",
+        "priority": 2,
+        "timeframe": "30 days",
+        "owners": [
+          "security",
+          "finance"
+        ],
+        "rationale": "Global expansion + AI subprocessor chain is the deal-killer pattern; matching their compliance posture removes it.",
+        "citations": [
+          {
+            "url": "https://vercel.com/careers",
+            "snippet": "Open Positions at Vercel",
+            "source_type": "jobs"
+          }
+        ]
+      },
+      {
+        "text": "Build a head-to-head deck against the legacy edge/CDN incumbents (Cloudflare Workers, Netlify, AWS Amplify) anchored on AI-first dev experience \u2014 meet them on the AI-Cloud narrative they are already telling.",
+        "priority": 2,
+        "timeframe": "this quarter",
+        "owners": [
+          "gtm"
+        ],
+        "rationale": "Vercel is publicly repositioning as AI-Cloud; mirroring that narrative in comparative material shortens evaluation.",
+        "citations": [
+          {
+            "url": "https://vercel.com/",
+            "snippet": "AI Cloud AI Gateway One endpoint, all your models Sandbox",
+            "source_type": "site"
+          }
+        ]
+      },
+      {
+        "text": "Price floor at Enterprise tier (custom, SCIM/SSO/WAF) \u2014 do not discount Pro-tier comparables; their own SKU teaches the market that procurement-grade features sit above Pro.",
+        "priority": 3,
+        "timeframe": "this quarter",
+        "owners": [
+          "finance",
+          "gtm"
+        ],
+        "rationale": "Enterprise SKU is the published anchor; below-Pro discounting signals lower tier and loses procurement framing.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Scale your app. Control your costs. Start free. Upgrade to Pro for $20/month",
+            "source_type": "pricing"
+          }
+        ]
+      }
+    ],
+    "open_questions": [
+      "Confirm named exec sponsor for the AI-Cloud commercial pivot (likely a new VP Product / CRO).",
+      "Quantify current AI-product revenue mix vs frontend hosting \u2014 changes the deal-sizing anchor.",
+      "Identify which AI model providers are in the subprocessor chain \u2014 material for the security review.",
+      "Verify the spend-cap controls actually ship in-product (vs roadmap) \u2014 affects the retention narrative credibility.",
+      "Pull recent bill-shock complaint volume on G2 / Reddit \u2014 sizes the retention story."
+    ],
+    "generated_at": "2026-05-26T13:00:00+00:00"
+  }
 }

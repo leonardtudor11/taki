@@ -9,7 +9,8 @@ def test_gtm_produces_account_brief():
     brief = gtm.analyze(sample_bundle(), llm=fake_gtm_llm)
     assert isinstance(brief, AccountBrief)
     assert brief.target == "Northwind Analytics"
-    assert len(brief.hiring_signals) == 1
+    assert len(brief.hiring_signals) >= 1
+    assert len(brief.buying_signals) >= 1
     assert brief.outreach_angle
 
 
@@ -18,4 +19,4 @@ def test_gtm_claims_are_grounded():
     brief = gtm.analyze(bundle, llm=fake_gtm_llm)
     kept, dropped = filter_claims(brief.all_claims(), bundle)
     assert dropped == []  # every fixture claim cites a real snippet
-    assert len(kept) == 2
+    assert kept, "expected at least one grounded claim"

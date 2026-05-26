@@ -5,6 +5,7 @@ from fixtures.fake_llm import (
     fake_gtm_llm,
     fake_gtm_llm_with_hallucination,
     fake_security_llm,
+    fake_strategy_llm,
 )
 from fixtures.sample import sample_bundle
 
@@ -15,6 +16,7 @@ def _build(gtm_llm):
         gtm_llm=gtm_llm,
         finance_llm=fake_finance_llm,
         security_llm=fake_security_llm,
+        strategy_llm=fake_strategy_llm,
     )
 
 

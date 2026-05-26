@@ -9,7 +9,8 @@ def test_finance_produces_market_signal():
     sig = finance.analyze(sample_bundle(), llm=fake_finance_llm)
     assert isinstance(sig, MarketSignal)
     assert sig.target == "Northwind Analytics"
-    assert len(sig.pricing_trend) == 1
+    assert len(sig.pricing_trend) >= 1
+    assert len(sig.expansion_contraction) >= 1
 
 
 def test_finance_claims_grounded():

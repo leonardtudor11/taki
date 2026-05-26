@@ -1,6 +1,6 @@
 # Taki (滝 — "cascade")
 
-**An agentic enterprise: departments as AI agents, cascading live web intelligence toward a single revenue deliverable.**
+**An agentic enterprise: four AI departments — GTM, Finance, Security, and Strategy — cascading live web intelligence into a single executable plan a CRO can act on this week.**
 
 🏆 Track · [Bright Data — Web Data UNLOCKED](https://lablab.ai/ai-hackathons/brightdata-ai-agents-web-data-hackathon) (GTM-primary; Finance + Security as feeder departments)
 
@@ -45,9 +45,10 @@ For a target account, three department-agents run on **one shared live-web data 
 
 | Department | Track | Output | Live data (Bright Data) |
 |---|---|---|---|
-| Revenue / GTM | 1 | `AccountBrief` | SERP, company site, LinkedIn jobs, news, pricing |
-| Finance / Market | 2 | `MarketSignal` | pricing trends, jobs-as-alt-data, web-traffic proxy, vendor health |
-| Security / Compliance | 3 | `RiskProfile` + guardrails | exposure scan, reputational + regulatory signals, 3rd-party risk |
+| Revenue / GTM | 1 | `AccountBrief` — buying / competitor / hiring signals + outreach angle | SERP, company site, LinkedIn jobs, news, pricing |
+| Finance / Market | 2 | `MarketSignal` — pricing trend, expansion, web-traffic proxy, vendor health | pricing trends, jobs-as-alt-data, web-traffic proxy, vendor health |
+| Security / Compliance | 3 | `RiskProfile` + guardrails — exposure, reputational, regulatory, 3rd-party risk | exposure scan, reputational + regulatory signals, 3rd-party risk |
+| **Strategy (V6 — Chief of Staff)** | synthesis | `StrategicPlan` — headline · narrative · ICP fit · deal-size estimate · urgency · 3-5 prioritized plays · open questions | reads the 3 dept outputs + synergies + handoffs — no extra scraping |
 
 ## The metaphor → mechanism
 
@@ -79,6 +80,10 @@ For a target account, three department-agents run on **one shared live-web data 
             grounding guard (drop uncited claims)
                           ▼
          cross-pollination → synergy + dept handoffs
+                          ▼
+              Strategy (Chief of Staff) ──► StrategicPlan
+                          │            headline · narrative · ICP fit
+                          │            deal size · urgency · plays · open Qs
                           ▼
                    ★ CascadeBrief ★
               (+ GuardrailReport, exec summary)

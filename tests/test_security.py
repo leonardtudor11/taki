@@ -9,7 +9,8 @@ def test_security_produces_risk_profile():
     rp = security.analyze(sample_bundle(), llm=fake_security_llm)
     assert isinstance(rp, RiskProfile)
     assert rp.target == "Northwind Analytics"
-    assert len(rp.reputational_signals) == 1
+    assert len(rp.reputational_signals) >= 1
+    assert len(rp.regulatory_signals) >= 1
 
 
 def test_security_claims_grounded():

@@ -100,6 +100,105 @@ function renderPanel(dept, brief) {
   return panel;
 }
 
+// V6 — Strategic plan hero section. Sits at the top of the dashboard above
+// the evidence panels: headline (big serif) + narrative + 3-col stat grid
+// (ICP fit / deal size / urgency) + numbered prioritized plays + collapsible
+// open questions. This is the "answer" the rest of the page supports.
+
+const _OWNER_LABEL = { gtm: "GTM", finance: "Finance", security: "Security" };
+
+function _renderPlanStat(label, value, rationale, modifier) {
+  const stat = el("div", { class: `plan-stat ${modifier || ""}`.trim() });
+  stat.appendChild(el("div", { class: "plan-stat-label" }, label));
+  stat.appendChild(el("div", { class: "plan-stat-value" }, String(value || "—")));
+  if (rationale) {
+    stat.appendChild(el("div", { class: "plan-stat-rationale" }, String(rationale)));
+  }
+  return stat;
+}
+
+function _renderPlay(play, idx) {
+  const li = el("li", { class: `plan-play plan-play-p${play.priority || 3}` });
+
+  const head = el("div", { class: "play-head" });
+  head.appendChild(el("span", { class: "play-priority" }, `P${play.priority || 3}`));
+  if (play.timeframe) head.appendChild(el("span", { class: "play-timeframe" }, String(play.timeframe)));
+  (play.owners || []).forEach((o) => {
+    const k = String(o).toLowerCase();
+    head.appendChild(el(
+      "span",
+      { class: `play-owner play-owner-${k}` },
+      _OWNER_LABEL[k] || String(o),
+    ));
+  });
+  li.appendChild(head);
+
+  li.appendChild(el("div", { class: "play-text" }, String(play.text || "")));
+  if (play.rationale) li.appendChild(el("div", { class: "play-rationale" }, String(play.rationale)));
+
+  const cites = el("div", { class: "cites" });
+  (play.citations || []).forEach((c) => {
+    cites.appendChild(el(
+      "a",
+      { class: "cite", href: safeUrl(c.url), target: "_blank", rel: "noopener noreferrer" },
+      `§ ${String(c.source_type || "src")}`,
+    ));
+  });
+  if (cites.childNodes.length) li.appendChild(cites);
+
+  return li;
+}
+
+function renderStrategicPlan(plan) {
+  if (!plan || !plan.headline) return null;
+
+  const wrap = el("section", { class: "plan", role: "region", "aria-label": "Strategic plan" });
+
+  // headline
+  wrap.appendChild(el("div", { class: "plan-eyebrow" }, "Strategic plan"));
+  wrap.appendChild(el("h2", { class: "plan-headline" }, String(plan.headline)));
+
+  // narrative — split on blank lines into paragraphs
+  if (plan.narrative) {
+    const narr = el("div", { class: "plan-narrative" });
+    String(plan.narrative).split(/\n\s*\n/).forEach((p) => {
+      narr.appendChild(el("p", null, p.trim()));
+    });
+    wrap.appendChild(narr);
+  }
+
+  // 3-col stat grid
+  const stats = el("div", { class: "plan-stats" });
+  const fitClass = `plan-stat-fit-${String(plan.icp_fit || "medium").toLowerCase()}`;
+  stats.appendChild(_renderPlanStat("ICP fit",   plan.icp_fit,                  plan.icp_rationale,        fitClass));
+  stats.appendChild(_renderPlanStat("Deal size", plan.deal_size_estimate,       plan.deal_size_rationale));
+  stats.appendChild(_renderPlanStat("Urgency",   plan.urgency,                  plan.urgency_rationale));
+  wrap.appendChild(stats);
+
+  // recommended plays
+  if (plan.recommended_plays && plan.recommended_plays.length) {
+    wrap.appendChild(el("div", { class: "section-title" }, "Recommended plays"));
+    const plays = el("ol", { class: "plan-plays" });
+    plan.recommended_plays.forEach((p, i) => plays.appendChild(_renderPlay(p, i)));
+    wrap.appendChild(plays);
+  }
+
+  // open questions
+  if (plan.open_questions && plan.open_questions.length) {
+    const det = el("details", { class: "plan-questions" });
+    const sum = el("summary", { class: "plan-questions-summary" });
+    sum.textContent =
+      `Open questions — ${plan.open_questions.length} thing${plan.open_questions.length === 1 ? "" : "s"} the next research pass should answer`;
+    det.appendChild(sum);
+    const ol = el("ol", { class: "plan-questions-list" });
+    plan.open_questions.forEach((q) => ol.appendChild(el("li", null, String(q))));
+    det.appendChild(ol);
+    wrap.appendChild(det);
+  }
+
+  return wrap;
+}
+
 // V4 — expandable drawer listing the claims the grounding guard dropped before
 // they reached the brief. The hackathon judge will click this; it's the visual
 // proof that hallucinations are caught, not just claimed-caught.
@@ -187,7 +286,12 @@ function render(brief) {
   const app = document.getElementById("app");
   app.textContent = "";
 
-  if (brief.executive_summary) {
+  // V6 — strategic plan hero (the conclusion). If absent, fall back to the
+  // legacy templated exec summary so older briefs still render usefully.
+  const planNode = renderStrategicPlan(brief.strategic_plan);
+  if (planNode) {
+    app.appendChild(planNode);
+  } else if (brief.executive_summary) {
     const ex = el("div", { class: "exec", role: "region", "aria-label": "Executive summary" });
     ex.appendChild(el("h2", null, "Executive summary"));
     ex.appendChild(el("div", null, String(brief.executive_summary)));

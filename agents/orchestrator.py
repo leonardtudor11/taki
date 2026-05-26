@@ -193,26 +193,33 @@ def build_cascade_brief(
     gtm_llm: LLMFn | None = None,
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
+    strategy_llm: LLMFn | None = None,
     event_path: Path | None = None,
 ) -> CascadeBrief:
-    """Full cascade: guardrails -> departments -> grounding -> synergy -> brief.
+    """Full cascade: guardrails -> departments -> grounding -> synergy ->
+    strategy -> brief.
 
     Runs through the `langgraph.StateGraph` defined in `agents.cascade_graph`.
     Topology:
         START → pii_redact → leak_filter → [gtm | finance | security]
-              → grounding → cross_pollinate → assemble → END
+              → grounding → cross_pollinate → strategy → assemble → END
 
     Guardrail order: PII redaction first (scrub personal data), then leak/scope
     (withhold confidential sources), so departments only ever see clean,
     public, de-identified text. Grounding then drops any uncited claims.
 
+    Strategy (V6) is the 'Chief of Staff' synthesis layer: it reads all three
+    dept outputs + synergies + handoffs and produces a StrategicPlan (headline,
+    narrative, ICP fit, deal size, urgency, prioritized plays, open questions).
+
     If `event_path` is set, each graph node writes a JSON event to that file
-    so the dashboard's V3.2 replay mode can animate the cascade live.
+    so the dashboard's replay / live mode can animate the cascade live.
     """
     return cascade_graph.run(
         bundle,
         gtm_llm=gtm_llm,
         finance_llm=finance_llm,
         security_llm=security_llm,
+        strategy_llm=strategy_llm,
         event_path=event_path,
     )

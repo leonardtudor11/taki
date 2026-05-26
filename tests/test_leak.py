@@ -9,10 +9,11 @@ def test_scan_flags_confidential():
 
 def test_filter_withholds_confidential_source():
     b = sample_bundle()
-    assert len(b.sources) == 5
+    # V6 fixture has 8 sources; the contact source carries the CONFIDENTIAL
+    # marker so the leak guard withholds exactly one -> 7 remain.
+    assert len(b.sources) == 8
     clean, flags = filter_bundle(b)
-    # the contact source carries the CONFIDENTIAL marker -> withheld
-    assert len(clean.sources) == 4
+    assert len(clean.sources) == 7
     assert len(flags) == 1
     assert "contact" in flags[0]
     # public sources survive
@@ -25,7 +26,7 @@ def test_clean_bundle_has_no_flags():
     clean, _ = filter_bundle(b)
     again, flags = filter_bundle(clean)
     assert flags == []
-    assert len(again.sources) == 4
+    assert len(again.sources) == 7
 
 
 def test_word_boundary_no_false_positive_inside_longer_word():

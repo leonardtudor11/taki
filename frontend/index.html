@@ -149,6 +149,207 @@
       linear-gradient(to bottom, transparent 0, var(--security) 18px, var(--security) 62%, transparent 100%) 42px 0/1px 100% no-repeat;
   }
 
+  /* ───────── strategic plan (V6 hero) ─────────
+     The "answer" section: sits at the top above the evidence panels. */
+  .plan {
+    margin: 4px 0 38px;
+    padding: 4px 0 4px 22px;
+    border-left: 2px solid var(--shu);
+    max-width: 920px;
+  }
+  .plan-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--shu);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    margin-bottom: 10px;
+  }
+  .plan-headline {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 120;
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    margin: 0 0 18px;
+    color: var(--paper);
+  }
+  .plan-narrative {
+    color: var(--paper);
+    margin-bottom: 22px;
+  }
+  .plan-narrative p {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0 0 12px;
+    font-weight: 400;
+  }
+  .plan-narrative p:last-child { margin-bottom: 0; }
+
+  /* 3-col stat grid */
+  .plan-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 22px 0 28px;
+  }
+  .plan-stat {
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--paper-dim);
+    padding: 12px 14px 14px;
+    background: rgba(255,255,255,0.012);
+  }
+  .plan-stat-fit-high   { border-top-color: var(--ok); }
+  .plan-stat-fit-medium { border-top-color: var(--security); }
+  .plan-stat-fit-low    { border-top-color: var(--bad); }
+  .plan-stat-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+  }
+  .plan-stat-value {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--paper);
+    line-height: 1.2;
+    margin-bottom: 6px;
+    text-transform: lowercase;
+  }
+  .plan-stat-fit-high   .plan-stat-value { color: var(--ok); }
+  .plan-stat-fit-medium .plan-stat-value { color: var(--security); }
+  .plan-stat-fit-low    .plan-stat-value { color: var(--bad); }
+  .plan-stat-rationale {
+    font-size: 12.5px;
+    color: var(--paper-dim);
+    line-height: 1.45;
+  }
+
+  /* recommended plays */
+  .plan-plays {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 26px;
+    counter-reset: play;
+  }
+  .plan-play {
+    counter-increment: play;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--paper-dim);
+    padding: 12px 14px 14px;
+    margin: 0 0 10px;
+    background: rgba(255,255,255,0.01);
+    position: relative;
+  }
+  .plan-play-p1 { border-left-color: var(--bad); }
+  .plan-play-p2 { border-left-color: var(--security); }
+  .plan-play-p3 { border-left-color: var(--gtm); }
+  .plan-play-p4,
+  .plan-play-p5 { border-left-color: var(--paper-dim); }
+  .plan-play::before {
+    content: counter(play, decimal-leading-zero);
+    position: absolute;
+    left: -34px; top: 14px;
+    width: 24px;
+    text-align: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
+  .play-head {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 8px; align-items: center;
+  }
+  .play-priority,
+  .play-timeframe,
+  .play-owner {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    padding: 2px 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    border: 1px solid var(--rule);
+  }
+  .play-priority {
+    background: rgba(255,115,103,0.10);
+    color: var(--bad);
+    border-color: var(--bad);
+  }
+  .plan-play-p2 .play-priority { background: rgba(240,168,73,0.10); color: var(--security); border-color: var(--security); }
+  .plan-play-p3 .play-priority { background: rgba(90,214,232,0.10); color: var(--gtm); border-color: var(--gtm); }
+  .plan-play-p4 .play-priority,
+  .plan-play-p5 .play-priority { background: transparent; color: var(--paper-dim); border-color: var(--rule); }
+  .play-timeframe { color: var(--paper-dim); }
+  .play-owner-gtm      { color: var(--gtm);      border-color: var(--gtm); }
+  .play-owner-finance  { color: var(--finance);  border-color: var(--finance); }
+  .play-owner-security { color: var(--security); border-color: var(--security); }
+  .play-text {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--paper);
+    margin-bottom: 6px;
+  }
+  .play-rationale {
+    font-size: 13px;
+    color: var(--paper-dim);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .plan-play .cites { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* open questions drawer */
+  .plan-questions {
+    border: 1px solid var(--rule);
+    background: rgba(255,255,255,0.012);
+    margin: 0 0 30px;
+  }
+  .plan-questions-summary {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+    padding: 10px 14px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .plan-questions-summary::-webkit-details-marker { display: none; }
+  .plan-questions-summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.18s ease;
+  }
+  .plan-questions[open] .plan-questions-summary::before { transform: rotate(90deg); }
+  .plan-questions-list {
+    padding: 4px 28px 14px;
+    margin: 0;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 15px;
+    color: var(--paper);
+    line-height: 1.55;
+  }
+  .plan-questions-list li {
+    padding: 8px 0;
+    border-top: 1px dashed var(--rule);
+  }
+  .plan-questions-list li:first-child { border-top: none; }
+  .plan-questions-list li::marker { color: var(--paper-dim); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+
+  @media (max-width: 960px) {
+    .plan-stats { grid-template-columns: 1fr; }
+    .plan-headline { font-size: 26px; }
+    .plan-narrative p { font-size: 16.5px; }
+    .plan-play::before { display: none; }
+  }
+  body.replaying .plan { opacity: 0.18; transition: opacity 0.3s ease; }
+
   /* ───────── executive summary ───────── */
   .exec {
     background: transparent;

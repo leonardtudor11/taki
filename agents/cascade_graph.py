@@ -36,6 +36,7 @@ from typing import Annotated, Callable, TypedDict
 from agents import finance as finance_agent
 from agents import gtm as gtm_agent
 from agents import security as security_agent
+from agents import strategy as strategy_agent
 from agents.schemas import (
     AccountBrief,
     CascadeBrief,
@@ -46,6 +47,7 @@ from agents.schemas import (
     MarketSignal,
     RiskProfile,
     SharedBundle,
+    StrategicPlan,
     SynergySignal,
 )
 from guardrails import grounding, leak, pii
@@ -86,6 +88,7 @@ class CascadeState(TypedDict, total=False):
     dropped: Annotated[list[str], operator.add]
     synergies: list[SynergySignal]
     handoffs: list[HandoffMessage]
+    strategic_plan: StrategicPlan
     events: Annotated[list[dict], operator.add]
     brief: CascadeBrief
 
@@ -144,6 +147,7 @@ def build_graph(
     gtm_llm: LLMFn | None = None,
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
+    strategy_llm: LLMFn | None = None,
     on_event: EventCallback | None = None,
 ):
     """Compile the StateGraph. LLMs are closure-bound so state stays serializable."""
@@ -274,6 +278,41 @@ def build_graph(
 
         return {"synergies": synergies, "handoffs": handoffs, "events": evs}
 
+    def strategy_node(state: CascadeState) -> dict:
+        """Synthesize the three dept outputs + synergies + handoffs into a
+        StrategicPlan via an LLM. This is the 'answer' layer — what a CRO
+        would actually act on this week.
+
+        Failures here are caught so a malformed plan doesn't lose the rest
+        of the cascade: the assemble node still builds a CascadeBrief, the
+        plan just stays None and the dashboard hides its hero section.
+        """
+        start = _emit(on_event, {"t": _now_iso(), "phase": "strategy", "status": "start"})
+        try:
+            plan = strategy_agent.analyze(
+                target=state["bundle"].target,
+                account_brief=state["account_brief"],
+                market_signal=state["market_signal"],
+                risk_profile=state["risk_profile"],
+                synergies=state.get("synergies", []),
+                handoffs=state.get("handoffs", []),
+                llm=strategy_llm,
+            )
+            done = _emit(on_event, {
+                "t": _now_iso(), "phase": "strategy", "status": "done",
+                "headline": plan.headline,
+                "plays": len(plan.recommended_plays),
+                "icp_fit": plan.icp_fit.value,
+                "urgency": plan.urgency,
+            })
+            return {"strategic_plan": plan, "events": [start, done]}
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "strategy", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {"events": [start, err]}
+
     def assemble_node(state: CascadeState) -> dict:
         ab = state["account_brief"]
         ms = state["market_signal"]
@@ -286,6 +325,13 @@ def build_graph(
             passed=(len(dropped) == 0),
         )
         synergies = state.get("synergies", [])
+        plan = state.get("strategic_plan")
+        # If a strategic plan was produced, prefer its headline as the exec
+        # summary — it's an LLM-written narrative, not a templated counts string.
+        exec_summary = (
+            f"{plan.headline} — {plan.urgency}." if plan and plan.headline
+            else _executive_summary(ab, ms, rp, synergies)
+        )
         brief = CascadeBrief(
             target=state["bundle"].target,
             account_brief=ab,
@@ -294,7 +340,8 @@ def build_graph(
             synergy_signals=synergies,
             handoffs=state.get("handoffs", []),
             guardrail_report=report,
-            executive_summary=_executive_summary(ab, ms, rp, synergies),
+            executive_summary=exec_summary,
+            strategic_plan=plan,
         )
         done = _emit(on_event, {
             "t": _now_iso(), "phase": "assemble", "status": "done",
@@ -318,6 +365,7 @@ def build_graph(
     )
     g.add_node("grounding", grounding_node)
     g.add_node("cross_pollinate", cross_node)
+    g.add_node("strategy", strategy_node)
     g.add_node("assemble", assemble_node)
 
     g.add_edge(START, "pii_redact")
@@ -331,7 +379,9 @@ def build_graph(
     g.add_edge("finance", "grounding")
     g.add_edge("security", "grounding")
     g.add_edge("grounding", "cross_pollinate")
-    g.add_edge("cross_pollinate", "assemble")
+    # strategy reads everything below + above and synthesizes a real plan
+    g.add_edge("cross_pollinate", "strategy")
+    g.add_edge("strategy", "assemble")
     g.add_edge("assemble", END)
 
     return g.compile()
@@ -342,6 +392,7 @@ def run(
     gtm_llm: LLMFn | None = None,
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
+    strategy_llm: LLMFn | None = None,
     event_path: Path | None = None,
 ) -> CascadeBrief:
     """Run the cascade graph end-to-end.
@@ -370,6 +421,7 @@ def run(
             gtm_llm=gtm_llm,
             finance_llm=finance_llm,
             security_llm=security_llm,
+            strategy_llm=strategy_llm,
             on_event=on_event,
         )
         final = graph.invoke({"bundle": bundle, "events": []})
