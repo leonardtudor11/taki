@@ -98,10 +98,43 @@ def _parse_urls(args: list[str]) -> list[tuple[str, SourceType]]:
     return out
 
 
+def run_demo() -> CascadeBrief:
+    """Generate a CascadeBrief from offline fixtures — no API keys required.
+
+    Uses the Northwind Analytics fixture bundle and the canned fake-LLM
+    responses. The fake GTM LLM intentionally tries to hallucinate a Globex
+    acquisition; the grounding guard catches it, so the dashboard's dropped
+    drawer renders with one real entry — proof the mechanism works without
+    needing a live LLM run.
+    """
+    # imported lazily so a live run never imports test fixtures
+    from fixtures.fake_llm import (
+        fake_finance_llm,
+        fake_gtm_llm_with_hallucination,
+        fake_security_llm,
+    )
+    from fixtures.sample import sample_bundle
+
+    return generate_and_cache(
+        sample_bundle(),
+        gtm_llm=fake_gtm_llm_with_hallucination,
+        finance_llm=fake_finance_llm,
+        security_llm=fake_security_llm,
+    )
+
+
 def main() -> None:
     load_dotenv()
+    if "--demo" in sys.argv:
+        brief = run_demo()
+        print(f"✓ demo brief generated · target: {brief.target}")
+        print(f"  exec: {brief.executive_summary}")
+        print(f"  dropped by grounding guard: "
+              f"{len(brief.guardrail_report.ungrounded_dropped)}")
+        print("  dashboard:  cd frontend && python3 -m http.server 8000")
+        return
     if len(sys.argv) < 2:
-        print('usage: python run.py "Target" [url:source_type ...]')
+        print('usage: python run.py [--demo | "Target" url:source_type ...]')
         raise SystemExit(2)
     target = sys.argv[1]
     urls = _parse_urls(sys.argv[2:])

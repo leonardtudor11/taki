@@ -23,6 +23,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S5.1 | README + arch diagram + LICENSE | ✅ done | n/a | self | (S5.1) | + real example brief.json artifact |
 | S5.2 | Video + slides | 🟡 text drafted | n/a | self | (audit pass) | full 5-min script + 8-slide outline in docs/PRESENTATION.md — record/export pending |
 | S5.3 | Public repo + lablab form | 🟡 text drafted | n/a | self | (audit pass) | every form field + BD usage statement drafted — push + submit pending |
+| S6.1 | V-phase upgrade (V1+V3+V2+V3.2+V4+demo) | ✅ done | 54/54 | self | (V1.1/V3/V2/V3.2/V4/demo) | logo+identity · cytoscape graph · LangGraph backend · replay mode · UX polish · `./demo.sh` end-to-end demo + `run.py --demo` fixture path |
 
 ## Stop protocol (unattended runs)
 At each session: build → test → (audit) → update this table → `git commit`. If a session is BLOCKED (missing key/auth/decision): mark it, skip to the next *independent* session that is fixture-testable, and log the blocker here. Never fake a passing test.
@@ -35,10 +36,15 @@ At each session: build → test → (audit) → update this table → `git commi
 - Real run: `data/vercel/brief.json` (2 buying / 1 hiring / 2 pricing / 9 risk; 8 ungrounded dropped → guardrail working).
 - Tests: 50/50.
 
-## Active /ultraplan upgrade — V1→V3→V4→V2
-- **V1.1** Logo + identity reset — ✅ done (inline SVG monoline 滝 = 3 cyan/green/amber streams with draw-in animation; warm-ink palette; Fraunces+Inter+JBMono mix; vermilion 朱 accent; left stream-lane gutter replaces panel grid). frontend/index.html only; selectors preserved → app.js + cascade-flow.js untouched.
-- **V3** Interactive cascade graph (cytoscape.js + GSAP, CDN, no build) — **next**
-- **V4** UI/UX polish (ui-ux-pro-max skill, 21st.dev patterns, vanilla HTML/JS)
-- **V2** Real LangGraph backend (StateGraph + parallel dept nodes; same CascadeBrief output)
+## Active /ultraplan upgrade — V1→V3→V2→V3.2→V4→demo
+
+All V-phases complete. 54/54 tests pass.
+
+- **V1.1** Logo + identity reset — ✅ inline SVG monoline 滝 (3 cyan/green/amber streams w/ draw-in), warm-ink palette, Fraunces+Inter+JBMono mix, vermilion 朱 accent, left stream-lane gutter, panel-less columns.
+- **V3** Interactive cytoscape graph — ✅ 5-node graph (Bright Data · GTM · Finance · Security · CascadeBrief), feed/output/handoff/synergy edges, cascade entry animation, click-dept focus filter, hover-edge tooltip, text fallback if CDN unreachable.
+- **V2** Real LangGraph backend — ✅ `agents/cascade_graph.py` StateGraph with explicit parallel dept fan-out + grounding join + cross-pollination + assemble nodes. Each node emits JSON events to `data/<slug>/events.jsonl` + `frontend/events.jsonl`. `build_cascade_brief` delegates here.
+- **V3.2** Replay-cascade mode — ✅ "▶ replay cascade" button on the dashboard animates the entire pipeline from brief.json (PII → leak → 3 depts → grounding → handoffs → synergies → assemble) with timed cytoscape pulses + tooltip narration. No backend trace needed at deploy time.
+- **V4** UX polish — ✅ dept-coloured confidence bars on every claim; expandable "Hallucinations caught" drawer listing every dropped claim verbatim; ARIA regions; :focus-visible vermilion rings; mobile breakpoints (≤960 / ≤600); prefers-reduced-motion respected.
+- **Demo** — ✅ `./demo.sh` one-command boot (venv, deps, tests, server, browser); `run.py --demo` regenerates brief from offline fixtures (with planted Globex hallucination → grounding guard catches); README rewritten with 60-second-demo block at the top + Stack table; PRESENTATION.md video script rewritten around the new dashboard actions (replay button, click-filter, dropped drawer).
 
 See `docs/RESUME.md` for the full resume prompt to paste into a fresh session.

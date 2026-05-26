@@ -17,5 +17,11 @@ node_modules/
 data/**/cache/
 data/**/raw/
 
+# event stream mirror — backend writes this beside brief.json on live runs;
+# the dashboard's replay mode synthesizes its own timing from brief.json so
+# committing this would only confuse (events for one target served alongside
+# brief.json for a different target).
+frontend/events.jsonl
+
 # os
 .DS_Store

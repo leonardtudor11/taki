@@ -1,0 +1,18 @@
+{"t": "2026-05-26T12:30:16.074314+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-26T12:30:16.074472+00:00", "phase": "pii", "status": "done", "redactions": 2}
+{"t": "2026-05-26T12:30:16.074763+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-26T12:30:16.074807+00:00", "phase": "leak", "status": "done", "flags": ["withheld https://northwind.example/contact (matched: confidential, do not distribute, internal board deck)"]}
+{"t": "2026-05-26T12:30:16.075191+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-26T12:30:16.075285+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-26T12:30:16.075498+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-26T12:30:16.075587+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 2}
+{"t": "2026-05-26T12:30:16.075651+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 1}
+{"t": "2026-05-26T12:30:16.075410+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 3}
+{"t": "2026-05-26T12:30:16.076121+00:00", "phase": "grounding", "status": "start"}
+{"t": "2026-05-26T12:30:16.076329+00:00", "phase": "grounding", "status": "done", "dropped": 1}
+{"t": "2026-05-26T12:30:16.076573+00:00", "phase": "handoff", "from": "finance", "to": "gtm", "message": "Pricing change detected \u2014 adjust outreach timing/messaging."}
+{"t": "2026-05-26T12:30:16.076588+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Reputational signal \u2014 frame responsibly, do not weaponize."}
+{"t": "2026-05-26T12:30:16.076599+00:00", "phase": "handoff", "from": "gtm", "to": "security", "message": "Hiring expansion \u2014 new attack surface / vendors to monitor."}
+{"t": "2026-05-26T12:30:16.076614+00:00", "phase": "synergy", "depts": ["finance", "security"], "text": "Pricing increase coincides with support/reputation complaints \u2014 churn risk; time GTM outreach around retention, not upsell."}
+{"t": "2026-05-26T12:30:16.076625+00:00", "phase": "synergy", "depts": ["gtm", "finance"], "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach."}
+{"t": "2026-05-26T12:30:16.076861+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 5}

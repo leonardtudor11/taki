@@ -48,39 +48,43 @@ Drafts for the lablab.ai form, the 5-min video, and the slide deck. Paste, recor
 ## 2. Video script (≤ 5 min)
 
 Format: screen-share + voice-over. Record in OBS / QuickTime. Export MP4.
+Boot the dashboard once before recording: `./demo.sh` (opens `http://localhost:8000`
+with the bundled real Vercel brief).
 
 ### Scene 1 — Hook (0:00–0:30)
 > "Most 'AI for revenue' is one LLM staring at one feed. Real companies don't work that way. Sales, Finance, and GRC each look at the same account through different lenses — and they talk to each other. **Taki** — Japanese for cascade — models that."
 >
-> [Visual: open the dashboard at the cached "Northwind Analytics" brief.]
+> [Visual: the open dashboard. The three monoline streams in the logo draw down. Camera lingers on the wordmark — `taki 滝 · cascading intelligence`.]
 
-### Scene 2 — The cascade in action (0:30–1:30)
+### Scene 2 — Watch the cascade think (0:30–1:45)
 > "One target. Three department agents share ONE live web data bundle — pulled via Bright Data, scraped once, consumed by everyone. That's the Lean principle."
 >
-> [Visual: scroll to the three dept panels. Read one claim from each, click the citation chip — it links to the live source URL.]
+> [Click **▶ replay cascade**. Narrate as it animates:]
 >
-> "GTM sees the buying signals. Finance sees the pricing move. Security sees the reputational drag from that pricing move. And then" — [scroll to cascade-flow strip] — "they hand off to each other: Finance tells GTM 'pricing changed — adjust outreach.' Security tells GTM 'reputational signal — frame responsibly.' GTM tells Security 'hiring expansion — new attack surface.' Real cross-department communication."
+> "PII redaction first — emails and phones scrubbed before any LLM sees them. Leak guard next — anything marked confidential is withheld. Now the parallel fan-out: GTM, Finance, Security all read the same clean bundle simultaneously. Each produces grounded claims. Grounding guard joins — eight uncited claims dropped before the brief. Now the cross-talk: Finance tells GTM 'pricing changed — adjust outreach timing.' Security tells GTM 'reputational signal — frame responsibly.' GTM tells Security 'hiring expansion — new attack surface.' Real cross-department communication. And the synergy pass — pricing increase plus support complaints — neither dept alone could say 'churn risk.' Together they do. Assemble. One unified Cascade Brief."
 
-### Scene 3 — Synergy + guardrails (1:30–3:00)
-> "And then the synergy pass." [scroll to synergy card] "Pricing increase + support complaints — neither department alone would say 'churn risk.' Together they do. That's the cross-functional signal you can't get from one agent."
+### Scene 3 — Interact (1:45–2:45)
+> [Click the **GTM node** in the graph. Finance and Security panels fade. Only GTM's claims stay bright.]
 >
-> [Scroll to guardrail badges.]
+> "Click a department, the other panels fade. The cascade graph is the lens." [Click empty space to clear, then click **Security**.] "Security view — exposure indicators, reputational signals, regulatory signals, third-party risk. Every claim has a citation chip that links to the live source URL."
 >
-> "And Compliance audits everyone. The Security department isn't just a producer — it's the guardrail layer. Three guardrails: PII gets redacted before any LLM call. Confidential-marked sources get withheld entirely. And every claim must cite a snippet that actually exists in the scraped bundle — if the LLM hallucinates a fact, the grounding guard drops it and logs it. Look at the badges: two PII redactions caught, one source withheld."
->
-> [Quick demo: open `data/northwind-analytics/brief.json`, point to `guardrail_report.ungrounded_dropped`.]
+> [Hover one of the curved handoff edges. Tooltip strip below the graph reveals the full message.] "Hover an edge — the full handoff text. Cross-functional reasoning, made visible."
 
-### Scene 4 — Bright Data is the magic (3:00–4:00)
-> "None of this works without Bright Data. The whole point: live, bot-bypassable, public web data, fresh — not last week's export. SERP zone discovers the sources, Web Unlocker pulls the pages past bot-blocking. One shared cache, every department reads it."
+### Scene 4 — Guardrails are the enterprise unlock (2:45–3:45)
+> [Click the red **"Hallucinations caught — 8 ungrounded claims dropped"** drawer to expand it.]
 >
-> [Show `services/brightdata.py` briefly. Spend cap line highlighted.]
+> "Eight LLM hallucinations the grounding guard caught and dropped before they could reach the brief. Every survivor must cite a snippet that actually appears in the scraped bundle — if it doesn't, it's gone. Not flagged — gone."
 >
-> "And we built a spend cap so an unattended run can never burn the credit."
+> [Point at the guardrail badge row.] "PII redacted, sources withheld, ungrounded dropped, grounded:no — because we caught hallucinations, the brief is honestly marked 'not fully grounded.' That's the integrity an enterprise GRC team needs."
 
-### Scene 5 — Enterprise fit + close (4:00–5:00)
-> "Why does this matter? Because a single-LLM brief is unsafe for enterprise. PII leaks, confidential bleed-through, hallucinations cost trust. Taki is built so a real GRC team would let it into production: every claim grounded, every output audited, every source scoped to public web."
+### Scene 5 — Bright Data + close (3:45–5:00)
+> "None of this works without Bright Data. The whole point: live, bot-bypassable, public web data, fresh — not last week's export. SERP zone discovers the sources, Web Unlocker pulls the pages past bot-blocking. One shared cache, every department reads it. Spend cap enforced — an unattended run can never burn the credit."
 >
-> "Same architecture metaphor as how a company actually works — departments, cross-talk, compliance auditing everyone. One shared data layer, Bright Data. One unified deliverable. Taki."
+> [Brief switch to terminal: `cat agents/cascade_graph.py | head -30` showing the LangGraph topology + the `g.add_edge('leak_filter', 'gtm') / .add_edge('leak_filter', 'finance') / .add_edge('leak_filter', 'security')` lines.]
+>
+> "Real `langgraph.StateGraph` under the hood — explicit parallel fan-out, every node emits an event stream so the cascade is fully traceable. Same architecture metaphor as how a company actually works — departments, cross-talk, compliance auditing everyone. One shared data layer, Bright Data. One unified deliverable."
+>
+> "Taki."
 >
 > [Cut to README architecture diagram, hold 3 seconds. Fade.]
 
@@ -107,7 +111,7 @@ Build in Keynote / Slides, export PDF.
 
 - [ ] `.env` filled (BD key + zones, Gemini key, spend cap)
 - [ ] `python run.py "Real Company" url:pricing url:jobs` ran ≥ 2 real accounts; `frontend/brief.json` refreshed
-- [ ] `python -m http.server` in `frontend/`, dashboard rendered visually (no JS errors, panels populated, handoff wires visible)
+- [ ] `./demo.sh` boots, 54/54 tests pass, dashboard renders at :8000 (cytoscape graph visible, ▶ replay button animates, click-dept filters, dropped drawer expands)
 - [ ] Deploy: drag `frontend/` to Vercel → public HTTPS URL captured
 - [ ] Repo pushed public to `github.com/leonardtudor11/taki`
 - [ ] Video recorded (≤ 5 min MP4) → unlisted YouTube
@@ -115,3 +119,12 @@ Build in Keynote / Slides, export PDF.
 - [ ] Cover image rendered (16:9)
 - [ ] lablab form: paste fields above, attach cover/slides/video/repo/demo URLs
 - [ ] Submit ✅
+
+## 5. Demo record fail-safes
+
+If a live re-record is needed during the deadline crunch:
+- `./demo.sh` is idempotent — re-running just reopens the dashboard.
+- The dashboard works offline once `frontend/brief.json` is checked in
+  (it is, with the real Vercel cascade).
+- If you accidentally overwrite `brief.json`, `git checkout frontend/brief.json` restores the cached Vercel run.
+- The replay button drives the entire cascade animation from `brief.json` alone — no backend run needed during recording.

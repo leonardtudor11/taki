@@ -1,6 +1,6 @@
 {
   "target": "Northwind Analytics",
-  "generated_at": "2026-05-26T09:49:53.225022Z",
+  "generated_at": "2026-05-26T12:30:16.076859Z",
   "account_brief": {
     "target": "Northwind Analytics",
     "buying_signals": [
@@ -31,7 +31,7 @@
       }
     ],
     "outreach_angle": "Congratulate on the Series B; tie to EU go-to-market.",
-    "generated_at": "2026-05-26T09:49:53.224691Z"
+    "generated_at": "2026-05-26T12:30:16.075407Z"
   },
   "market_signal": {
     "target": "Northwind Analytics",
@@ -63,7 +63,7 @@
     ],
     "web_traffic_proxy": [],
     "vendor_health_flags": [],
-    "generated_at": "2026-05-26T09:49:53.224736Z"
+    "generated_at": "2026-05-26T12:30:16.075585Z"
   },
   "risk_profile": {
     "target": "Northwind Analytics",
@@ -83,7 +83,7 @@
     ],
     "regulatory_signals": [],
     "third_party_risk": [],
-    "generated_at": "2026-05-26T09:49:53.224764Z"
+    "generated_at": "2026-05-26T12:30:16.075648Z"
   },
   "synergy_signals": [
     {
@@ -156,8 +156,10 @@
     "leak_flags": [
       "withheld https://northwind.example/contact (matched: confidential, do not distribute, internal board deck)"
     ],
-    "ungrounded_dropped": [],
-    "passed": true
+    "ungrounded_dropped": [
+      "Northwind is being acquired by Globex next week."
+    ],
+    "passed": false
   },
   "executive_summary": "Northwind Analytics: 1 buying / 1 hiring signals; 1 pricing moves; 1 risk signals. Cross-dept: Pricing increase coincides with support/reputation complaints — churn risk; time GTM outreach around retention, not upsell."
 }
