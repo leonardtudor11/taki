@@ -626,7 +626,26 @@ async function _streamSSE(payload, onEvent, onError) {
 
 function _handleLiveEvent(ev, cy, tip) {
   switch (ev.phase) {
+    case 'audit':
+      if (ev.status === 'fixed') {
+        setTip(tip, `🔧 audit fixed: ${ev.original} → ${ev.normalized}`, true);
+      } else if (ev.status === 'dropped') {
+        setTip(tip, `✗ audit dropped: ${ev.original} — ${ev.reason || 'unknown'}`, true);
+      } else if (ev.status === 'summary') {
+        const parts = [];
+        if (ev.ok) parts.push(`${ev.ok} ok`);
+        if (ev.fixed) parts.push(`${ev.fixed} fixed`);
+        if (ev.dropped) parts.push(`${ev.dropped} dropped`);
+        setTip(tip, `🔍 URL audit · ${parts.join(' · ') || 'no URLs'}`, true);
+      } else if (ev.status === 'ok') {
+        // no-op — the summary line covers it; keep individual 'ok' silent
+      }
+      break;
     case 'fetch':
+      if (ev.status === 'url_error') {
+        setTip(tip, `✗ scrape failed: ${ev.url} — ${ev.error || 'unknown'}`, true);
+        break;
+      }
       if (ev.status === 'start') {
         let msg;
         if (ev.mode === 'self') {

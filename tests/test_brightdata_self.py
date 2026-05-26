@@ -32,9 +32,12 @@ def test_hostname_strips_www():
 
 
 def test_build_self_bundle_skips_failed_urls():
+    # body text must be > 150 chars to clear the V7.7 quality gate
+    my_body = "we sell beans to offices — coffee, cold brew, single origin, " * 6
+    comp_body = "we sell ground beans cheaper than the competition — wholesale, retail, " * 6
     client = _FakeClient({
-        "https://me.example/":         ("ok", "<html><body>my site</body></html>"),
-        "https://good-comp.example/":  ("ok", "<html><body>competitor copy</body></html>"),
+        "https://me.example/":         ("ok", f"<html><body>{my_body}</body></html>"),
+        "https://good-comp.example/":  ("ok", f"<html><body>{comp_body}</body></html>"),
         "https://bad-comp.example/":   ("err", "BD timeout"),
     })
     errors_captured = []
@@ -77,10 +80,34 @@ def test_build_self_bundle_raises_when_all_fail():
     assert "every URL failed to scrape" in str(exc.value)
 
 
-def test_build_self_bundle_competitor_name_set():
+def test_build_self_bundle_rejects_low_quality_text():
+    """A scraped URL that returns an error page (e.g. CF challenge) should be
+    rejected by the post-scrape quality gate, not let into the bundle."""
     client = _FakeClient({
-        "https://me.example/":              ("ok", "<html>me</html>"),
-        "https://www.competitor.io/page":   ("ok", "<html>them</html>"),
+        "https://me.example/":     ("ok", "<html><body>" + ("real content " * 30) + "</body></html>"),
+        "https://blocked.example/": ("ok", "<html><body>Just a moment — checking your browser before accessing.</body></html>"),
+    })
+    bundle, errors = build_self_bundle(
+        business_name="Me",
+        self_urls=[("https://me.example/", SourceType.SITE)],
+        competitor_urls=[("https://blocked.example/", SourceType.SITE)],
+        client=client,
+    )
+    # only the real-content URL lands in the bundle
+    assert len(bundle.sources) == 1
+    assert bundle.sources[0].subject == SourceSubject.SELF
+    # the blocked URL surfaces as an error with a quality reason
+    assert len(errors) == 1
+    assert "low-quality" in errors[0]["error"]
+
+
+def test_build_self_bundle_competitor_name_set():
+    # again, body must pass the post-scrape quality gate
+    me = "this is my real homepage with a clear value proposition for buyers, " * 4
+    them = "this is the competitor homepage with their own value proposition and pricing, " * 4
+    client = _FakeClient({
+        "https://me.example/":              ("ok", f"<html>{me}</html>"),
+        "https://www.competitor.io/page":   ("ok", f"<html>{them}</html>"),
     })
     bundle, _ = build_self_bundle(
         business_name="Me",

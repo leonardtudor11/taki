@@ -278,6 +278,48 @@ def api_run():
                         "self_urls": len(self_urls),
                         "competitor_urls": len(competitor_urls),
                     })
+
+                    # V7.6 — pre-scrape audit. Normalises URLs (adds https,
+                    # strips trailing punct, lowercases host) + DNS-resolves
+                    # to catch typos before they burn 30s×3 retries each
+                    # in Bright Data. Audit events stream live so the
+                    # dashboard can show 'fixed 1 URL · dropped 1 (no DNS)'.
+                    from services.url_audit import audit_urls
+
+                    def _emit_audit(ev: dict) -> None:
+                        q.put({"phase": "audit", **ev})
+                        # mirror dropped audits into last_run.url_errors so
+                        # the status banner can list them after a refresh.
+                        if ev.get("status") == "dropped":
+                            _push_url_error({
+                                "url": ev.get("original") or "",
+                                "subject": ev.get("source_type", "?"),
+                                "error": f"URL audit: {ev.get('reason') or 'dropped'}",
+                            })
+
+                    audited_self, audit_log_self = audit_urls(
+                        self_urls, on_event=_emit_audit,
+                    )
+                    audited_comp, audit_log_comp = audit_urls(
+                        competitor_urls, on_event=_emit_audit,
+                    )
+                    audit_summary = {
+                        "fixed":   sum(1 for e in audit_log_self + audit_log_comp if e.status == "fixed"),
+                        "dropped": sum(1 for e in audit_log_self + audit_log_comp if e.status == "dropped"),
+                        "ok":      sum(1 for e in audit_log_self + audit_log_comp if e.status == "ok"),
+                    }
+                    q.put({"phase": "audit", "status": "summary", **audit_summary})
+
+                    if not audited_self and not audited_comp:
+                        # nothing scrape-able — emit error early instead of
+                        # letting build_self_bundle raise the same conclusion.
+                        from dataclasses import asdict as _asdict
+                        all_drops = [_asdict(e) for e in audit_log_self + audit_log_comp]
+                        raise RuntimeError(
+                            "URL audit dropped every URL — nothing to scrape. "
+                            f"Failures: { '; '.join(d['original'] + ': ' + (d['reason'] or 'ok?') for d in all_drops) }"
+                        )
+
                     client = BrightDataClient()
 
                     def _emit_url_error(ev: dict) -> None:
@@ -286,8 +328,8 @@ def api_run():
 
                     bundle, url_errors = build_self_bundle(
                         business_name=profile.name,
-                        self_urls=self_urls,
-                        competitor_urls=competitor_urls,
+                        self_urls=audited_self,
+                        competitor_urls=audited_comp,
                         client=client,
                         on_error=_emit_url_error,
                     )

@@ -19,6 +19,7 @@ import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from agents.schemas import SharedBundle, SourceItem, SourceSubject, SourceType
+from services.url_audit import is_low_quality
 
 _API = "https://api.brightdata.com/request"
 
@@ -180,6 +181,25 @@ def build_self_bundle(
                 "subject": subject.value,
                 "competitor": competitor_name or None,
                 "error": f"{type(exc).__name__}: {exc}",
+            }
+            errors.append(ev)
+            if on_error is not None:
+                try:
+                    on_error(ev)
+                except Exception:
+                    pass
+            return
+        # post-scrape quality gate (V7.7) — drop bot-challenge pages, 404s,
+        # access-denied responses, and pages so short they're almost
+        # certainly empty/blocked. The LLM downstream has no way to detect
+        # this so we catch it here before grounding wastes cycles on it.
+        bad, reason = is_low_quality(text)
+        if bad:
+            ev = {
+                "url": url,
+                "subject": subject.value,
+                "competitor": competitor_name or None,
+                "error": f"low-quality response: {reason}",
             }
             errors.append(ev)
             if on_error is not None:
