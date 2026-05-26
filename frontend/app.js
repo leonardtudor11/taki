@@ -433,12 +433,138 @@ function _wireSelfModal() {
   });
 }
 
+// V7.4 — status banner. On load (and after each render) we fetch /api/status:
+//   - if a cascade is running   → show a yellow 'still running' banner and
+//                                  poll every 3s until it completes, then
+//                                  refetch brief.json + re-render.
+//   - if last run errored       → show a red banner with the error message
+//                                  + any per-URL failures.
+//   - if backend is unreachable → silently skip (offline replay still works).
+function _statusBanner() {
+  let banner = document.getElementById("status-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "status-banner";
+    banner.className = "status-banner";
+    banner.hidden = true;
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
+  return banner;
+}
+
+function _showBanner(kind, html) {
+  const banner = _statusBanner();
+  banner.className = `status-banner status-${kind}`;
+  banner.innerHTML = "";
+  // build via DOM nodes; only trusted strings (server-controlled) reach here
+  if (typeof html === "string") {
+    banner.textContent = html;
+  } else if (html && html.nodeType) {
+    banner.appendChild(html);
+  }
+  banner.hidden = false;
+}
+
+function _hideBanner() {
+  const banner = document.getElementById("status-banner");
+  if (banner) banner.hidden = true;
+}
+
+function _formatRunning(s) {
+  const lr = s.last_run || {};
+  const phase = lr.last_phase ? ` · current phase: ${lr.last_phase}` : "";
+  return `🌐 a cascade is running for "${lr.target || '?'}" (mode: ${lr.mode || '?'})${phase} — this page will refresh automatically when it completes`;
+}
+
+function _formatError(s) {
+  const lr = s.last_run || {};
+  const wrap = document.createElement("div");
+  const head = document.createElement("div");
+  head.className = "status-banner-head";
+  head.textContent = `✗ last cascade for "${lr.target || '?'}" failed`;
+  wrap.appendChild(head);
+
+  const body = document.createElement("div");
+  body.className = "status-banner-body";
+  body.textContent = lr.error || "unknown error";
+  wrap.appendChild(body);
+
+  const urlErrs = lr.url_errors || [];
+  if (urlErrs.length) {
+    const ul = document.createElement("ul");
+    ul.className = "status-banner-list";
+    urlErrs.forEach((e) => {
+      const li = document.createElement("li");
+      li.textContent = `${e.url} (${e.subject || "?"}): ${e.error}`;
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul);
+  }
+
+  const dismiss = document.createElement("button");
+  dismiss.className = "status-banner-dismiss";
+  dismiss.type = "button";
+  dismiss.textContent = "dismiss";
+  dismiss.addEventListener("click", _hideBanner);
+  wrap.appendChild(dismiss);
+
+  return wrap;
+}
+
+let _statusPollTimer = null;
+function _stopPolling() {
+  if (_statusPollTimer) { clearTimeout(_statusPollTimer); _statusPollTimer = null; }
+}
+
+function _pollStatus() {
+  _stopPolling();
+  fetch("/api/status", { cache: "no-store" })
+    .then((r) => r.ok ? r.json() : null)
+    .then((s) => {
+      if (!s) return;
+      if (s.running) {
+        _showBanner("running", _formatRunning(s));
+        _statusPollTimer = setTimeout(_pollStatus, 3000);
+      } else {
+        // run just finished. Refetch brief + re-render.
+        const lr = s.last_run || {};
+        if (lr.status === "completed") {
+          _showBanner("ok", `✓ cascade for "${lr.target}" completed · ${lr.dropped || 0} ungrounded dropped`);
+          setTimeout(_hideBanner, 6000);
+          fetch("brief.json", { cache: "no-store" })
+            .then((r) => r.json())
+            .then((b) => render(b))
+            .catch(() => {});
+        } else if (lr.status === "error") {
+          _showBanner("error", _formatError(s));
+        }
+      }
+    })
+    .catch(() => {});
+}
+
+function _checkStatusOnLoad() {
+  fetch("/api/status", { cache: "no-store" })
+    .then((r) => r.ok ? r.json() : null)
+    .then((s) => {
+      if (!s) return;
+      if (s.running) {
+        _showBanner("running", _formatRunning(s));
+        _statusPollTimer = setTimeout(_pollStatus, 3000);
+      } else if (s.last_run && s.last_run.status === "error") {
+        _showBanner("error", _formatError(s));
+      }
+    })
+    .catch(() => {});
+}
+
 fetch("brief.json")
   .then((r) => { if (!r.ok) throw new Error(`brief.json ${r.status}`); return r.json(); })
   .then((b) => {
     render(b);
     _wireHeaderPullFresh();
     _wireSelfModal();
+    _checkStatusOnLoad();
   })
   .catch((e) => {
     const err = document.getElementById("error");

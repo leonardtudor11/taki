@@ -54,6 +54,40 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # time keeps things simple and prevents accidental double-spend on Bright Data.
 _run_lock = threading.Lock()
 
+# Persistent last-run state. Survives the SSE stream — a page refresh hits
+# /api/status and learns whether the worker is still running, completed, or
+# died with an error. Without this, a refresh during a long run shows the
+# stale brief.json with no signal that the new cascade ever ran.
+_LAST_RUN_LOCK = threading.Lock()
+_LAST_RUN: dict = {
+    "status": None,         # None | "running" | "completed" | "error"
+    "mode": None,
+    "target": None,
+    "started_at": None,
+    "finished_at": None,
+    "error": None,
+    "url_errors": [],
+    "last_phase": None,
+    "last_event": None,
+    "dropped": None,
+    "stats": None,          # e.g. {"sources": 7, "competitors": ["mulhlan", "ven-to"]}
+}
+
+
+def _utc_iso() -> str:
+    import datetime
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def _set_last_run(**updates) -> None:
+    with _LAST_RUN_LOCK:
+        _LAST_RUN.update(updates)
+
+
+def _push_url_error(ev: dict) -> None:
+    with _LAST_RUN_LOCK:
+        _LAST_RUN["url_errors"].append(ev)
+
 
 def _parse_urls(args: list[str]) -> list[tuple[str, SourceType]]:
     """Mirror of run._parse_urls — kept inline so the server has no run.py dep."""
@@ -90,8 +124,12 @@ def static_files(path: str):
 
 @app.route("/api/status")
 def api_status():
+    with _LAST_RUN_LOCK:
+        last_run = dict(_LAST_RUN)
+        last_run["url_errors"] = list(last_run["url_errors"])
     return jsonify({
         "running": _run_lock.locked(),
+        "last_run": last_run,
         "modes": {
             "demo": True,
             "live": bool(os.environ.get("BRIGHTDATA_API_KEY"))
@@ -166,10 +204,30 @@ def api_run():
 
         def emit(ev: dict) -> None:
             q.put(ev)
+            # mirror the last phase/event into the persistent state so a
+            # refresh during a long run can see where the cascade is.
+            _set_last_run(
+                last_phase=ev.get("phase"),
+                last_event=ev,
+            )
             if slow and ev.get("status") == "done":
                 time.sleep(0.55)
 
         def worker():
+            run_target = target if mode == "live" else (data.get("profile") or {}).get("name", "fixture")
+            _set_last_run(
+                status="running",
+                mode=mode,
+                target=run_target,
+                started_at=_utc_iso(),
+                finished_at=None,
+                error=None,
+                url_errors=[],
+                last_phase=None,
+                last_event=None,
+                dropped=None,
+                stats=None,
+            )
             try:
                 if mode == "demo":
                     from fixtures.fake_llm import (
@@ -221,16 +279,23 @@ def api_run():
                         "competitor_urls": len(competitor_urls),
                     })
                     client = BrightDataClient()
-                    bundle = build_self_bundle(
+
+                    def _emit_url_error(ev: dict) -> None:
+                        q.put({"phase": "fetch", "status": "url_error", **ev})
+                        _push_url_error(ev)
+
+                    bundle, url_errors = build_self_bundle(
                         business_name=profile.name,
                         self_urls=self_urls,
                         competitor_urls=competitor_urls,
                         client=client,
+                        on_error=_emit_url_error,
                     )
                     q.put({
                         "phase": "fetch", "status": "done",
                         "sources": len(bundle.sources),
                         "competitors": bundle.competitor_names(),
+                        "url_errors": len(url_errors),
                     })
                     graph = cascade_graph.build_graph(
                         on_event=emit,
@@ -257,17 +322,40 @@ def api_run():
                 cache.save_bundle(bundle)
                 cache.save_brief(brief)
                 FRONTEND_BRIEF.write_text(brief.model_dump_json(indent=2))
+                dropped = len(brief.guardrail_report.ungrounded_dropped)
+                _set_last_run(
+                    status="completed",
+                    target=brief.target,
+                    finished_at=_utc_iso(),
+                    dropped=dropped,
+                    stats={
+                        "sources": len(bundle.sources),
+                        "competitors": bundle.competitor_names(),
+                    },
+                )
                 q.put({
                     "phase": "complete", "status": "done",
                     "target": brief.target,
                     "mode": brief.mode.value,
-                    "dropped": len(brief.guardrail_report.ungrounded_dropped),
+                    "dropped": dropped,
                 })
             except Exception as exc:
-                # Make the error visible in the dashboard rather than dying silently.
-                q.put({"phase": "error", "error": f"{type(exc).__name__}: {exc}"})
+                # Make the error visible in the dashboard AND in /api/status,
+                # so a page refresh during a failed run sees what went wrong
+                # instead of just the stale brief.json.
+                msg = f"{type(exc).__name__}: {exc}"
+                _set_last_run(status="error", finished_at=_utc_iso(), error=msg)
+                q.put({"phase": "error", "error": msg})
             finally:
+                # The lock follows the worker, not the SSE stream. A client
+                # refresh closes the SSE generator but the worker keeps
+                # running until done — releasing here keeps /api/status
+                # honest (running stays true until the cascade finishes).
                 q.put(None)
+                try:
+                    _run_lock.release()
+                except RuntimeError:
+                    pass
 
         if not _run_lock.acquire(blocking=False):
             yield f"data: {json.dumps({'phase': 'error', 'error': 'busy'})}\n\n"
@@ -287,11 +375,10 @@ def api_run():
                 if ev is None:
                     break
                 yield f"data: {json.dumps(ev)}\n\n"
-        finally:
-            try:
-                _run_lock.release()
-            except RuntimeError:
-                pass
+        except GeneratorExit:
+            # client disconnected (e.g. page refresh). The worker holds the
+            # lock and continues; /api/status will still report running.
+            return
 
     return Response(
         stream(),

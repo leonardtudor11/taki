@@ -78,14 +78,18 @@ class BrightDataClient:
             float(os.environ.get("TAKI_BD_SPEND_CAP", "50"))
         )
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
     def _request(self, zone: str, url: str, fmt: str = "raw") -> str:
+        # 30s per attempt (was 90s) — with 3 retries the worst-case is ~90s
+        # per URL instead of 270s. Self-mode often runs 4+ URLs, so cutting
+        # the per-URL ceiling makes a 'one bad URL' run finish in minutes
+        # rather than freezing the entire cascade.
         self.tracker.charge()
         resp = httpx.post(
             _API,
             headers={"Authorization": f"Bearer {self.api_key}"},
             json=build_payload(zone, url, fmt),
-            timeout=90,
+            timeout=30,
         )
         resp.raise_for_status()
         return resp.text
@@ -146,31 +150,61 @@ def build_self_bundle(
     competitor_urls: list[tuple[str, SourceType]],
     client: BrightDataClient,
     cap_chars: int = 8000,
-) -> SharedBundle:
+    on_error=None,
+) -> tuple[SharedBundle, list[dict]]:
     """Scrape the founder's own URLs (subject=self) + each competitor URL
     (subject=competitor, competitor_name = hostname) into one bundle.
 
-    The bundle's target field is the founder's business name — the rest of the
-    cascade keys off it for prompts and the dashboard label.
+    Resilient: individual URL failures (timeouts, 4xx/5xx, DNS errors) are
+    captured and SKIPPED — the cascade continues on whatever sources did
+    scrape. Returns (bundle, errors). Each error is a dict
+    {url, subject, error}. The on_error callback fires per failed URL so a
+    worker can surface them as SSE events in real time.
+
+    If EVERY URL fails the function raises RuntimeError — at that point
+    there's nothing for the depts to read.
+
+    The bundle's target field is the founder's business name; the rest of
+    the cascade keys off it for prompts and the dashboard label.
     """
     sources: list[SourceItem] = []
+    errors: list[dict] = []
+
+    def _scrape(url: str, stype: SourceType, subject: SourceSubject,
+                competitor_name: str = "") -> None:
+        try:
+            text = html_to_text(client.unlock(url))[:cap_chars]
+        except Exception as exc:
+            ev = {
+                "url": url,
+                "subject": subject.value,
+                "competitor": competitor_name or None,
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+            errors.append(ev)
+            if on_error is not None:
+                try:
+                    on_error(ev)
+                except Exception:
+                    pass
+            return
+        sources.append(
+            SourceItem(
+                source_type=stype,
+                url=url,
+                text=text,
+                subject=subject,
+                competitor_name=competitor_name,
+            )
+        )
+
     for url, stype in self_urls or []:
-        sources.append(
-            SourceItem(
-                source_type=stype,
-                url=url,
-                text=html_to_text(client.unlock(url))[:cap_chars],
-                subject=SourceSubject.SELF,
-            )
-        )
+        _scrape(url, stype, SourceSubject.SELF)
     for url, stype in competitor_urls or []:
-        sources.append(
-            SourceItem(
-                source_type=stype,
-                url=url,
-                text=html_to_text(client.unlock(url))[:cap_chars],
-                subject=SourceSubject.COMPETITOR,
-                competitor_name=_hostname(url),
-            )
-        )
-    return SharedBundle(target=business_name, sources=sources)
+        _scrape(url, stype, SourceSubject.COMPETITOR, competitor_name=_hostname(url))
+
+    if not sources:
+        msg = "; ".join(f"{e['url']}: {e['error']}" for e in errors) or "no URLs supplied"
+        raise RuntimeError(f"every URL failed to scrape — {msg}")
+
+    return SharedBundle(target=business_name, sources=sources), errors

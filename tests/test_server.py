@@ -86,3 +86,39 @@ def test_run_live_requires_target(client, monkeypatch):
     r = client.post("/api/run", json={"mode": "live"})
     assert r.status_code == 400
     assert "target required" in r.get_json()["error"]
+
+
+def test_status_carries_last_run_after_run(client, tmp_path, monkeypatch):
+    # run a demo cascade and verify /api/status surfaces last_run
+    from services import cache
+    monkeypatch.setattr(cache, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(server, "FRONTEND_BRIEF", tmp_path / "brief.json")
+
+    r = client.post("/api/run", json={"mode": "demo"})
+    assert r.status_code == 200
+    r.get_data()  # drain the SSE stream so the worker completes
+
+    s = client.get("/api/status").get_json()
+    assert s["running"] is False
+    lr = s["last_run"]
+    assert lr["status"] == "completed"
+    assert lr["mode"] == "demo"
+    assert lr["target"] == "Northwind Analytics"
+    assert lr["finished_at"]
+    assert isinstance(lr.get("dropped"), int)
+    assert lr["error"] is None
+
+
+def test_self_requires_profile_url(client, monkeypatch):
+    monkeypatch.setattr(server, "_live_blockers", lambda: [])
+    # missing profile entirely
+    r = client.post("/api/run", json={"mode": "self"})
+    assert r.status_code == 400
+    # missing url
+    r = client.post("/api/run", json={"mode": "self", "profile": {"name": "Foo"}})
+    assert r.status_code == 400
+    assert "profile.url" in r.get_json()["error"]
+    # missing name
+    r = client.post("/api/run", json={"mode": "self", "profile": {"url": "https://x"}})
+    assert r.status_code == 400
+    assert "profile.name" in r.get_json()["error"]

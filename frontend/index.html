@@ -129,6 +129,42 @@
   .pullfresh:hover:not(:disabled) { background: rgba(232, 74, 58, 0.10); }
   .pullfresh:disabled { opacity: 0.55; cursor: wait; }
 
+  /* V7.4 — status banner pinned to the top of the page.
+     Survives across renders; auto-poll while a cascade is running. */
+  .status-banner {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 10px 24px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--rule);
+  }
+  .status-banner[hidden] { display: none; }
+  .status-running { background: rgba(240,168,73,0.12); color: var(--security); border-bottom-color: var(--security); }
+  .status-ok      { background: rgba(136,224,168,0.10); color: var(--ok);       border-bottom-color: var(--ok); }
+  .status-error   { background: rgba(255,115,103,0.10); color: var(--bad);      border-bottom-color: var(--bad); }
+  .status-banner-head { font-weight: 600; }
+  .status-banner-body { margin-top: 4px; color: var(--paper); }
+  .status-banner-list { margin: 6px 0 0; padding-left: 18px; color: var(--paper-dim); }
+  .status-banner-list li { margin: 2px 0; }
+  .status-banner-dismiss {
+    margin-top: 8px;
+    background: transparent;
+    color: inherit;
+    border: 1px solid currentColor;
+    padding: 3px 10px;
+    font-family: inherit;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    cursor: pointer;
+    border-radius: 0;
+  }
+  .status-banner-dismiss:hover { background: rgba(255,255,255,0.04); }
+
   /* V7 — analyze my business primary CTA. Marketing-pink to differentiate
      visually from the live-demo button. */
   .analyzeself {
@@ -804,7 +840,15 @@
   }
 
   /* ───────── departments ───────── */
-  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  /* V7 — 4 dept panels (Marketing · GTM · Finance · Security). Breakpoints
+     chosen so no panel wraps to a lonely row with dead space beside it:
+       >= 1200px → 4 cols (one row of four)
+       700-1199  → 2 cols × 2 rows
+       < 700px  → 1 col stacked. */
+  .cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  @media (min-width: 1200px) {
+    .cols { grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  }
   .panel {
     background: transparent;
     border: none;
@@ -953,10 +997,12 @@
   .hidden { display: none; }
 
   /* ───────── responsive ───────── */
+  @media (max-width: 700px) {
+    .cols { grid-template-columns: 1fr; gap: 28px; }
+  }
   @media (max-width: 960px) {
     main { padding: 28px 24px 60px; }
     main::before { display: none; }
-    .cols { grid-template-columns: 1fr; gap: 32px; }
     header {
       grid-template-columns: 1fr;
       padding: 22px 24px 18px;
