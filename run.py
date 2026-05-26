@@ -24,7 +24,9 @@ from agents import orchestrator
 from agents.schemas import CascadeBrief, SharedBundle, SourceType
 from services import cache
 
-FRONTEND_BRIEF = Path(__file__).resolve().parent / "frontend" / "brief.json"
+FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
+FRONTEND_BRIEF = FRONTEND_DIR / "brief.json"
+FRONTEND_EVENTS = FRONTEND_DIR / "events.jsonl"
 
 
 def generate_and_cache(
@@ -33,14 +35,32 @@ def generate_and_cache(
     finance_llm=None,
     security_llm=None,
     frontend_path: Path | None = FRONTEND_BRIEF,
+    events_path: Path | None = None,
 ) -> CascadeBrief:
+    """Persist bundle, run the LangGraph cascade, save brief, and (optionally)
+    stream node events to a JSONL file the dashboard's replay mode can play back.
+    """
     cache.save_bundle(bundle)
+    # default the per-target events file alongside bundle.json / brief.json so
+    # every run leaves an inspectable cascade trace next to its artifacts.
+    target_events = cache.bundle_path(bundle.target).with_name("events.jsonl")
     brief = orchestrator.build_cascade_brief(
-        bundle, gtm_llm=gtm_llm, finance_llm=finance_llm, security_llm=security_llm
+        bundle,
+        gtm_llm=gtm_llm,
+        finance_llm=finance_llm,
+        security_llm=security_llm,
+        event_path=target_events,
     )
     cache.save_brief(brief)
     if frontend_path is not None:
         frontend_path.write_text(brief.model_dump_json(indent=2))
+        # mirror the trace beside the brief (same directory) so the static
+        # dashboard can fetch it from the same origin without CORS friction.
+        # Default = frontend/events.jsonl; tests passing a tmp brief get a
+        # tmp events file in the same tmp dir (no repo pollution).
+        events_target = events_path or (frontend_path.parent / "events.jsonl")
+        if target_events.exists():
+            events_target.write_text(target_events.read_text())
     return brief
 
 

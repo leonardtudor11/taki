@@ -5,3 +5,5 @@ tenacity>=9.0
 pytest>=8.0
 # Vertex AI via ADC (preferred LLM path). Lazy-imported in services/llm.py.
 google-genai>=2.3.0
+# Multi-agent graph runtime — explicit parallel dept fan-out + event streaming.
+langgraph>=0.2,<0.3

@@ -5,11 +5,20 @@ outputs cross-pollinate (synergy + handoffs), applies the Security/Compliance
 guardrails, and assembles the unified CascadeBrief.
 
 LLMs are injected per department so the whole cascade is testable offline.
+
+Implementation note (V2): the public `build_cascade_brief` entrypoint now
+delegates to `agents.cascade_graph.run`, a `langgraph.StateGraph` with explicit
+parallel fan-out to the three dept nodes. The legacy helpers below
+(`run_departments`, `cross_pollinate`, `_ground_dept`, ...) stay so tests and
+ad-hoc callers can drive individual cascade stages without spinning up the
+graph runtime.
 """
 
 from __future__ import annotations
 
-from agents import finance, gtm, security
+from pathlib import Path
+
+from agents import cascade_graph, finance, gtm, security
 from agents.schemas import (
     AccountBrief,
     CascadeBrief,
@@ -184,51 +193,26 @@ def build_cascade_brief(
     gtm_llm: LLMFn | None = None,
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
+    event_path: Path | None = None,
 ) -> CascadeBrief:
     """Full cascade: guardrails -> departments -> grounding -> synergy -> brief.
+
+    Runs through the `langgraph.StateGraph` defined in `agents.cascade_graph`.
+    Topology:
+        START → pii_redact → leak_filter → [gtm | finance | security]
+              → grounding → cross_pollinate → assemble → END
 
     Guardrail order: PII redaction first (scrub personal data), then leak/scope
     (withhold confidential sources), so departments only ever see clean,
     public, de-identified text. Grounding then drops any uncited claims.
-    """
-    redacted, pii_count = pii.redact_bundle(bundle)
-    clean, leak_flags = leak.filter_bundle(redacted)
 
-    out = run_departments(
-        clean,
+    If `event_path` is set, each graph node writes a JSON event to that file
+    so the dashboard's V3.2 replay mode can animate the cascade live.
+    """
+    return cascade_graph.run(
+        bundle,
         gtm_llm=gtm_llm,
         finance_llm=finance_llm,
         security_llm=security_llm,
-    )
-
-    dropped: list[str] = []
-    ab, d = _ground_dept(out.account_brief, clean)
-    dropped.extend(d)
-    ms, d = _ground_dept(out.market_signal, clean)
-    dropped.extend(d)
-    rp, d = _ground_dept(out.risk_profile, clean)
-    dropped.extend(d)
-    grounded = DeptOutputs(ab, ms, rp)
-
-    synergies, handoffs = cross_pollinate(grounded)
-
-    # `passed` reflects grounding integrity: True only if no claim had to be
-    # dropped for lack of a real citation. PII + leak counts surface guardrail
-    # *activity* (the guards working as designed) — they are not failures.
-    report = GuardrailReport(
-        pii_redactions=pii_count,
-        leak_flags=leak_flags,
-        ungrounded_dropped=dropped,
-        passed=(len(dropped) == 0),
-    )
-
-    return CascadeBrief(
-        target=bundle.target,
-        account_brief=ab,
-        market_signal=ms,
-        risk_profile=rp,
-        synergy_signals=synergies,
-        handoffs=handoffs,
-        guardrail_report=report,
-        executive_summary=_executive_summary(grounded, synergies),
+        event_path=event_path,
     )
