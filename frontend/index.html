@@ -769,6 +769,51 @@
   }
   .cascade-tip[data-active] { color: var(--paper); }
 
+  /* V7.14 — phase pips strip (visible cascade progress under the toolbar) */
+  .cascade-pips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 6px 4px 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+  }
+  .pip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.55;
+    transition: opacity 0.2s ease, color 0.2s ease;
+  }
+  .pip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    background: transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .pip[data-state="active"] { opacity: 1; color: var(--shu); }
+  .pip[data-state="active"] .pip-dot {
+    background: var(--shu);
+    border-color: var(--shu);
+    animation: pip-pulse 1.1s ease-in-out infinite;
+  }
+  .pip[data-state="done"] { opacity: 1; color: var(--paper); }
+  .pip[data-state="done"] .pip-dot { background: var(--ok); border-color: var(--ok); }
+  .pip[data-phase="marketing"][data-state="done"] .pip-dot { background: var(--marketing); border-color: var(--marketing); }
+  .pip[data-phase="gtm"][data-state="done"]       .pip-dot { background: var(--gtm);       border-color: var(--gtm); }
+  .pip[data-phase="finance"][data-state="done"]   .pip-dot { background: var(--finance);   border-color: var(--finance); }
+  .pip[data-phase="security"][data-state="done"]  .pip-dot { background: var(--security);  border-color: var(--security); }
+  .pip[data-phase="strategy"][data-state="done"]  .pip-dot { background: var(--shu);       border-color: var(--shu); }
+  @keyframes pip-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232, 74, 58, 0.55); }
+    50%      { box-shadow: 0 0 0 5px rgba(232, 74, 58, 0); }
+  }
+
   /* legacy text-fallback rows (used only when CDN unreachable) */
   .flow-nodes {
     display: flex;
@@ -1126,7 +1171,7 @@
      Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
 <script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="cascade-flow.js"></script>
-<script src="app.js"></script>
+<script src="cascade-flow.js?v=7.14"></script>
+<script src="app.js?v=7.14"></script>
 </body>
 </html>

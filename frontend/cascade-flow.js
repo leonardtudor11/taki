@@ -31,6 +31,44 @@ const PAPER_DIM     = '#b8b2a4';
 const INK           = '#0d0e10';
 const BASE_TIP      = 'Click a department to filter · hover edges to read the cross-talk';
 
+// V7.14 — phase pips. Each phase has 3 states: pending|active|done.
+// Drives a small strip under the toolbar, updated by SSE events (live mode)
+// and by replay timers (offline replay). Reset at the start of every cascade.
+const PHASE_PIPS = ['pii', 'leak', 'marketing', 'gtm', 'finance', 'security', 'grounding', 'strategy'];
+
+function _buildPipsStrip() {
+  const strip = flowEl('div', 'cascade-pips');
+  strip.setAttribute('role', 'status');
+  strip.setAttribute('aria-label', 'cascade progress');
+  PHASE_PIPS.forEach((phase) => {
+    const pip = flowEl('span', 'pip');
+    pip.dataset.phase = phase;
+    pip.dataset.state = 'pending';
+    pip.appendChild(flowEl('span', 'pip-dot'));
+    pip.appendChild(document.createTextNode(phase));
+    strip.appendChild(pip);
+  });
+  return strip;
+}
+
+function _findPips() {
+  const c = document.getElementById('cascade-graph');
+  return c && c.parentElement && c.parentElement.querySelector('.cascade-pips');
+}
+
+function _resetPips() {
+  const strip = _findPips();
+  if (!strip) return;
+  strip.querySelectorAll('.pip').forEach((p) => { p.dataset.state = 'pending'; });
+}
+
+function _setPip(phase, state) {
+  const strip = _findPips();
+  if (!strip) return;
+  const pip = strip.querySelector(`.pip[data-phase="${phase}"]`);
+  if (pip) pip.dataset.state = state;
+}
+
 function deptKey(name) {
   const n = String(name || '').toLowerCase();
   // 'marketing' first so 'market' matches finance only when 'marketing' isn't.
@@ -438,6 +476,7 @@ function replayCascade(brief, cy, tip, button) {
   cy.elements().removeClass('dim beam');
   cy.elements(':selected').unselect();
   _dimAll(cy);
+  _resetPips();
 
   const timers = [];
   const at = (delay, fn) => timers.push(setTimeout(fn, delay));
@@ -448,11 +487,13 @@ function replayCascade(brief, cy, tip, button) {
     setTip(tip, '🔒 PII redaction · scrubbing emails + phones from the bundle', true);
     _pulseNode(cy, 'node#source');
     _reveal(cy, 'node#source');
+    _setPip('pii', 'active');
   });
   t += 850;
   at(t, () => {
     const n = (brief.guardrail_report && brief.guardrail_report.pii_redactions) || 0;
     setTip(tip, `✓ PII redaction done · ${n} redaction${n === 1 ? '' : 's'}`, true);
+    _setPip('pii', 'done');
   });
 
   // 2. leak / scope
@@ -460,11 +501,13 @@ function replayCascade(brief, cy, tip, button) {
   at(t, () => {
     setTip(tip, '🚫 leak/scope guard · withholding confidential-marked sources', true);
     _pulseNode(cy, 'node#source');
+    _setPip('leak', 'active');
   });
   t += 750;
   at(t, () => {
     const flags = (brief.guardrail_report && brief.guardrail_report.leak_flags) || [];
     setTip(tip, `✓ scope clean · ${flags.length} source${flags.length === 1 ? '' : 's'} withheld`, true);
+    _setPip('leak', 'done');
   });
 
   // 3. parallel dept fan-out (stagger reveals so each is readable)
@@ -475,6 +518,7 @@ function replayCascade(brief, cy, tip, button) {
       _reveal(cy, `node#${d}`);
       _reveal(cy, `edge[source = "source"][target = "${d}"]`);
       _pulseEdge(cy, `edge[source = "source"][target = "${d}"]`);
+      _setPip(d, 'active');
     });
   });
 
@@ -485,6 +529,7 @@ function replayCascade(brief, cy, tip, button) {
       const n = _claimCount(brief, d);
       setTip(tip, `✓ ${d.toUpperCase()} produced ${n} grounded claim${n === 1 ? '' : 's'}`, true);
       _pulseNode(cy, `node#${d}`);
+      _setPip(d, 'done');
     });
   });
 
@@ -496,7 +541,10 @@ function replayCascade(brief, cy, tip, button) {
       `🎯 grounding guard · dropped ${dropped.length} uncited claim${dropped.length === 1 ? '' : 's'}`,
       true);
     ['marketing', 'gtm', 'finance', 'security'].forEach((d) => _pulseNode(cy, `node#${d}`));
+    _setPip('grounding', 'active');
   });
+  t += 600;
+  at(t, () => { _setPip('grounding', 'done'); });
 
   // 6. handoffs — reveal each handoff edge with its message in the tooltip
   t += 1200;
@@ -529,6 +577,7 @@ function replayCascade(brief, cy, tip, button) {
   at(t, () => {
     setTip(tip, '★ strategy · Chief of Staff synthesizing the plan…', true);
     _reveal(cy, 'edge[type = "output"]');
+    _setPip('strategy', 'active');
   });
   t += 900;
   at(t, () => {
@@ -542,6 +591,7 @@ function replayCascade(brief, cy, tip, button) {
       setTip(tip, '✓ assembly underway…', true);
     }
     _pulseNode(cy, 'node#brief');
+    _setPip('strategy', 'done');
   });
 
   // 9. assemble
@@ -675,18 +725,22 @@ function _handleLiveEvent(ev, cy, tip) {
       if (ev.status === 'start') {
         setTip(tip, '🔒 PII redaction · scrubbing emails + phones', true);
         _pulseNode(cy, 'node#source');
+        _setPip('pii', 'active');
       } else {
         const n = ev.redactions || 0;
         setTip(tip, `✓ ${n} PII redaction${n === 1 ? '' : 's'}`, true);
+        _setPip('pii', 'done');
       }
       break;
     case 'leak':
       if (ev.status === 'start') {
         setTip(tip, '🚫 leak/scope guard · withholding confidential-marked sources', true);
         _pulseNode(cy, 'node#source');
+        _setPip('leak', 'active');
       } else {
         const n = (ev.flags || []).length;
         setTip(tip, `✓ ${n} source${n === 1 ? '' : 's'} withheld`, true);
+        _setPip('leak', 'done');
       }
       break;
     case 'dept': {
@@ -697,20 +751,24 @@ function _handleLiveEvent(ev, cy, tip) {
         _reveal(cy, `node#${d}`);
         _reveal(cy, `edge[source = "source"][target = "${d}"]`);
         _pulseEdge(cy, `edge[source = "source"][target = "${d}"]`);
+        _setPip(d, 'active');
       } else {
         const n = ev.claims || 0;
         setTip(tip, `✓ ${d.toUpperCase()} produced ${n} claim${n === 1 ? '' : 's'}`, true);
         _pulseNode(cy, `node#${d}`);
+        _setPip(d, 'done');
       }
       break;
     }
     case 'grounding':
       if (ev.status === 'start') {
         setTip(tip, '🎯 grounding guard · checking every citation against the bundle', true);
+        _setPip('grounding', 'active');
       } else {
         const n = ev.dropped || 0;
         setTip(tip, `🎯 grounding done · ${n} ungrounded claim${n === 1 ? '' : 's'} dropped`, true);
         ['gtm', 'finance', 'security'].forEach((d) => _pulseNode(cy, `node#${d}`));
+        _setPip('grounding', 'done');
       }
       break;
     case 'handoff': {
@@ -732,14 +790,17 @@ function _handleLiveEvent(ev, cy, tip) {
       if (ev.status === 'start') {
         setTip(tip, '★ strategy · Chief of Staff synthesizing the plan…', true);
         _reveal(cy, 'edge[type = "output"]');
+        _setPip('strategy', 'active');
       } else if (ev.status === 'done') {
         const n = ev.plays || 0;
         setTip(tip,
           `✓ plan ready · ${n} play${n === 1 ? '' : 's'} · ${ev.urgency || ''} · ${ev.icp_fit || ''} fit`,
           true);
         _pulseNode(cy, 'node#brief');
+        _setPip('strategy', 'done');
       } else if (ev.status === 'error') {
         setTip(tip, `✗ strategy failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
+        _setPip('strategy', 'done');
       }
       break;
     case 'assemble':
@@ -777,6 +838,7 @@ function runLiveCascade(payload, ctx) {
   cy.elements().removeClass('dim beam');
   cy.elements(':selected').unselect();
   _dimAll(cy);
+  _resetPips();
   setTip(tip, '⏳ contacting backend…', true);
 
   let sawComplete = false;
@@ -954,6 +1016,9 @@ function renderCascadeFlow(brief) {
 
   const toolbar = flowEl('div', 'cascade-toolbar');
   wrap.appendChild(toolbar);
+
+  // V7.14 — visible phase pips strip (sits between toolbar and graph)
+  wrap.appendChild(_buildPipsStrip());
 
   const container = flowEl('div', 'cascade-graph');
   container.id = 'cascade-graph';
