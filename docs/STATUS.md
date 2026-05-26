@@ -11,7 +11,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S1.2 | Finance agent → MarketSignal | ⏳ pending | — | — | — | independent |
 | S1.3 | Security agent → RiskProfile | ⏳ pending | — | — | — | independent |
 | S2.1 | Grounding/citation guard | ✅ done | 3/3 | self | (S2.1) | drops hallucinated + uncited claims |
-| S2.2 | PII redaction | ⏳ pending | — | — | — | fixture-testable, no keys |
+| S2.2 | PII redaction | ✅ done | 3/3 | self | (S2.2) | emails+phones redacted; prices/counts preserved |
 | S2.3 | Leak/scope guard | ⏳ pending | — | — | — | fixture-testable, no keys |
 | S3.1 | Orchestrator skeleton | ⏳ pending | — | — | — | — |
 | S3.2 | Cross-pollination + handoffs | ⏳ pending | — | — | — | — |
