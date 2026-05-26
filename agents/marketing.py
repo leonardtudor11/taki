@@ -54,24 +54,41 @@ BUSINESS CONTEXT:
 SOURCES (mixed self + competitor):
 {context}
 
-Return JSON for a MarketingSignal with fields:
-- value_proposition:  what value the FOUNDER's site actually communicates today
-                      (text, citations[...], confidence)
-- positioning:        how the founder is positioning vs the competitor sources
-- brand_voice:        observed voice on the founder's site (tone, persona, vocabulary)
-- content_gaps:       things missing from the founder's marketing that the
-                      competitors have or that the founder's stated goal demands.
-                      These are the actionable items — call out specifics
-                      ("homepage doesn't mention industry use cases", "no pricing
-                      page", "no case studies", "missing meta description on /",
-                      etc.). Cite a competitor snippet or the founder's own page.
-- channel_signals:    which channels the founder is and isn't using
+Return JSON for a MarketingSignal. Every field below is an ARRAY of claim
+objects — even when you only have one observation, wrap it as a one-element
+array `[{{...}}]`. Never return a bare object.
+
+A claim object looks like:
+  {{
+    "text": "...one sentence observation...",
+    "citations": [{{"url": "...", "snippet": "verbatim from the source",
+                    "source_type": "site"}}],
+    "confidence": 0.8
+  }}
+
+Fields:
 - target: "{target}"
+- value_proposition:  ARRAY[claim] — what value the FOUNDER's site
+                      communicates today
+- positioning:        ARRAY[claim] — how the founder positions vs the
+                      competitor sources
+- brand_voice:        ARRAY[claim] — observed voice on the founder's site
+                      (tone, persona, vocabulary)
+- content_gaps:       ARRAY[claim] — things missing from the founder's
+                      marketing that competitors have or that the founder's
+                      stated goal demands. Be specific: "homepage doesn't
+                      mention industry use cases", "no pricing page",
+                      "no case studies", "missing meta description on /",
+                      etc. Cite a competitor snippet or the founder's page.
+- channel_signals:    ARRAY[claim] — which channels the founder is + isn't using
+
+If a field has nothing observable, return `[]` (empty array) — do NOT return
+null and do NOT omit the field.
 
 {grounding}
 
-Tone: direct, plain English, no jargon. Each claim should read like a note
-from a marketing advisor — observation + (where relevant) implication.
+Tone: direct, plain English, no jargon. Each claim reads like a note from
+a marketing advisor — observation + (where relevant) implication.
 """
 
 

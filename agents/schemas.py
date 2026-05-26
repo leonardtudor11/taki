@@ -11,11 +11,51 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+class _AutoListBase(BaseModel):
+    """Tolerates a common LLM mistake: returning a single dict / string for a
+    field declared as a list, instead of a 1-element list. Without this the
+    real-LLM Marketing / Strategy paths blow up on minor JSON-shape drift
+    (the user hit this with a real Orchid SRL self-mode run: every
+    MarketingSignal field came back as one dict instead of `[{...}]`).
+
+    Coercion rules (run BEFORE Pydantic field validation):
+      - field declared list[...] AND value is None → []
+      - field declared list[...] AND value is dict → [dict]
+      - field declared list[...] AND value is str  → [str]
+      - everything else passes through unchanged.
+
+    Inheriting from this instead of BaseModel directly opts a schema in.
+    """
+
+    @model_validator(mode="before")
+    @classmethod
+    def _wrap_singletons(cls, data):
+        if not isinstance(data, dict):
+            return data
+        for name, field in cls.model_fields.items():
+            if name not in data:
+                continue
+            ann_str = str(field.annotation)
+            if "list[" not in ann_str and "List[" not in ann_str:
+                continue
+            v = data[name]
+            if v is None:
+                data[name] = []
+            elif isinstance(v, dict):
+                data[name] = [v]
+            elif isinstance(v, str):
+                # only safe for list[str] fields; for list[Claim] this will
+                # fail validation downstream with a clear 'expected dict for
+                # Claim' message rather than the cryptic 'expected list'.
+                data[name] = [v]
+        return data
 
 
 class SourceType(str, Enum):
@@ -39,7 +79,7 @@ class SourceSubject(str, Enum):
     COMPETITOR = "competitor"  # a named competitor of the user's business
 
 
-class SourceItem(BaseModel):
+class SourceItem(_AutoListBase):
     """One raw scraped artifact in the shared bundle."""
 
     source_type: SourceType
@@ -50,7 +90,7 @@ class SourceItem(BaseModel):
     fetched_at: datetime = Field(default_factory=_now)
 
 
-class SharedBundle(BaseModel):
+class SharedBundle(_AutoListBase):
     """The Lean single-fetch store: scrape once, every department reads this."""
 
     target: str  # company name or domain
@@ -72,7 +112,7 @@ class SharedBundle(BaseModel):
         return seen
 
 
-class Citation(BaseModel):
+class Citation(_AutoListBase):
     """Anchors a claim to a snippet that exists in the SharedBundle."""
 
     url: str
@@ -103,7 +143,7 @@ _CONFIDENCE_WORDS = {
 }
 
 
-class Claim(BaseModel):
+class Claim(_AutoListBase):
     text: str
     citations: list[Citation] = Field(default_factory=list)
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
@@ -136,7 +176,7 @@ class Claim(BaseModel):
 
 # --- Department outputs ---
 
-class AccountBrief(BaseModel):
+class AccountBrief(_AutoListBase):
     """Revenue / GTM department (Track 1)."""
 
     target: str
@@ -150,7 +190,7 @@ class AccountBrief(BaseModel):
         return [*self.buying_signals, *self.competitor_moves, *self.hiring_signals]
 
 
-class MarketSignal(BaseModel):
+class MarketSignal(_AutoListBase):
     """Finance / Market department (Track 2)."""
 
     target: str
@@ -169,7 +209,7 @@ class MarketSignal(BaseModel):
         ]
 
 
-class MarketingSignal(BaseModel):
+class MarketingSignal(_AutoListBase):
     """Marketing department (V7) — positioning, brand voice, content + channel.
 
     In self-mode the user's site is analysed for what *they* should improve.
@@ -194,7 +234,7 @@ class MarketingSignal(BaseModel):
         ]
 
 
-class RiskProfile(BaseModel):
+class RiskProfile(_AutoListBase):
     """Security / Compliance department (Track 3)."""
 
     target: str
@@ -215,7 +255,7 @@ class RiskProfile(BaseModel):
 
 # --- Cross-department + guardrails ---
 
-class HandoffMessage(BaseModel):
+class HandoffMessage(_AutoListBase):
     """Explicit dept->dept communication, surfaced in the UI."""
 
     from_dept: str
@@ -224,7 +264,7 @@ class HandoffMessage(BaseModel):
     refs: list[str] = Field(default_factory=list)
 
 
-class SynergySignal(BaseModel):
+class SynergySignal(_AutoListBase):
     """A combined signal that no single department could produce alone."""
 
     text: str
@@ -232,7 +272,7 @@ class SynergySignal(BaseModel):
     citations: list[Citation] = Field(default_factory=list)
 
 
-class GuardrailReport(BaseModel):
+class GuardrailReport(_AutoListBase):
     pii_redactions: int = 0
     leak_flags: list[str] = Field(default_factory=list)
     ungrounded_dropped: list[str] = Field(default_factory=list)
@@ -262,7 +302,7 @@ class Stage(str, Enum):
     SCALE = "scale"
 
 
-class BusinessProfile(BaseModel):
+class BusinessProfile(_AutoListBase):
     """User-supplied context for self-mode cascades.
 
     Captured from the onboarding form on the dashboard so the strategy agent
@@ -300,7 +340,7 @@ class FitTier(str, Enum):
     LOW = "low"
 
 
-class StrategicPlay(BaseModel):
+class StrategicPlay(_AutoListBase):
     """One prioritized action — what to do, why, when, who owns it."""
 
     text: str
@@ -328,7 +368,7 @@ class StrategicPlay(BaseModel):
         return 3
 
 
-class StrategicPlan(BaseModel):
+class StrategicPlan(_AutoListBase):
     """Strategy department output — the synthesized 'so what' for the target.
 
     Built after grounding + cross-pollination so it can quote claims from any
@@ -365,7 +405,7 @@ class StrategicPlan(BaseModel):
         return FitTier.MEDIUM
 
 
-class CascadeBrief(BaseModel):
+class CascadeBrief(_AutoListBase):
     """The unified deliverable every department cascades into."""
 
     target: str

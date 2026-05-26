@@ -1,97 +1,160 @@
-# Resume Prompt — paste into a fresh Claude session in ~/taki
+# Taki — Resume prompt (paste into a fresh Claude Code session)
 
-Copy everything inside the fence below into the first message of the new session.
+Copy everything inside the fence below into the first message of the new
+session. The prompt is self-contained: locates the repo, restarts the
+backend, names the current state, points at the next pieces of work.
 
 ---
 
 ```
-You are resuming work on **Taki** — Bright Data "Web Data UNLOCKED" hackathon
-project at ~/taki. lablab.ai submission, primary Track 1 GTM with Finance +
-Security as feeder departments. Deadline: May 30 build / May 31 finale.
+You are resuming work on **Taki** — Bright Data "Web Data UNLOCKED"
+hackathon project that pivoted (V7) into a small-business self-analysis
+product with the original target-account mode preserved. Repo lives at
+`/Users/mirel-leonardtudor/taki`. Stay strictly inside that directory.
 
 ## Boundary (security)
 - Only read/write/run inside /Users/mirel-leonardtudor/taki.
-- No personal files, no other projects, no ~/.env, no credentials/SA files.
-- Every session ends in a git commit. Rollback = git reset.
+- No personal files, no other projects, no ~/.env, no SA keys.
+- Every session ends in a `git commit`.
 
-## Current state — LIVE end-to-end (verified May 26)
-- Backend: 3 dept agents (GTM/Finance/Security), 3 guardrails (grounding/PII/leak),
-  orchestrator builds CascadeBrief. 50 tests passing.
-- Auth wired: Vertex AI via ADC at ~/.config/gcloud/adc_taki.json
-  (project: project-2be42b84-14e0-421a-b3a). Bright Data via Unlocker zone
-  "taci_unlocker". SERP/Scraper zones unused (Path A — make optional).
-- Real run on Vercel succeeded: data/vercel/brief.json + frontend/brief.json
-  (2 buying / 1 hiring signals; 2 pricing moves; 9 risk signals;
-   8 ungrounded LLM claims caught by grounding guard, passed=False — guard working).
-- Static HTML/JS dashboard at frontend/ — reads brief.json. View locally:
-  `cd ~/taki/frontend && python3 -m http.server 8000` → http://localhost:8000.
+## Boot
+```bash
+cd ~/taki
+# kill any stale server, restart the backend (serves static + /api/run SSE)
+lsof -nP -iTCP:5001 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 2>/dev/null
+pgrep -f "server.py" 2>/dev/null | xargs -r kill -9 2>/dev/null
+.venv/bin/python server.py >/tmp/taki-server.log 2>&1 &
+sleep 2 && curl -s http://localhost:5001/api/status
+```
+Open http://localhost:5001 in the browser.
 
-## Read first
-- docs/STATUS.md — per-session build log
-- docs/HANDOFF.md — operational steps (auth, run, deploy)
-- docs/PRESENTATION.md — full lablab form text + 5-min video script + 8-slide outline
-- README.md — architecture diagram + run/test
-- agents/, services/, guardrails/, frontend/, tests/ — the code
+## Project shape — 5-agent cascade, 4 modes
 
-## Active /ultraplan upgrade — V1 → V3 → V4 → V2
-
-User feedback: current dashboard "looks like crucible/diligence." Distinctive
-identity + interactive cascade graph + real LangGraph backend agreed. Strictly
-vanilla HTML/JS frontend — NO React, NO build step. All libs via CDN. Static
-files deploy to Vercel free tier.
-
-### V1 — Logo + identity reset (START HERE)
-- Direction B chosen: geometric monoline 滝 stylized as **3 descending streams**
-  (one per department: GTM cyan, Finance green, Security amber). SVG inline.
-- Refresh palette + typography to clearly differ from diligence's dark-panel
-  aesthetic. Consider a less stock-dev look — asymmetric layout, less-grid feel.
-- Touch frontend/index.html only. Keep app.js + cascade-flow.js rendering logic.
-
-### V3 — Interactive cascade graph (cytoscape.js)
-- Replace static cascade-flow strip with a real node-edge graph:
-  3 dept nodes + handoff edges with labels + synergy connectors.
-- Add cytoscape via CDN. GSAP for entry animation (also CDN).
-- Click a dept node → fades the other panels, highlights that dept's claims.
-
-### V4 — UI/UX polish
-- Invoke ui-ux-pro-max skill for spacing/typography/motion guidance.
-- Reference 21st.dev component patterns; extract as vanilla HTML/JS, NOT React.
-
-### V2 — Real LangGraph backend
-- Rewrite agents/orchestrator.py to use langgraph.StateGraph: parallel dept
-  nodes (async + reducer), guardrail node, synthesis node. Same CascadeBrief
-  output — frontend untouched.
-- Optionally stream intermediate state to data/<slug>/cascade-trace.json.
-
-## After the V-phases
-- S4.4 Deploy frontend/ to Vercel (drag-drop or vercel CLI). Public HTTPS URL.
-- S5.2 Record 5-min MP4 demo (script in docs/PRESENTATION.md).
-- S5.3 Push public repo (github.com/leonardtudor11/taki); submit lablab form.
-
-## Useful commands
-- Tests: `.venv/bin/python -m pytest -q`
-- Live run: `.venv/bin/python run.py "Company" https://x/pricing:pricing https://x/jobs:jobs`
-  (reuses cached bundle if present — only LLM cost on re-run)
-- Dashboard: `cd frontend && python3 -m http.server 8000`
-- Auth check: `gcloud auth application-default print-access-token` (with
-  `GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/adc_taki.json` for Taki's ADC)
-
-## Discipline
-- Ultraplan style: ONE step at a time, build → test → commit per session.
-- Karpathy principles always on (from ~/.claude/CLAUDE.md): simplicity first,
-  surgical changes, goal-driven, think-before-coding.
-- Caveman compression on by default. Drop articles, fluff, hedging.
-
-Start at V1 Step 1: design and inline the SVG monoline 滝 logo (3-stream cascade)
-+ the refreshed palette/typography in frontend/index.html. Show me a preview
-description (or open the local server) before committing.
+```
+Bright Data live web → SharedBundle (Lean cache)
+        ↓ PII redact → leak/scope guard
+        ↓ (parallel fan-out)
+[Marketing] [GTM] [Finance] [Security]   ← 4 dept agents
+        ↓ grounding (drop uncited claims)
+        ↓ cross-pollinate (synergies + handoffs)
+        ↓ Strategy (Chief of Staff synthesizes StrategicPlan)
+        ↓ assemble → CascadeBrief
+        ↓ /api/run SSE → cytoscape graph + dashboard re-render
 ```
 
----
+| Mode | Trigger | Subject |
+|---|---|---|
+| self (V7)   | 🚀 analyze my business modal | the founder's OWN site + competitor URLs |
+| target      | ⚡ live run popover         | someone else's account (sales intel) |
+| demo        | ▶ live demo button          | fixture Northwind cascade through real backend |
+| replay      | ▶ replay cascade            | scripted animation of cached brief.json |
 
-## How to use
+## Recent state (chronological commits — most recent at the bottom)
 
-1. Stop the current Claude session (or wait for it to compact).
-2. Start a fresh Claude Code session, cd to ~/taki.
-3. Paste the block above as your first message.
-4. The new session has the full plan + state and starts at V1.
+- 4fa9955 V1.1 identity reset — inline 3-stream 滝 SVG + warm-ink palette
+- 61b3019 V3 cytoscape cascade graph
+- 47ab3ec V2 LangGraph backend (StateGraph + per-node event stream)
+- c687915 V3.2 replay-cascade mode
+- 5b49b94 V4 UX polish — confidence bars + dropped-claims drawer + a11y
+- 5cf35d3 demo: one-command boot + `run.py --demo` + README quickstart
+- aec25eb V5 live mode (Flask + SSE) + edge-label clarity fix
+- b2470a3 V6 Strategy department (Chief of Staff) + StrategicPlan hero
+- 110733e V7 SMB pivot — Marketing dept + self-mode + onboarding form
+- 6fc98b6 V7.1-V7.4 — 4-col layout + self-mode resilience + observable status
+- 8ede64a V7.6-V7.8 — URL audit (normalize + DNS) + post-scrape quality gate
+- V7.10 — Pydantic auto-coerce singleton → list (just shipped — fixed the
+  ValidationError × 4 on real Orchid SRL self-mode run where the LLM
+  returned bare dicts instead of one-element lists for MarketingSignal
+  fields)
+
+## Tests
+- 111/111 green (~14s)
+- tests/test_schema_coercion.py — V7.10 regression for the real Orchid SRL
+  payload + general coercion (other dept schemas, StrategicPlan, etc.)
+- tests/test_url_audit.py — normalize / DNS / audit_urls / quality gate
+
+## Known issues / queued enhancements
+
+| Tier | Item | Why deferred |
+|---|---|---|
+| viz | per-dept inline graphs (positioning quadrant, compliance scorecard) | substantial SVG/D3 work |
+| viz | competitor mind-map (user center, competitors as satellites) | needs second cytoscape canvas + layout |
+| audit | LLM-mediated typo guess on dropped URLs | hallucination risk — needs web-search verification step |
+| audit | per-URL industry-relevance check | +1 LLM call × URLs (~$0.001 each, +3s latency) — add as opt-in toggle |
+| interact | on-demand "tell me more about competitor X" deep-dive | new sub-cascade design |
+| copy | LLM-generated homepage / pricing-page suggestions | new agent + UI surface |
+| ops | continuous monitoring (weekly re-scan with delta diff) | scheduler + state diff |
+| ops | CRM export (Salesforce / HubSpot push) | integration layer |
+| ops | submit to lablab.ai + record 5-min video | hackathon submission |
+
+## Quick file map
+
+```
+agents/
+  schemas.py          # Pydantic — _AutoListBase mixin auto-wraps singletons → lists
+  base.py             # build_context, parse_into, GROUNDING_RULE
+  marketing.py        # V7 — 4th dept · self/target prompt variants
+  gtm.py · finance.py · security.py
+  strategy.py         # V6 Chief of Staff — self/target prompt variants
+  orchestrator.py     # build_cascade_brief delegates to cascade_graph
+  cascade_graph.py    # LangGraph StateGraph: pii→leak→4 depts→grounding
+                      #   →cross_pollinate→strategy→assemble
+guardrails/
+  pii.py · leak.py · grounding.py
+services/
+  brightdata.py       # build_bundle (target) + build_self_bundle (per-URL skip + quality gate)
+  url_audit.py        # V7.6 normalize_url + dns_resolves + audit_urls + is_low_quality
+  cache.py            # data/<slug>/bundle.json + brief.json + events.jsonl
+  llm.py              # Vertex via ADC (preferred) or Gemini AI Studio
+frontend/
+  index.html          # warm-ink editorial layout, 3-button toolbar + analyze-my-business modal
+  app.js              # render() + status banner + onboarding form wiring
+  cascade-flow.js     # cytoscape graph + replay + SSE handlers
+  brief.json          # cached Vercel target-mode brief (with hand-crafted plan + marketing)
+server.py             # Flask + flask-cors — /, /api/status, /api/run (SSE)
+run.py                # CLI: --demo (fixture) | "Target" url:type ... (live)
+demo.sh               # boot venv + deps + tests + server + browser
+fixtures/
+  sample.py           # Northwind Analytics — 8 subject-tagged sources
+  fake_llm.py         # fake_{gtm,finance,marketing,security,strategy}_llm
+tests/                # 111 tests — see test_schema_coercion.py for V7.10
+docs/
+  STATUS.md           # per-session build log
+  RESUME.md           # this file
+  PRESENTATION.md     # lablab form text + 5-min video script + slide outline
+  HANDOFF.md          # original morning handoff (V1-V5 era)
+```
+
+## Live env
+- Vertex AI via ADC at ~/.config/gcloud/adc_taki.json
+  (project project-2be42b84-14e0-421a-b3a)
+- Bright Data Unlocker zone taci_unlocker
+- `.env` filled (BRIGHTDATA_API_KEY + GCP_PROJECT_ID)
+- langgraph 0.2 · flask 3 · pydantic 2 · cytoscape+GSAP via CDN
+
+## Useful commands
+```bash
+.venv/bin/python -m pytest -q                 # full suite (111 in ~14s)
+.venv/bin/python run.py --demo                # generate Northwind brief offline
+.venv/bin/python run.py "Stripe" \
+    https://stripe.com/pricing:pricing \
+    https://stripe.com/jobs:jobs              # target-mode CLI live run
+.venv/bin/python server.py                    # Flask backend on :5001
+./demo.sh                                     # one-command bootstrap
+git log --oneline | head -15                  # recent commits
+```
+
+## Discipline
+- Ultraplan style — ONE step at a time, build → test → commit per session.
+- Karpathy rules (from ~/.claude/CLAUDE.md): simplicity first, surgical
+  changes, goal-driven, think before coding.
+- Caveman compression on by default — terse prose, normal code/commits.
+- Don't drift back into Diligence territory (SEC filings, bull/bear) —
+  this is BD live-web + dept-cascade.
+
+## What you should NOT do
+- No SA-key creation (Vertex via ADC only).
+- No public deploy of server.py — no auth, would let strangers spend
+  Bright Data credit. Static frontend/ deploys fine to Vercel.
+- No silent LLM "did you mean ___?" typo correction (hallucination risk).
+```

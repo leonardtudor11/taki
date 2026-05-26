@@ -27,6 +27,9 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S6.2 | V5 live mode + label-clarity fix | ✅ done | 59/59 | self | (label-fix + live-mode) | Flask SSE backend (`server.py`) drives cytoscape in real time · 3 toolbar buttons (replay / live demo / live run popover) · per-edge arc classes + opaque-bg labels = no clipping/overlap · 5 new server tests |
 | S6.3 | V6 Strategy department + plan hero | ✅ done | 64/64 | self | (V6) | 4th agent (Chief of Staff) synthesizes a real StrategicPlan: headline · narrative · ICP fit · deal-size · urgency · 3-5 prioritized plays (priority + timeframe + dept owners + citations) · open questions. New StateGraph node `strategy` between cross_pollinate and assemble. Hero section above the cascade graph. Replay + SSE animate the strategy phase. Strategy failure contained (brief still assembled). Richer fixtures (3 → 13 grounded claims) + Vercel cached plan hand-crafted. |
 | S6.4 | V7 Self-mode + Marketing dept | ✅ done | 71/71 | self | (V7) | SMB pivot. 5-agent cascade: marketing + gtm + finance + security + strategy. Two prompt modes (target / self). `BusinessProfile` form on the dashboard. `SourceSubject` tags every scraped source as self/competitor. Self-mode strategy plan written FOR the founder. Cytoscape Marketing node + colour. Cached Vercel brief patched with marketing_signal. 7 new tests. |
+| S6.5 | V7.1-V7.4 layout + self-mode resilience | ✅ done | 77/77 | self | (V7.1-V7.4) | 4-col responsive grid (Marketing+GTM+Finance+Security in one row); per-URL skip in `build_self_bundle`; BD timeout 90s→30s; persistent `_LAST_RUN` + `/api/status v2`; status banner on page load (running / completed / error) with auto-poll; lock follows worker thread not SSE stream (fixes refresh-mid-run race). |
+| S6.6 | V7.6-V7.8 URL audit pipeline | ✅ done | 104/104 | self | (V7.6-V7.8) | `services/url_audit.py`: normalize_url (trim/strip/scheme/lowercase host) + dns_resolves (threaded, 3s timeout) + audit_urls (per-URL log + on_event). is_low_quality post-scrape gate: <150 chars OR matches 14 error-page patterns (404, CF challenge, etc.). Server runs audit pre-scrape, streams audit events, surfaces drops in `last_run.url_errors`. Frontend tooltip surfaces `🔧 audit fixed` / `✗ audit dropped` / `🔍 URL audit summary`. |
+| S6.7 | V7.10 Pydantic singleton→list coercion | ✅ done | 111/111 | self | (V7.10) | Real Orchid SRL self-mode run hit `ValidationError × 4` on MarketingSignal — LLM returned bare dict instead of `[{...}]`. New `_AutoListBase` mixin on every schema runs `model_validator(mode='before')` to wrap dict/str into 1-element list when the field is declared `list[*]`. All 15 BaseModels migrated. Marketing + strategy prompts strengthened with explicit "ARRAY of claim objects" wording. tests/test_schema_coercion.py regression locks the orchid payload + other dept schemas + StrategicPlan + SynergySignal + HandoffMessage. |
 
 ## Stop protocol (unattended runs)
 At each session: build → test → (audit) → update this table → `git commit`. If a session is BLOCKED (missing key/auth/decision): mark it, skip to the next *independent* session that is fixture-testable, and log the blocker here. Never fake a passing test.
@@ -39,9 +42,9 @@ At each session: build → test → (audit) → update this table → `git commi
 - Real run: `data/vercel/brief.json` (2 buying / 1 hiring / 2 pricing / 9 risk; 8 ungrounded dropped → guardrail working).
 - Tests: 50/50.
 
-## Active /ultraplan upgrade — V1→V3→V2→V3.2→V4→demo→live→V6→V7
+## Active /ultraplan upgrade — V1→V3→V2→V3.2→V4→demo→live→V6→V7→V7.1-V7.10
 
-All V-phases complete. 71/71 tests pass.
+All V-phases complete. 111/111 tests pass.
 
 - **V1.1** Logo + identity reset — ✅ inline SVG monoline 滝 (3 cyan/green/amber streams w/ draw-in), warm-ink palette, Fraunces+Inter+JBMono mix, vermilion 朱 accent, left stream-lane gutter, panel-less columns.
 - **V3** Interactive cytoscape graph — ✅ 5-node graph (Bright Data · GTM · Finance · Security · CascadeBrief), feed/output/handoff/synergy edges, cascade entry animation, click-dept focus filter, hover-edge tooltip, text fallback if CDN unreachable.
