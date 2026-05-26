@@ -28,6 +28,15 @@ sleep 2 && curl -s http://localhost:5001/api/status
 ```
 Open http://localhost:5001 in the browser.
 
+## Live URLs (V7.13 + hackathon-submission deploys)
+
+- **Public repo**: https://github.com/leonardtudor11/taki (MIT, topics added)
+- **Public dashboard**: https://frontend-sage-pi.vercel.app (static — replay
+  + dropped drawer + click-dept filtering all work; live demo / live run /
+  analyze-my-business need the local Flask backend at :5001)
+- **Vercel project**: auto-named `frontend` under `leonardtudor11s-projects`.
+  Rename to `taki` is cosmetic only — do it AFTER lablab submission.
+
 ## Project shape — 5-agent cascade, 4 modes
 
 ```
@@ -81,7 +90,35 @@ Bright Data live web → SharedBundle (Lean cache)
 - tests/test_url_audit.py — normalize / DNS / audit_urls / quality gate
 - tests/test_subpage_expansion.py — V7.12 sub-page discovery synonyms
 
-## Known issues / queued enhancements
+## Open hackathon-submission tasks (deadline May 30 build / May 31 finale)
+
+1. **Record 5-min MP4** — script in `docs/PRESENTATION.md`. Record against
+   the local `./demo.sh` on :5001 (full live mode visible — replay button,
+   analyze-my-business modal, dropped drawer, click-dept filter).
+2. **Render 8-slide PDF** — outline in `docs/PRESENTATION.md`.
+3. **Render 16:9 cover image** — spec in `docs/PRESENTATION.md`.
+4. **Submit lablab.ai form** — every field already drafted in
+   `docs/PRESENTATION.md`. Paste; attach assets above; GitHub URL =
+   https://github.com/leonardtudor11/taki ; Demo URL =
+   https://frontend-sage-pi.vercel.app .
+
+## UI/UX polish — queued for next session
+
+User flagged wanting "improve some bits in the UI/UX" without specifics.
+Pre-record options to consider:
+
+| Surface | Possible polish |
+|---|---|
+| Strategic plan hero | Tighten line-length on narrative paragraphs; maybe slot a small inline chart next to the stat grid (ICP fit / deal size / urgency) |
+| Cytoscape graph | Hover-state for the 5 nodes; a 'reset view' control; better legend explaining the 4 edge types (feed / output / handoff / synergy) |
+| Onboarding modal | Add a one-line preview of which sub-pages WILL be auto-discovered ('we'll try /about, /projects, /references on your domain') so the founder knows the depth-page step exists |
+| Recommended plays | Inline visual priority pip (small filled circles 1-5); maybe expandable rationale per play |
+| Dropped drawer | Group dropped claims by dept so the founder sees which dept hallucinated most |
+| Status banner | When running, show the current phase as a small inline progress dot ('pii ● leak ● gtm ○ marketing ○ ...') instead of just text |
+| Mobile | Verify the modal fits a 375px viewport; verify the cytoscape graph is usable at narrow widths |
+| Empty states | When `marketing_signal` returns 0 grounded claims (e.g. the user gave a URL that's all JS), show a friendly 'no marketing signals — try giving Taki more URLs from your site' message instead of an empty panel |
+
+Plus the broader queue carried over:
 
 | Tier | Item | Why deferred |
 |---|---|---|
