@@ -26,3 +26,19 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 
 ## Stop protocol (unattended runs)
 At each session: build → test → (audit) → update this table → `git commit`. If a session is BLOCKED (missing key/auth/decision): mark it, skip to the next *independent* session that is fixture-testable, and log the blocker here. Never fake a passing test.
+
+---
+
+## Live state (May 26)
+- Vertex AI: live via ADC at `~/.config/gcloud/adc_taki.json` (project `project-2be42b84-14e0-421a-b3a`).
+- Bright Data: live via Unlocker zone `taci_unlocker` (~$0.0015/req).
+- Real run: `data/vercel/brief.json` (2 buying / 1 hiring / 2 pricing / 9 risk; 8 ungrounded dropped → guardrail working).
+- Tests: 50/50.
+
+## Active /ultraplan upgrade — V1→V3→V4→V2
+- **V1** Logo + identity reset (geometric monoline 滝 = 3 streams; refresh palette/typography distinct from diligence) — **next**
+- **V3** Interactive cascade graph (cytoscape.js + GSAP, CDN, no build)
+- **V4** UI/UX polish (ui-ux-pro-max skill, 21st.dev patterns, vanilla HTML/JS)
+- **V2** Real LangGraph backend (StateGraph + parallel dept nodes; same CascadeBrief output)
+
+See `docs/RESUME.md` for the full resume prompt to paste into a fresh session.
