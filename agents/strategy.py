@@ -178,16 +178,59 @@ Return JSON for a StrategicPlan with these fields:
       "rationale": "why this play, tied to a specific signal",
       "citations": [{{"url": "...", "snippet": "verbatim snippet from a dept claim above", "source_type": "site"}}]
   }}
-  Examples of plays for a small business:
-   - "Add a pricing page that names the top 3 customer segments — your
-     competitors all have one and yours doesn't."
-   - "Fix the missing meta description on /pricing — that page is your
-     SEO-traffic destination."
-   - "Stand up a basic GDPR-aware cookie banner before launching EU marketing."
-  Order by priority (1 first). Span dept owners so the founder sees this is
-  cross-functional work, not just marketing.
+  ⚑ SECTOR-AWARE PLAY SELECTION ⚑
+  Match the plays to the buyer's actual decision criteria. Look at the
+  founder's stated industry + the dept signals to infer sector type:
+
+  HIGH-BARRIER B2B (wind energy, infrastructure, manufacturing, defense,
+  healthcare, regulated industries, professional services, enterprise
+  procurement-led deals) — buyers decide on PROOF and RELATIONSHIPS,
+  not marketing copy. Strong plays look like:
+   - "Publish a reference portfolio page with 5+ installed projects,
+     each with named utility/municipal customer, MW capacity, and
+     commissioning year. Without this you cannot pass RFP pre-qualification."
+   - "Begin IEC 61400-1 (or sector-equivalent) certification track —
+     list target standards publicly so procurement reviewers see the
+     compliance trajectory before they ask."
+   - "Join WindEurope / AWEA / relevant industry body and add the
+     membership badge — absence of trade-association presence is a
+     vendor-screening red flag in this sector."
+   - "Co-author a case study with [named utility/EPC from the dept
+     signals] from the recent deployment; route through their PR for
+     joint distribution. Joint press = third-party validation."
+   - "Submit a paper to WindEurope Annual Event 2026 (or the equivalent
+     industry conference) — visibility there converts to RFP invites."
+   - "Open named-partnership outreach to a tier-1 OEM / EPC; absence
+     of a partner network is the #1 RFP rejection reason for new entrants."
+  AVOID for high-barrier B2B: SEO fixes, H1 tweaks, ad-channel
+  suggestions, social-media calendar advice, generic 'improve your
+  copy'. Those will lose the founder's trust — they signal the tool
+  doesn't understand the sector.
+
+  LOWER-BARRIER (SaaS / D2C / consumer / freemium) — the OPPOSITE.
+  Buyers decide on funnel clarity, pricing transparency, social proof,
+  product-led signals. Strong plays:
+   - "Add a pricing page that names the top 3 customer segments."
+   - "Publish 3-5 G2 / Trustpilot case studies with named buyers."
+   - "Stand up a GDPR-aware cookie banner + DPA download before EU launch."
+
+  When in doubt about sector, treat as HIGH-BARRIER — the expensive
+  mistake is recommending an SEO tweak to a wind-turbine company that
+  needs reference projects.
+
+  Order by priority (1 first). Span dept owners so the founder sees this
+  is cross-functional, not just marketing.
+
 - open_questions: 3-5 short strings — concrete things the founder should
-  research next (or what more context Taki should be re-run with). Examples:
+  research next (or what more context Taki should be re-run with).
+  For high-barrier B2B, examples:
+   - "Pull the references / projects pages of [competitor X] to compare
+     installed-capacity figures and named utility customers."
+   - "Confirm the founder's existing pilot installations — if any —
+     so the reference-portfolio play has substrate to publish from."
+   - "Verify what IEC / GL / sector certifications the founder already
+     holds vs. what is still in flight."
+  For SaaS/D2C examples:
    - "Pull pricing pages of [competitor X] for direct comparison."
    - "Confirm whether your stripe/billing flow is PCI-compliant before scale."
 
@@ -196,6 +239,9 @@ Constraints:
   verbatim in the dept signals above. Do not invent citations.
 - Speak FOR the founder — 'you', 'your business' — not 'the target'.
 - Be specific. Generic advice ("improve your marketing") is not acceptable.
+- Name entities and numbers where the dept signals provide them — buyers
+  remember "we installed 12 MW with EDP in 2024", not "we provide
+  premium service".
 - Output JSON only. No prose around the JSON.
 """
 

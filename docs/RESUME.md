@@ -62,16 +62,24 @@ Bright Data live web → SharedBundle (Lean cache)
 - 110733e V7 SMB pivot — Marketing dept + self-mode + onboarding form
 - 6fc98b6 V7.1-V7.4 — 4-col layout + self-mode resilience + observable status
 - 8ede64a V7.6-V7.8 — URL audit (normalize + DNS) + post-scrape quality gate
-- V7.10 — Pydantic auto-coerce singleton → list (just shipped — fixed the
-  ValidationError × 4 on real Orchid SRL self-mode run where the LLM
-  returned bare dicts instead of one-element lists for MarketingSignal
-  fields)
+- V7.10 — Pydantic auto-coerce singleton → list (fixed the ValidationError × 4
+  on real Orchid SRL self-mode run where the LLM returned bare dicts instead
+  of one-element lists for MarketingSignal fields)
+- V7.11-V7.13 (just shipped) — depth-over-surface prompts (Marketing +
+  Strategy are now industry-aware; high-barrier B2B bias toward proof-of-
+  execution + named collaborators + certifications, not SEO/copy/voice);
+  V7.12 auto-discovers concept-grouped sub-pages on the founder's domain
+  (about / projects / references / products / certifications / news +
+  synonyms — first per concept group wins) so depth pages reach the
+  cascade instead of homepage-only; docs/JOURNEY.md judge-friendly
+  narrative; README gains 'How Taki maps to all three Bright Data Tracks'
+  section.
 
 ## Tests
-- 111/111 green (~14s)
-- tests/test_schema_coercion.py — V7.10 regression for the real Orchid SRL
-  payload + general coercion (other dept schemas, StrategicPlan, etc.)
+- 117/117 green (~14s)
+- tests/test_schema_coercion.py — V7.10 Orchid SRL regression
 - tests/test_url_audit.py — normalize / DNS / audit_urls / quality gate
+- tests/test_subpage_expansion.py — V7.12 sub-page discovery synonyms
 
 ## Known issues / queued enhancements
 
@@ -117,7 +125,9 @@ demo.sh               # boot venv + deps + tests + server + browser
 fixtures/
   sample.py           # Northwind Analytics — 8 subject-tagged sources
   fake_llm.py         # fake_{gtm,finance,marketing,security,strategy}_llm
-tests/                # 111 tests — see test_schema_coercion.py for V7.10
+tests/                # 117 tests — incl. test_schema_coercion + test_subpage_expansion + test_url_audit
+docs/JOURNEY.md       # ⭐ judge-facing narrative (V7.13): problem → architecture
+                      #   → 3-track mapping → V1-V7.13 build log → lessons → roadmap
 docs/
   STATUS.md           # per-session build log
   RESUME.md           # this file
@@ -134,7 +144,7 @@ docs/
 
 ## Useful commands
 ```bash
-.venv/bin/python -m pytest -q                 # full suite (111 in ~14s)
+.venv/bin/python -m pytest -q                 # full suite (117 in ~14s)
 .venv/bin/python run.py --demo                # generate Northwind brief offline
 .venv/bin/python run.py "Stripe" \
     https://stripe.com/pricing:pricing \

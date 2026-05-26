@@ -646,6 +646,10 @@ function _handleLiveEvent(ev, cy, tip) {
         setTip(tip, `✗ scrape failed: ${ev.url} — ${ev.error || 'unknown'}`, true);
         break;
       }
+      if (ev.status === 'discovered') {
+        setTip(tip, `🔎 found ${ev.concept || 'sub-page'}: ${ev.url}`, true);
+        break;
+      }
       if (ev.status === 'start') {
         let msg;
         if (ev.mode === 'self') {

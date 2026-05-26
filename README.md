@@ -6,7 +6,7 @@ Two modes, same pipeline:
 - **🚀 self mode** — paste YOUR business URL + competitor URLs into the onboarding form. Taki scrapes everything live, runs the four-dept cascade, and produces a strategic plan for YOUR business. Built for founders, not enterprise revenue teams.
 - **🎯 target mode** — classic — analyze an enterprise account someone might sell to.
 
-🏆 Track · [Bright Data — Web Data UNLOCKED](https://lablab.ai/ai-hackathons/brightdata-ai-agents-web-data-hackathon) (GTM-primary; Finance + Security as feeder departments)
+🏆 Track · [Bright Data — Web Data UNLOCKED](https://lablab.ai/ai-hackathons/brightdata-ai-agents-web-data-hackathon) — **Tracks 1 + 2 + 3 integrated** (see §How Taki maps to all three Tracks below). · License: MIT · Full reasoning + journey: [`docs/JOURNEY.md`](docs/JOURNEY.md)
 
 ---
 
@@ -43,6 +43,19 @@ cp .env.example .env  # fill BRIGHTDATA_API_KEY + zones + GCP_PROJECT_ID
     https://stripe.com/pricing:pricing \
     https://stripe.com/jobs:jobs
 ```
+
+## How Taki maps to all three Bright Data Tracks
+
+All three tracks are wired into the same cascade — they're not three separate products, they're three departments of one product (plus Marketing and Strategy added in V7 / V6).
+
+| Track | Department | Output | Bright Data zones it pulls |
+|---|---|---|---|
+| **Track 1 — GTM Intelligence** | Revenue / GTM (`agents/gtm.py`) | `AccountBrief` — buying / competitor / hiring signals + outreach angle | SERP + Web Unlocker (pricing, careers, news) |
+| **Track 2 — Finance & Market Intelligence** | Finance / Market (`agents/finance.py`) | `MarketSignal` — pricing trend, expansion/contraction, web-traffic proxy, vendor health | Web Unlocker (pricing pages, jobs as alt-data, news, subprocessor lists) |
+| **Track 3 — Security & Compliance Intelligence** | Security / Compliance (`agents/security.py`) + 3 guardrails | `RiskProfile` — exposure, reputational, regulatory, third-party risk; PLUS PII redaction, leak/scope withholding, citation-grounding enforcement | Web Unlocker (trust pages, subprocessor lists, news, reviews) |
+| (Synthesis) | Marketing (V7, `agents/marketing.py`) + Strategy (V6, `agents/strategy.py`) | `MarketingSignal` (value-prop, positioning, brand voice, content gaps, channel signals) + `StrategicPlan` (headline, narrative, ICP fit, deal size, urgency, 3-5 prioritized plays, open questions) | Reads the 3 dept outputs above — no extra scraping |
+
+For the SMB self-mode use case (V7), the same five agents flip subject: instead of analysing someone else, the founder pastes their own URL + a few competitor URLs and gets a plan written FOR them. V7.12 auto-discovers concept-grouped sub-pages (`/projects`, `/references`, `/certifications`, ...) so depth signals — installed-capacity figures, named utility customers, certifications — actually reach the cascade instead of the homepage being the only source.
 
 ## What it does
 
@@ -125,6 +138,29 @@ and the web layer are dependency-injected.
 ## Status
 
 See [`docs/STATUS.md`](docs/STATUS.md) — updated after every session.
+
+## Publish to GitHub (judges-ready)
+
+The repo carries everything a hackathon judge needs to evaluate it: the
+[journey + reasoning](docs/JOURNEY.md), the [build log](docs/STATUS.md),
+the [lablab form text + 5-min video script](docs/PRESENTATION.md), the
+MIT licence, 117 tests, and a one-command demo. To put it public:
+
+```bash
+# one-time: install the GitHub CLI + log in
+brew install gh
+gh auth login
+
+cd ~/taki
+gh repo create leonardtudor11/taki \
+    --public --license MIT --source=. --remote=origin --push \
+    --description "Agentic enterprise on Bright Data live web — 5 AI departments cascading into one strategic plan. SMB self-analysis + enterprise target-account modes. Bright Data Web Data UNLOCKED hackathon (Tracks 1+2+3)."
+```
+
+Then add the topics for discoverability:
+```bash
+gh repo edit --add-topic bright-data,langgraph,multi-agent,b2b,smb,gtm,marketing,security,compliance,hackathon,lablab,pydantic,flask,cytoscape,vertex-ai
+```
 
 ## License
 

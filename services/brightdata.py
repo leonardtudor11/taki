@@ -136,6 +136,39 @@ def build_bundle(
     return SharedBundle(target=target, sources=sources)
 
 
+# V7.12 — concept-grouped sub-page discovery for self-mode. For each
+# concept (about / projects / references / products / certifications /
+# news) we try a short list of synonym paths in order; the first one that
+# scrapes successfully + clears the post-scrape quality gate wins the
+# concept. This gets us depth-pages (references / case studies /
+# certifications) into the bundle so the Marketing + Strategy depts can
+# surface proof-of-execution signals instead of stopping at the homepage.
+SUB_PAGE_GROUPS: list[tuple[str, tuple[str, ...]]] = [
+    ("about",
+        ("/about", "/about-us", "/company", "/our-story", "/who-we-are")),
+    ("projects",
+        ("/projects", "/case-studies", "/portfolio", "/our-work",
+         "/installations", "/deployments", "/work")),
+    ("references",
+        ("/references", "/clients", "/customers", "/testimonials",
+         "/success-stories")),
+    ("products",
+        ("/products", "/technology", "/solutions", "/services",
+         "/platform")),
+    ("certifications",
+        ("/certifications", "/compliance", "/quality", "/standards",
+         "/iso", "/trust")),
+    ("news",
+        ("/news", "/press", "/press-releases", "/media", "/blog/news")),
+]
+
+
+def _site_root(url: str) -> str:
+    """Return https://host (no path/query/fragment) for url."""
+    p = urllib.parse.urlsplit(url)
+    return urllib.parse.urlunsplit((p.scheme or "https", p.netloc, "", "", ""))
+
+
 def _hostname(url: str) -> str:
     try:
         h = urllib.parse.urlparse(url).hostname or url
@@ -152,6 +185,8 @@ def build_self_bundle(
     client: BrightDataClient,
     cap_chars: int = 8000,
     on_error=None,
+    expand_self: bool = True,
+    on_discover=None,
 ) -> tuple[SharedBundle, list[dict]]:
     """Scrape the founder's own URLs (subject=self) + each competitor URL
     (subject=competitor, competitor_name = hostname) into one bundle.
@@ -161,6 +196,17 @@ def build_self_bundle(
     scrape. Returns (bundle, errors). Each error is a dict
     {url, subject, error}. The on_error callback fires per failed URL so a
     worker can surface them as SSE events in real time.
+
+    V7.12 — when `expand_self` is true (default for self-mode), the
+    function additionally tries to discover depth-pages on the founder's
+    OWN domain: for each concept group (about / projects / references /
+    products / certifications / news) it walks a short list of synonym
+    paths and keeps the first one that scrapes + clears the quality
+    gate. Sub-page misses are silent (404s are routine) — only sub-page
+    HITS are reported via the `on_discover` callback. This is what
+    feeds the Marketing + Strategy depts proof-of-execution evidence
+    (named references, installed-project portfolios, certifications)
+    instead of a homepage-only signal.
 
     If EVERY URL fails the function raises RuntimeError — at that point
     there's nothing for the depts to read.
@@ -218,10 +264,59 @@ def build_self_bundle(
             )
         )
 
+    def _try_silent(url: str, subject: SourceSubject,
+                    competitor_name: str = "") -> bool:
+        """Like _scrape but silent on failure — used for sub-page discovery
+        where 404s on attempted concept paths are routine and shouldn't
+        pollute the user-facing error log."""
+        if any(s.url == url for s in sources):
+            return False  # already scraped
+        try:
+            text = html_to_text(client.unlock(url))[:cap_chars]
+        except Exception:
+            return False
+        bad, _ = is_low_quality(text)
+        if bad:
+            return False
+        sources.append(
+            SourceItem(
+                source_type=SourceType.SITE,
+                url=url,
+                text=text,
+                subject=subject,
+                competitor_name=competitor_name,
+            )
+        )
+        return True
+
+    def _expand(base_url: str, subject: SourceSubject) -> None:
+        """For each concept group try synonym paths in order; first that
+        clears the quality gate wins the concept."""
+        root = _site_root(base_url)
+        for concept_name, paths in SUB_PAGE_GROUPS:
+            for path in paths:
+                if _try_silent(root + path, subject):
+                    if on_discover is not None:
+                        try:
+                            on_discover({
+                                "url": root + path,
+                                "concept": concept_name,
+                                "subject": subject.value,
+                            })
+                        except Exception:
+                            pass
+                    break  # concept satisfied — move to next concept
+
     for url, stype in self_urls or []:
         _scrape(url, stype, SourceSubject.SELF)
     for url, stype in competitor_urls or []:
         _scrape(url, stype, SourceSubject.COMPETITOR, competitor_name=_hostname(url))
+
+    # V7.12 — auto-discover depth-pages on the founder's domain. Only the
+    # FIRST self URL is expanded (cap cost; the user explicitly chose
+    # the competitor URLs so we don't auto-expand those).
+    if expand_self and self_urls:
+        _expand(self_urls[0][0], SourceSubject.SELF)
 
     if not sources:
         msg = "; ".join(f"{e['url']}: {e['error']}" for e in errors) or "no URLs supplied"

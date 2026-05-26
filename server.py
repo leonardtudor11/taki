@@ -326,12 +326,18 @@ def api_run():
                         q.put({"phase": "fetch", "status": "url_error", **ev})
                         _push_url_error(ev)
 
+                    def _emit_discovery(ev: dict) -> None:
+                        # surface depth-page discoveries so the dashboard
+                        # shows 'found /references · /about · /projects'
+                        q.put({"phase": "fetch", "status": "discovered", **ev})
+
                     bundle, url_errors = build_self_bundle(
                         business_name=profile.name,
                         self_urls=audited_self,
                         competitor_urls=audited_comp,
                         client=client,
                         on_error=_emit_url_error,
+                        on_discover=_emit_discovery,
                     )
                     q.put({
                         "phase": "fetch", "status": "done",
