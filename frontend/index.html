@@ -261,11 +261,13 @@
     opacity: 0.45; cursor: wait;
     color: var(--paper-dim); border-color: var(--paper-dim);
   }
-  /* during replay: dim everything below the graph so the eye stays on the cascade */
+  /* during replay: dim everything else so the eye stays on the cascade */
   body.replaying .panel,
   body.replaying .synergy,
   body.replaying .exec,
-  body.replaying .badges { opacity: 0.18; transition: opacity 0.3s ease; }
+  body.replaying .badges,
+  body.replaying .dropped,
+  body.replaying main > .section-title { opacity: 0.18; transition: opacity 0.3s ease; }
   body.replaying .cascade-graph { box-shadow: 0 0 0 1px var(--shu) inset; }
   .cascade-graph {
     width: 100%;
