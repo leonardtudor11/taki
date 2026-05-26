@@ -23,6 +23,47 @@ For a target account, three department-agents run on **one shared live-web data 
 - **Synergy** — cross-pollination pass: each department's output is context for the others.
 - **Guardrails** — Security/Compliance audits the others: grounding (no uncited claims), PII redaction, leak/scope (public-web only).
 
+## Architecture
+
+```
+                 Bright Data (live web)
+              SERP · Unlocker · Scraper zones
+                          │  scrape ONCE
+                          ▼
+                  SharedBundle (Lean cache)
+                          │
+        ┌─────── guardrails (Security/Compliance) ───────┐
+        │   1. PII redaction   2. leak/scope withholding  │
+        └─────────────────────┬──────────────────────────┘
+                   clean, public, de-identified
+                          │
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+   GTM agent         Finance agent     Security agent
+  AccountBrief       MarketSignal       RiskProfile
+        └─────────────────┼─────────────────┘
+                          ▼
+            grounding guard (drop uncited claims)
+                          ▼
+         cross-pollination → synergy + dept handoffs
+                          ▼
+                   ★ CascadeBrief ★
+              (+ GuardrailReport, exec summary)
+                          ▼
+                   Dashboard / demo
+```
+
+## Run / test
+
+```bash
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest -q        # full offline suite (fixtures, no keys)
+```
+
+Live runs need `.env` (copy `.env.example`): Bright Data key + zones, a Gemini
+key. The whole cascade is testable offline because every LLM and the web layer
+are dependency-injected.
+
 ## Status
 
 See [`docs/STATUS.md`](docs/STATUS.md) — updated after every session.

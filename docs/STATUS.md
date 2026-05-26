@@ -20,7 +20,7 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S4.2 | Cascade-flow + handoff visual | ⏳ pending | — | — | — | — |
 | S4.3 | Pull Fresh live button | ⏳ pending | — | — | — | — |
 | S4.4 | Deploy Vercel + cache accounts | ⏳ pending | — | — | — | **NEEDS YOU: Vercel auth** |
-| S5.1 | README + arch diagram + LICENSE | ⏳ pending | — | — | — | — |
+| S5.1 | README + arch diagram + LICENSE | ✅ done | n/a | self | (S5.1) | + real example brief.json artifact |
 | S5.2 | Video + slides | ⏳ pending | — | — | — | **NEEDS YOU** |
 | S5.3 | Public repo + lablab form | ⏳ pending | — | — | — | **NEEDS YOU** |
 
