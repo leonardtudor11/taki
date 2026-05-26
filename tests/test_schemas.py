@@ -50,6 +50,16 @@ def test_confidence_coerces_percent_and_garbage():
     assert Claim(text="t", confidence=None).confidence == 0.5
 
 
+def test_source_type_coerces_unknown_to_other():
+    # LLM hallucinations like "live_web" or "company_page" -> OTHER
+    c = Citation(url="https://x", snippet="abcdefghijklmno", source_type="live_web")
+    assert c.source_type == SourceType.OTHER
+    c2 = Citation(url="https://x", snippet="abcdefghijklmno", source_type="PRICING")
+    assert c2.source_type == SourceType.PRICING
+    c3 = Citation(url="https://x", snippet="abcdefghijklmno", source_type=None)
+    assert c3.source_type == SourceType.OTHER
+
+
 def test_department_outputs_aggregate_claims():
     claim = Claim(text="x")
     ab = AccountBrief(target="t", buying_signals=[claim], hiring_signals=[claim])

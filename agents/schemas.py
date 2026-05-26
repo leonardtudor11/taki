@@ -56,6 +56,22 @@ class Citation(BaseModel):
     snippet: str  # must appear in some SourceItem.text (grounding guard checks this)
     source_type: SourceType = SourceType.OTHER
 
+    @field_validator("source_type", mode="before")
+    @classmethod
+    def _coerce_source_type(cls, v):
+        """LLMs invent labels like 'live_web' or 'company_page'. Fall back to OTHER."""
+        if v is None:
+            return SourceType.OTHER
+        if isinstance(v, SourceType):
+            return v
+        if isinstance(v, str):
+            s = v.strip().lower()
+            for st in SourceType:
+                if st.value == s:
+                    return st
+            return SourceType.OTHER
+        return SourceType.OTHER
+
 
 _CONFIDENCE_WORDS = {
     "very high": 0.95, "high": 0.85, "medium high": 0.7, "med high": 0.7,
