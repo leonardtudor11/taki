@@ -411,6 +411,24 @@
     color: var(--paper);
   }
   .claim:last-child { border-bottom: none; }
+  /* V4 confidence bar — hairline at the top of each claim, dept-coloured */
+  .claim-bar {
+    height: 2px;
+    background: var(--rule);
+    margin: 0 0 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .claim-bar-fill {
+    height: 100%;
+    background: var(--paper-dim);
+    width: 0;
+    transition: width 0.6s cubic-bezier(.4,.0,.2,1) 0.1s;
+  }
+  .panel.gtm      .claim-bar-fill { background: var(--gtm); }
+  .panel.finance  .claim-bar-fill { background: var(--finance); }
+  .panel.security .claim-bar-fill { background: var(--security); }
+
   .claim .cites { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
   .cite {
     font-family: "JetBrains Mono", monospace;
@@ -425,12 +443,54 @@
     transition: color 0.15s ease, border-color 0.15s ease;
   }
   .cite:hover { color: var(--shu); border-color: var(--shu); }
-  .conf {
-    float: right;
+
+  /* V4 dropped-claims drawer — proof that the grounding guard caught hallucinations */
+  .dropped {
+    border: 1px solid var(--bad);
+    background: linear-gradient(180deg, rgba(255,115,103,0.05), rgba(255,115,103,0.02));
+    padding: 0;
+    margin: -10px 0 32px;
+    max-width: 920px;
+  }
+  .dropped-summary {
     font-family: "JetBrains Mono", monospace;
-    font-size: 10px;
+    font-size: 11px;
+    color: var(--bad);
+    text-transform: lowercase;
+    letter-spacing: 0.07em;
+    padding: 10px 14px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .dropped-summary::-webkit-details-marker { display: none; }
+  .dropped-summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.18s ease;
+  }
+  .dropped[open] .dropped-summary::before { transform: rotate(90deg); }
+  .dropped-list {
+    padding: 4px 28px 14px;
+    margin: 0;
+    font-size: 13px;
     color: var(--paper-dim);
-    margin-left: 10px;
+    line-height: 1.55;
+    counter-reset: dropped;
+  }
+  .dropped-list li {
+    padding: 8px 0;
+    border-top: 1px dashed var(--rule);
+    position: relative;
+  }
+  .dropped-list li:first-child { border-top: none; }
+  .dropped-list li::marker { color: var(--bad); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+
+  /* V4 keyboard focus rings */
+  a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--shu);
+    outline-offset: 2px;
   }
   .empty {
     color: var(--paper-dim);
@@ -459,6 +519,18 @@
     header .target { justify-self: start; text-align: left; }
     header .meta { align-items: flex-start; }
     .wordmark h1 { font-size: 38px; }
+    .exec > div:not(.section-title) { font-size: 18px; }
+  }
+  @media (max-width: 600px) {
+    .cascade-graph { height: 320px; }
+    .cascade-replay { font-size: 9.5px; padding: 4px 9px; letter-spacing: 0.12em; }
+    .dropped-list { padding-left: 22px; padding-right: 14px; }
+    .badges { gap: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo path, .logo circle { animation: none; stroke-dashoffset: 0; opacity: 1; }
+    .claim-bar-fill { transition: none; }
+    * { transition-duration: 0.001s !important; }
   }
 </style>
 </head>
