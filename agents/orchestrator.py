@@ -15,13 +15,32 @@ from agents.schemas import (
     CascadeBrief,
     Citation,
     Claim,
+    GuardrailReport,
     HandoffMessage,
     MarketSignal,
     RiskProfile,
     SharedBundle,
     SynergySignal,
 )
+from guardrails import grounding, leak, pii
 from services.llm import LLMFn
+
+# claim-bearing fields per department, for per-field grounding
+_DEPT_FIELDS = {
+    AccountBrief: ["buying_signals", "competitor_moves", "hiring_signals"],
+    MarketSignal: [
+        "pricing_trend",
+        "expansion_contraction",
+        "web_traffic_proxy",
+        "vendor_health_flags",
+    ],
+    RiskProfile: [
+        "exposure_indicators",
+        "reputational_signals",
+        "regulatory_signals",
+        "third_party_risk",
+    ],
+}
 
 
 class DeptOutputs:
@@ -133,3 +152,80 @@ def cross_pollinate(
         )
 
     return synergies, handoffs
+
+
+def _ground_dept(model, bundle: SharedBundle):
+    """Drop ungrounded claims from a department output; return (new_model, dropped)."""
+    fields = _DEPT_FIELDS[type(model)]
+    dropped: list[str] = []
+    updates: dict = {}
+    for field in fields:
+        kept, drp = grounding.filter_claims(getattr(model, field), bundle)
+        updates[field] = kept
+        dropped.extend(drp)
+    return model.model_copy(update=updates), dropped
+
+
+def _executive_summary(out: DeptOutputs, synergies: list[SynergySignal]) -> str:
+    ab, ms, rp = out.account_brief, out.market_signal, out.risk_profile
+    parts = [
+        f"{ab.target}: {len(ab.buying_signals)} buying / "
+        f"{len(ab.hiring_signals)} hiring signals; "
+        f"{len(ms.pricing_trend)} pricing moves; "
+        f"{len(rp.all_claims())} risk signals."
+    ]
+    if synergies:
+        parts.append("Cross-dept: " + synergies[0].text)
+    return " ".join(parts)
+
+
+def build_cascade_brief(
+    bundle: SharedBundle,
+    gtm_llm: LLMFn | None = None,
+    finance_llm: LLMFn | None = None,
+    security_llm: LLMFn | None = None,
+) -> CascadeBrief:
+    """Full cascade: guardrails -> departments -> grounding -> synergy -> brief.
+
+    Guardrail order: PII redaction first (scrub personal data), then leak/scope
+    (withhold confidential sources), so departments only ever see clean,
+    public, de-identified text. Grounding then drops any uncited claims.
+    """
+    redacted, pii_count = pii.redact_bundle(bundle)
+    clean, leak_flags = leak.filter_bundle(redacted)
+
+    out = run_departments(
+        clean,
+        gtm_llm=gtm_llm,
+        finance_llm=finance_llm,
+        security_llm=security_llm,
+    )
+
+    dropped: list[str] = []
+    ab, d = _ground_dept(out.account_brief, clean)
+    dropped.extend(d)
+    ms, d = _ground_dept(out.market_signal, clean)
+    dropped.extend(d)
+    rp, d = _ground_dept(out.risk_profile, clean)
+    dropped.extend(d)
+    grounded = DeptOutputs(ab, ms, rp)
+
+    synergies, handoffs = cross_pollinate(grounded)
+
+    report = GuardrailReport(
+        pii_redactions=pii_count,
+        leak_flags=leak_flags,
+        ungrounded_dropped=dropped,
+        passed=True,
+    )
+
+    return CascadeBrief(
+        target=bundle.target,
+        account_brief=ab,
+        market_signal=ms,
+        risk_profile=rp,
+        synergy_signals=synergies,
+        handoffs=handoffs,
+        guardrail_report=report,
+        executive_summary=_executive_summary(grounded, synergies),
+    )

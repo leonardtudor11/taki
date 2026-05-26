@@ -45,6 +45,28 @@ def fake_gtm_llm(_prompt: str) -> str:
     )
 
 
+def fake_gtm_llm_with_hallucination(_prompt: str) -> str:
+    """Same as fake_gtm_llm but adds one uncited/hallucinated claim.
+
+    Used to prove the grounding guard drops it mid-cascade.
+    """
+    data = json.loads(fake_gtm_llm(_prompt))
+    data["competitor_moves"].append(
+        {
+            "text": "Northwind is being acquired by Globex next week.",
+            "citations": [
+                {
+                    "url": "https://made-up.example",
+                    "snippet": "acquired by Globex next week",
+                    "source_type": "news",
+                }
+            ],
+            "confidence": 0.99,
+        }
+    )
+    return json.dumps(data)
+
+
 def fake_finance_llm(_prompt: str) -> str:
     return json.dumps(
         {
