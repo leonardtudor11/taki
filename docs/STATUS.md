@@ -8,8 +8,8 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S0.2 | Bright Data client + live smoke | ⏳ pending | — | — | — | **BLOCKED: needs BRIGHTDATA_API_KEY + zones in .env** |
 | S0.3 | Shared cache + Pydantic schemas | ✅ done | 8/8 | self | (S0.3) | data contract + fixture w/ planted PII+confidential |
 | S1.1 | GTM agent → AccountBrief | ✅ done | 2/2 | self | (S1.1) | + agent base + injectable LLM + fake_llm fixtures |
-| S1.2 | Finance agent → MarketSignal | ⏳ pending | — | — | — | independent |
-| S1.3 | Security agent → RiskProfile | ⏳ pending | — | — | — | independent |
+| S1.2 | Finance agent → MarketSignal | ✅ done | 2/2 | self | (S1.2) | grounded, injectable LLM |
+| S1.3 | Security agent → RiskProfile | ✅ done | 2/2 | self | (S1.3) | grounded, injectable LLM |
 | S2.1 | Grounding/citation guard | ✅ done | 3/3 | self | (S2.1) | drops hallucinated + uncited claims |
 | S2.2 | PII redaction | ✅ done | 3/3 | self | (S2.2) | emails+phones redacted; prices/counts preserved |
 | S2.3 | Leak/scope guard | ✅ done | full 17/17 | self | (S2.3) | withholds confidential-marked sources |
