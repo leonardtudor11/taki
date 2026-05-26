@@ -325,12 +325,180 @@ function renderTextFallback(container, tip, brief) {
   container.appendChild(rows);
 }
 
+// ─── V3.2 replay mode ──────────────────────────────────────────────────────
+// Plays back the cascade visually so a viewer can WATCH the company think.
+// Schedule is synthesized from the CascadeBrief itself (PII → leak → depts →
+// grounding → handoffs → synergies → assemble) with deterministic timing, so
+// no events.jsonl is needed at deploy time. If a real backend trace ever lands
+// alongside brief.json, future work can prefer it for authentic timestamps.
+
+function _claimCount(brief, dept) {
+  const m = { gtm: 'account_brief', finance: 'market_signal', security: 'risk_profile' };
+  const d = brief[m[dept]] || {};
+  return Object.values(d).filter(Array.isArray).reduce((n, l) => n + l.length, 0);
+}
+
+function _pulseNode(cy, sel) {
+  const els = cy.elements(sel);
+  if (els.empty()) return;
+  els.animate({ style: { 'border-width': 5 } }, { duration: 240, easing: 'ease-out' });
+  setTimeout(() => els.animate({ style: { 'border-width': 2 } }, { duration: 280 }), 250);
+}
+
+function _pulseEdge(cy, sel) {
+  const els = cy.elements(sel);
+  if (els.empty()) return;
+  els.animate({ style: { width: 4 } }, { duration: 220, easing: 'ease-out' });
+  setTimeout(() => els.animate({ style: { width: 1.5 } }, { duration: 300 }), 240);
+}
+
+function _reveal(cy, sel) {
+  const els = cy.elements(sel);
+  if (!els.empty()) els.animate({ style: { opacity: 1 } }, { duration: 280, easing: 'ease-out' });
+}
+
+function _dimAll(cy) {
+  cy.elements().style('opacity', 0.14);
+}
+
+function _restore(cy) {
+  cy.elements().animate({ style: { opacity: 1 } }, { duration: 380, easing: 'ease-out' });
+}
+
+function replayCascade(brief, cy, tip, button) {
+  if (!cy || !brief) return;
+  if (button) { button.disabled = true; button.textContent = '▶ replaying…'; }
+  document.body.classList.add('replaying');
+  // clear any active focus filter before we begin
+  delete document.body.dataset.focus;
+  cy.elements().removeClass('dim beam');
+  cy.elements(':selected').unselect();
+  _dimAll(cy);
+
+  const timers = [];
+  const at = (delay, fn) => timers.push(setTimeout(fn, delay));
+  let t = 200;
+
+  // 1. PII redaction
+  at(t, () => {
+    setTip(tip, '🔒 PII redaction · scrubbing emails + phones from the bundle', true);
+    _pulseNode(cy, 'node#source');
+    _reveal(cy, 'node#source');
+  });
+  t += 850;
+  at(t, () => {
+    const n = (brief.guardrail_report && brief.guardrail_report.pii_redactions) || 0;
+    setTip(tip, `✓ PII redaction done · ${n} redaction${n === 1 ? '' : 's'}`, true);
+  });
+
+  // 2. leak / scope
+  t += 700;
+  at(t, () => {
+    setTip(tip, '🚫 leak/scope guard · withholding confidential-marked sources', true);
+    _pulseNode(cy, 'node#source');
+  });
+  t += 750;
+  at(t, () => {
+    const flags = (brief.guardrail_report && brief.guardrail_report.leak_flags) || [];
+    setTip(tip, `✓ scope clean · ${flags.length} source${flags.length === 1 ? '' : 's'} withheld`, true);
+  });
+
+  // 3. parallel dept fan-out (stagger reveals so each is readable)
+  t += 700;
+  ['gtm', 'finance', 'security'].forEach((d, i) => {
+    at(t + i * 180, () => {
+      setTip(tip, `▶ ${d.toUpperCase()} agent · reading shared Bright Data bundle`, true);
+      _reveal(cy, `node#${d}`);
+      _reveal(cy, `edge[source = "source"][target = "${d}"]`);
+      _pulseEdge(cy, `edge[source = "source"][target = "${d}"]`);
+    });
+  });
+
+  // 4. dept-done emissions (staggered)
+  t += 1600;
+  ['gtm', 'finance', 'security'].forEach((d, i) => {
+    at(t + i * 360, () => {
+      const n = _claimCount(brief, d);
+      setTip(tip, `✓ ${d.toUpperCase()} produced ${n} grounded claim${n === 1 ? '' : 's'}`, true);
+      _pulseNode(cy, `node#${d}`);
+    });
+  });
+
+  // 5. grounding join
+  t += 1500;
+  at(t, () => {
+    const dropped = (brief.guardrail_report && brief.guardrail_report.ungrounded_dropped) || [];
+    setTip(tip,
+      `🎯 grounding guard · dropped ${dropped.length} uncited claim${dropped.length === 1 ? '' : 's'}`,
+      true);
+    ['gtm', 'finance', 'security'].forEach((d) => _pulseNode(cy, `node#${d}`));
+  });
+
+  // 6. handoffs — reveal each handoff edge with its message in the tooltip
+  t += 1200;
+  (brief.handoffs || []).forEach((h, i) => {
+    at(t + i * 1100, () => {
+      const a = deptKey(h.from_dept);
+      const b = deptKey(h.to_dept);
+      if (!a || !b) return;
+      const eSel = `edge[id ^= "h"][source = "${a}"][target = "${b}"]`;
+      _reveal(cy, eSel);
+      _pulseEdge(cy, eSel);
+      setTip(tip, `↳ ${a.toUpperCase()} → ${b.toUpperCase()}: ${h.message}`, true);
+    });
+  });
+  t += (brief.handoffs || []).length * 1100;
+
+  // 7. synergies — reveal dashed connector + reveal panels for contributing depts
+  t += 600;
+  (brief.synergy_signals || []).forEach((s, i) => {
+    at(t + i * 1300, () => {
+      _reveal(cy, 'edge[type = "synergy"]');
+      _pulseEdge(cy, 'edge[type = "synergy"]');
+      setTip(tip, `⚡ synergy (${(s.contributing_depts || []).join(' + ')}): ${s.text}`, true);
+    });
+  });
+  t += (brief.synergy_signals || []).length * 1300;
+
+  // 8. assemble
+  t += 600;
+  at(t, () => {
+    setTip(tip, '★ CascadeBrief assembled', true);
+    _reveal(cy, 'edge[type = "output"]');
+    _reveal(cy, 'node#brief');
+    _pulseNode(cy, 'node#brief');
+  });
+
+  // 9. restore — fade panels back, clear replaying state
+  t += 1400;
+  at(t, () => {
+    _restore(cy);
+    document.body.classList.remove('replaying');
+    setTip(tip, BASE_TIP);
+    if (button) { button.disabled = false; button.textContent = '▶ replay cascade'; }
+  });
+
+  // store timers on body so a second click can cancel (defensive)
+  if (document.body._cascadeTimers) {
+    document.body._cascadeTimers.forEach((id) => clearTimeout(id));
+  }
+  document.body._cascadeTimers = timers;
+}
+
 function renderCascadeFlow(brief) {
   // Back-compat: legacy callers passed handoffs only; new callers pass the brief.
   const b = Array.isArray(brief) ? { handoffs: brief } : (brief || {});
 
   const wrap = flowEl('div', 'flow');
   wrap.appendChild(flowEl('div', 'section-title', 'Cascade flow — how the company thought'));
+
+  // toolbar — replay button, right-aligned
+  const toolbar = flowEl('div', 'cascade-toolbar');
+  const replayBtn = flowEl('button', 'cascade-replay', '▶ replay cascade');
+  replayBtn.type = 'button';
+  replayBtn.title = 'Watch the cascade unfold step by step';
+  toolbar.appendChild(replayBtn);
+  wrap.appendChild(toolbar);
 
   const container = flowEl('div', 'cascade-graph');
   container.id = 'cascade-graph';
@@ -340,6 +508,12 @@ function renderCascadeFlow(brief) {
   wrap.appendChild(tip);
 
   // Wait one frame so the container is laid out before cytoscape measures it.
-  requestAnimationFrame(() => initCytoscape(container, tip, b));
+  requestAnimationFrame(() => {
+    initCytoscape(container, tip, b);
+    replayBtn.addEventListener('click', () => {
+      const cy = container._cy;
+      if (cy) replayCascade(b, cy, tip, replayBtn);
+    });
+  });
   return wrap;
 }
