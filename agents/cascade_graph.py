@@ -35,16 +35,20 @@ from typing import Annotated, Callable, TypedDict
 
 from agents import finance as finance_agent
 from agents import gtm as gtm_agent
+from agents import marketing as marketing_agent
 from agents import security as security_agent
 from agents import strategy as strategy_agent
 from agents.schemas import (
     AccountBrief,
+    BusinessProfile,
     CascadeBrief,
+    CascadeMode,
     Citation,
     Claim,
     GuardrailReport,
     HandoffMessage,
     MarketSignal,
+    MarketingSignal,
     RiskProfile,
     SharedBundle,
     StrategicPlan,
@@ -66,6 +70,13 @@ _DEPT_FIELDS = {
         "web_traffic_proxy",
         "vendor_health_flags",
     ],
+    MarketingSignal: [
+        "value_proposition",
+        "positioning",
+        "brand_voice",
+        "content_gaps",
+        "channel_signals",
+    ],
     RiskProfile: [
         "exposure_indicators",
         "reputational_signals",
@@ -84,6 +95,7 @@ class CascadeState(TypedDict, total=False):
     leak_flags: list[str]
     account_brief: AccountBrief
     market_signal: MarketSignal
+    marketing_signal: MarketingSignal
     risk_profile: RiskProfile
     dropped: Annotated[list[str], operator.add]
     synergies: list[SynergySignal]
@@ -91,6 +103,11 @@ class CascadeState(TypedDict, total=False):
     strategic_plan: StrategicPlan
     events: Annotated[list[dict], operator.add]
     brief: CascadeBrief
+    # V7 — self-mode inputs (closure-bound at build_graph; not in invoke state
+    # because LLMs are still closure-bound. Profile is kept here so prompts
+    # downstream can read it.)
+    business_profile: BusinessProfile
+    mode: CascadeMode
 
 
 def _now_iso() -> str:
@@ -143,14 +160,40 @@ def _executive_summary(ab: AccountBrief, ms: MarketSignal, rp: RiskProfile,
     return " ".join(parts)
 
 
+def _business_context_block(profile: BusinessProfile | None) -> str:
+    """Render a BusinessProfile as compact prompt context for self-mode."""
+    if not profile:
+        return ""
+    parts = [
+        f"name:      {profile.name}",
+        f"url:       {profile.url}",
+        f"industry:  {profile.industry or '—'}",
+        f"stage:     {profile.stage.value}",
+        f"goal:      {profile.goal or '—'}",
+        f"customer:  {profile.customer_segment or '—'}",
+    ]
+    if profile.competitor_names or profile.competitor_urls:
+        names = profile.competitor_names or [u for u in profile.competitor_urls]
+        parts.append(f"known competitors: {', '.join(names)}")
+    return "\n".join(parts)
+
+
 def build_graph(
     gtm_llm: LLMFn | None = None,
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
     strategy_llm: LLMFn | None = None,
+    marketing_llm: LLMFn | None = None,
     on_event: EventCallback | None = None,
+    mode: CascadeMode = CascadeMode.TARGET,
+    business_profile: BusinessProfile | None = None,
 ):
-    """Compile the StateGraph. LLMs are closure-bound so state stays serializable."""
+    """Compile the StateGraph. LLMs are closure-bound so state stays serializable.
+
+    `mode` and `business_profile` are also closure-bound — they shape the
+    prompts the depts and the strategy agent use (self-mode advises the
+    founder, target-mode analyses someone else).
+    """
     from langgraph.graph import END, START, StateGraph
 
     def pii_node(state: CascadeState) -> dict:
@@ -169,6 +212,8 @@ def build_graph(
         })
         return {"clean": clean, "leak_flags": flags, "events": [start, done]}
 
+    business_block = _business_context_block(business_profile)
+
     def _dept_node(dept: str, analyze, llm: LLMFn | None, out_key: str):
         def _node(state: CascadeState) -> dict:
             start = _emit(on_event, {
@@ -183,24 +228,44 @@ def build_graph(
 
         return _node
 
+    def _marketing_node(state: CascadeState) -> dict:
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "dept", "dept": "marketing", "status": "start",
+        })
+        result = marketing_agent.analyze(
+            state["clean"],
+            llm=marketing_llm,
+            mode=mode,
+            business_context=business_block,
+        )
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "dept", "dept": "marketing", "status": "done",
+            "claims": len(result.all_claims()),
+        })
+        return {"marketing_signal": result, "events": [start, done]}
+
     def grounding_node(state: CascadeState) -> dict:
         start = _emit(on_event, {"t": _now_iso(), "phase": "grounding", "status": "start"})
         clean = state["clean"]
         ab, da = _ground_dept(state["account_brief"], clean)
         ms, dm = _ground_dept(state["market_signal"], clean)
         rp, ds = _ground_dept(state["risk_profile"], clean)
+        updates = {
+            "account_brief": ab,
+            "market_signal": ms,
+            "risk_profile": rp,
+        }
         dropped = [*da, *dm, *ds]
+        # marketing only present when its node ran (always, in V7+)
+        if state.get("marketing_signal") is not None:
+            mk, dmk = _ground_dept(state["marketing_signal"], clean)
+            updates["marketing_signal"] = mk
+            dropped.extend(dmk)
         done = _emit(on_event, {
             "t": _now_iso(), "phase": "grounding", "status": "done",
             "dropped": len(dropped),
         })
-        return {
-            "account_brief": ab,
-            "market_signal": ms,
-            "risk_profile": rp,
-            "dropped": dropped,
-            "events": [start, done],
-        }
+        return {**updates, "dropped": dropped, "events": [start, done]}
 
     def cross_node(state: CascadeState) -> dict:
         ab, ms, rp = state["account_brief"], state["market_signal"], state["risk_profile"]
@@ -279,9 +344,8 @@ def build_graph(
         return {"synergies": synergies, "handoffs": handoffs, "events": evs}
 
     def strategy_node(state: CascadeState) -> dict:
-        """Synthesize the three dept outputs + synergies + handoffs into a
-        StrategicPlan via an LLM. This is the 'answer' layer — what a CRO
-        would actually act on this week.
+        """Synthesize all dept outputs + synergies + handoffs into a
+        StrategicPlan via an LLM. The 'answer' layer.
 
         Failures here are caught so a malformed plan doesn't lose the rest
         of the cascade: the assemble node still builds a CascadeBrief, the
@@ -297,6 +361,9 @@ def build_graph(
                 synergies=state.get("synergies", []),
                 handoffs=state.get("handoffs", []),
                 llm=strategy_llm,
+                mode=mode,
+                business_profile=business_profile,
+                marketing_signal=state.get("marketing_signal"),
             )
             done = _emit(on_event, {
                 "t": _now_iso(), "phase": "strategy", "status": "done",
@@ -317,6 +384,7 @@ def build_graph(
         ab = state["account_brief"]
         ms = state["market_signal"]
         rp = state["risk_profile"]
+        mk = state.get("marketing_signal")
         dropped = state.get("dropped", [])
         report = GuardrailReport(
             pii_redactions=state.get("pii_count", 0),
@@ -334,8 +402,11 @@ def build_graph(
         )
         brief = CascadeBrief(
             target=state["bundle"].target,
+            mode=mode,
+            business_profile=business_profile,
             account_brief=ab,
             market_signal=ms,
+            marketing_signal=mk,
             risk_profile=rp,
             synergy_signals=synergies,
             handoffs=state.get("handoffs", []),
@@ -343,11 +414,16 @@ def build_graph(
             executive_summary=exec_summary,
             strategic_plan=plan,
         )
+        total_claims = (
+            len(brief.account_brief.all_claims())
+            + len(brief.market_signal.all_claims())
+            + len(brief.risk_profile.all_claims())
+            + (len(brief.marketing_signal.all_claims()) if brief.marketing_signal else 0)
+        )
         done = _emit(on_event, {
             "t": _now_iso(), "phase": "assemble", "status": "done",
-            "passed": report.passed, "claims": len(brief.account_brief.all_claims())
-                + len(brief.market_signal.all_claims())
-                + len(brief.risk_profile.all_claims()),
+            "passed": report.passed, "claims": total_claims,
+            "mode": mode.value,
         })
         return {"brief": brief, "events": [done]}
 
@@ -359,6 +435,7 @@ def build_graph(
         "finance",
         _dept_node("finance", finance_agent.analyze, finance_llm, "market_signal"),
     )
+    g.add_node("marketing", _marketing_node)
     g.add_node(
         "security",
         _dept_node("security", security_agent.analyze, security_llm, "risk_profile"),
@@ -370,13 +447,15 @@ def build_graph(
 
     g.add_edge(START, "pii_redact")
     g.add_edge("pii_redact", "leak_filter")
-    # parallel fan-out: three dept agents on the shared clean bundle
+    # parallel fan-out: four dept agents on the shared clean bundle
     g.add_edge("leak_filter", "gtm")
     g.add_edge("leak_filter", "finance")
+    g.add_edge("leak_filter", "marketing")
     g.add_edge("leak_filter", "security")
-    # join: grounding runs once all three depts complete
+    # join: grounding runs once all four depts complete
     g.add_edge("gtm", "grounding")
     g.add_edge("finance", "grounding")
+    g.add_edge("marketing", "grounding")
     g.add_edge("security", "grounding")
     g.add_edge("grounding", "cross_pollinate")
     # strategy reads everything below + above and synthesizes a real plan
@@ -393,7 +472,10 @@ def run(
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
     strategy_llm: LLMFn | None = None,
+    marketing_llm: LLMFn | None = None,
     event_path: Path | None = None,
+    mode: CascadeMode = CascadeMode.TARGET,
+    business_profile: BusinessProfile | None = None,
 ) -> CascadeBrief:
     """Run the cascade graph end-to-end.
 
@@ -422,7 +504,10 @@ def run(
             finance_llm=finance_llm,
             security_llm=security_llm,
             strategy_llm=strategy_llm,
+            marketing_llm=marketing_llm,
             on_event=on_event,
+            mode=mode,
+            business_profile=business_profile,
         )
         final = graph.invoke({"bundle": bundle, "events": []})
         return final["brief"]

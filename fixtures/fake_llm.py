@@ -236,6 +236,93 @@ def fake_security_llm(_prompt: str) -> str:
     })
 
 
+# ─── Marketing (V7) ───────────────────────────────────────────────────────
+
+def fake_marketing_llm(_prompt: str) -> str:
+    """Marketing dept output grounded against the Northwind sample bundle.
+
+    Mixes self-mode framing (content_gaps written as observations to fix) and
+    target-mode framing (positioning/voice as observed) so it works for both
+    test paths — the schema is the same, only the rationale tone differs.
+    """
+    return json.dumps({
+        "target": "Northwind Analytics",
+        "value_proposition": [
+            _claim(
+                "Site positions on enterprise-grade pricing + SLA + SSO/SCIM — strong procurement narrative.",
+                "https://northwind.example/pricing",
+                "Enterprise tier adds SSO, SCIM, and a 99.9% SLA at $250 per seat",
+                "pricing",
+                0.85,
+            ),
+            _claim(
+                "Public comparative claim vs Tableau anchors on 'time-to-first-insight' — speed is the headline value-prop.",
+                "https://northwind.example/blog/why-us-vs-tableau",
+                "outperform Tableau on time-to-first-insight by 3x",
+                "site",
+                0.8,
+            ),
+        ],
+        "positioning": [
+            _claim(
+                "Positioning is 'fast, enterprise-ready, undercuts incumbents on per-seat' — three direct comparisons with named competitors.",
+                "https://northwind.example/blog/why-us-vs-tableau",
+                "undercut Looker on per-seat pricing by roughly 40%",
+                "site",
+                0.8,
+            ),
+            _claim(
+                "Enterprise wedge: SSO + SCIM + SLA, $250/seat — explicit procurement-grade tier.",
+                "https://northwind.example/pricing",
+                "Enterprise tier adds SSO, SCIM, and a 99.9% SLA at $250 per seat",
+                "pricing",
+                0.8,
+            ),
+        ],
+        "brand_voice": [
+            _claim(
+                "Voice is direct and comparative — willingness to name competitors publicly is unusual and confident.",
+                "https://northwind.example/blog/why-us-vs-tableau",
+                "win evaluations against ThoughtSpot on natural-language search",
+                "site",
+                0.7,
+            ),
+        ],
+        "content_gaps": [
+            _claim(
+                "No customer case studies surfaced — review-sourced testimonials are negative (support latency) without offsetting wins on site.",
+                "https://reviews.example/northwind",
+                "report slow support response times",
+                "review",
+                0.75,
+            ),
+            _claim(
+                "Trust page lists subprocessors but does not link to SOC 2 / ISO 27001 attestation evidence — leaves procurement reviewers without the proof artifact.",
+                "https://northwind.example/trust/subprocessors",
+                "AWS (hosting), Stripe (billing), Twilio (transactional email)",
+                "site",
+                0.7,
+            ),
+            _claim(
+                "Pricing page does not segment by customer type (e.g. SMB vs Enterprise narrative) — comparative copy lives in a blog instead of on /pricing.",
+                "https://northwind.example/pricing",
+                "raised its Pro plan from $49 to $79",
+                "pricing",
+                0.65,
+            ),
+        ],
+        "channel_signals": [
+            _claim(
+                "Channel motion build-out: VP Channel Partnerships role open — partner channel is being designed, not yet live.",
+                "https://northwind.example/careers",
+                "VP of Channel Partnerships",
+                "jobs",
+                0.7,
+            ),
+        ],
+    })
+
+
 # ─── Strategy (V6) ────────────────────────────────────────────────────────
 
 def fake_strategy_llm(_prompt: str) -> str:

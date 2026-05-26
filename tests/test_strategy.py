@@ -7,6 +7,7 @@ from agents.schemas import CascadeBrief, FitTier, StrategicPlan
 from fixtures.fake_llm import (
     fake_finance_llm,
     fake_gtm_llm,
+    fake_marketing_llm,
     fake_security_llm,
     fake_strategy_llm,
 )
@@ -15,6 +16,7 @@ from fixtures.sample import sample_bundle
 _FAKES = dict(
     gtm_llm=fake_gtm_llm,
     finance_llm=fake_finance_llm,
+    marketing_llm=fake_marketing_llm,
     security_llm=fake_security_llm,
     strategy_llm=fake_strategy_llm,
 )
@@ -111,6 +113,7 @@ def test_strategy_failure_is_contained():
         sample_bundle(),
         gtm_llm=fake_gtm_llm,
         finance_llm=fake_finance_llm,
+        marketing_llm=fake_marketing_llm,
         security_llm=fake_security_llm,
         strategy_llm=broken_llm,
     )

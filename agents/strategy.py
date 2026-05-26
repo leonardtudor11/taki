@@ -25,7 +25,10 @@ import json
 from agents.base import strip_fences
 from agents.schemas import (
     AccountBrief,
+    BusinessProfile,
+    CascadeMode,
     HandoffMessage,
+    MarketingSignal,
     MarketSignal,
     RiskProfile,
     StrategicPlan,
@@ -70,7 +73,7 @@ def _render_handoffs(handoffs: list[HandoffMessage]) -> str:
     )
 
 
-_PROMPT = """You are the Chief of Staff for an enterprise revenue intelligence org.
+_PROMPT_TARGET = """You are the Chief of Staff for an enterprise revenue intelligence org.
 Three department agents produced GROUNDED signals about target "{target}".
 Your job is to synthesize them into ONE strategic plan a CRO could act on
 this week — not a summary of signals, an actual plan.
@@ -126,6 +129,95 @@ Constraints:
 """
 
 
+_PROMPT_SELF = """You are the Chief of Staff advising a small business owner directly.
+The four departments below produced GROUNDED signals about THEIR OWN business
+"{target}" (and optionally some named competitors). Your job is to synthesize
+them into ONE actionable plan the founder can execute starting THIS WEEK.
+
+BUSINESS CONTEXT (from the founder):
+{business_context}
+
+EVIDENCE — dept signals
+{marketing_block}
+
+{gtm_block}
+
+{finance_block}
+
+{security_block}
+
+CROSS-DEPT SYNERGIES
+{synergies_block}
+
+CROSS-DEPT HANDOFFS
+{handoffs_block}
+
+Return JSON for a StrategicPlan with these fields:
+
+- target: "{target}"
+- headline: one sharp sentence answering "what's the single most important
+  move for this founder right now?". No hedging. Speak to them ('you').
+- narrative: 2-3 paragraphs. Paragraph 1: what's the current state of their
+  business based on the evidence. Paragraph 2: what's the biggest opportunity
+  and why now. Paragraph 3: what's the biggest risk and how to mitigate it.
+  Write FOR the founder ('you', 'your business'), not about them.
+- icp_fit: "high" | "medium" | "low" — how well-defined is their target
+  customer based on the evidence on their site? high = clear, low = unclear.
+- icp_rationale: 1-2 sentences referencing specific signals.
+- deal_size_estimate: their plausible average deal size or LTV given pricing
+  page + market segment signals — e.g. "$50-$200/mo per customer" or "$5k-$20k
+  one-off projects". Be honest if the evidence doesn't support a tight range.
+- deal_size_rationale: how you bounded it.
+- urgency: "act this week" | "act this month" | "act this quarter"
+- urgency_rationale: 1 sentence — what makes the timing matter.
+- recommended_plays: 3 to 5 entries. Each is JSON {{
+      "text": "ONE concrete action the founder can DO this week or month",
+      "priority": 1-5  (1 = urgent, 5 = later),
+      "timeframe": "this week" | "this month" | "this quarter",
+      "owners": ["marketing" | "gtm" | "finance" | "security"],
+      "rationale": "why this play, tied to a specific signal",
+      "citations": [{{"url": "...", "snippet": "verbatim snippet from a dept claim above", "source_type": "site"}}]
+  }}
+  Examples of plays for a small business:
+   - "Add a pricing page that names the top 3 customer segments — your
+     competitors all have one and yours doesn't."
+   - "Fix the missing meta description on /pricing — that page is your
+     SEO-traffic destination."
+   - "Stand up a basic GDPR-aware cookie banner before launching EU marketing."
+  Order by priority (1 first). Span dept owners so the founder sees this is
+  cross-functional work, not just marketing.
+- open_questions: 3-5 short strings — concrete things the founder should
+  research next (or what more context Taki should be re-run with). Examples:
+   - "Pull pricing pages of [competitor X] for direct comparison."
+   - "Confirm whether your stripe/billing flow is PCI-compliant before scale."
+
+Constraints:
+- Every recommended play MUST cite at least one snippet that appears
+  verbatim in the dept signals above. Do not invent citations.
+- Speak FOR the founder — 'you', 'your business' — not 'the target'.
+- Be specific. Generic advice ("improve your marketing") is not acceptable.
+- Output JSON only. No prose around the JSON.
+"""
+
+
+def _render_business_context(profile: BusinessProfile | None) -> str:
+    """Plain-text dump of a BusinessProfile for the prompt context."""
+    if not profile:
+        return "(no founder-provided business context)"
+    parts = [
+        f"name:      {profile.name}",
+        f"url:       {profile.url}",
+        f"industry:  {profile.industry or '—'}",
+        f"stage:     {profile.stage.value}",
+        f"goal:      {profile.goal or '—'}",
+        f"customer:  {profile.customer_segment or '—'}",
+    ]
+    if profile.competitor_names or profile.competitor_urls:
+        names = profile.competitor_names or [u for u in profile.competitor_urls]
+        parts.append(f"known competitors: {', '.join(names)}")
+    return "\n".join(parts)
+
+
 def analyze(
     target: str,
     account_brief: AccountBrief,
@@ -134,36 +226,64 @@ def analyze(
     synergies: list[SynergySignal],
     handoffs: list[HandoffMessage],
     llm: LLMFn | None = None,
+    mode: CascadeMode = CascadeMode.TARGET,
+    business_profile: BusinessProfile | None = None,
+    marketing_signal: MarketingSignal | None = None,
 ) -> StrategicPlan:
     """Run the strategy synthesis. Pure LLM call — no I/O, no scraping.
 
-    Returns a StrategicPlan even on schema-validation failure (Pydantic
-    raises in that case, which is the right behaviour — the grounding guard
-    won't be able to repair a malformed plan, so loud failure is correct).
+    `mode` picks the prompt variant:
+      - target: classic — analyse someone else as a sales target.
+      - self:   advise the founder of THEIR OWN business.
+
+    The marketing dept output is included when present (V7).
     """
     llm = llm or get_default_llm()
-    prompt = _PROMPT.format(
-        target=target,
-        gtm_block=_render_dept("GTM signals", {
-            "buying_signals": account_brief.buying_signals,
-            "competitor_moves": account_brief.competitor_moves,
-            "hiring_signals": account_brief.hiring_signals,
-        }),
-        finance_block=_render_dept("FINANCE signals", {
-            "pricing_trend": market_signal.pricing_trend,
-            "expansion_contraction": market_signal.expansion_contraction,
-            "web_traffic_proxy": market_signal.web_traffic_proxy,
-            "vendor_health_flags": market_signal.vendor_health_flags,
-        }),
-        security_block=_render_dept("SECURITY signals", {
-            "exposure_indicators": risk_profile.exposure_indicators,
-            "reputational_signals": risk_profile.reputational_signals,
-            "regulatory_signals": risk_profile.regulatory_signals,
-            "third_party_risk": risk_profile.third_party_risk,
-        }),
-        synergies_block=_render_synergies(synergies),
-        handoffs_block=_render_handoffs(handoffs),
-    )
+    gtm_block = _render_dept("GTM signals", {
+        "buying_signals": account_brief.buying_signals,
+        "competitor_moves": account_brief.competitor_moves,
+        "hiring_signals": account_brief.hiring_signals,
+    })
+    finance_block = _render_dept("FINANCE signals", {
+        "pricing_trend": market_signal.pricing_trend,
+        "expansion_contraction": market_signal.expansion_contraction,
+        "web_traffic_proxy": market_signal.web_traffic_proxy,
+        "vendor_health_flags": market_signal.vendor_health_flags,
+    })
+    security_block = _render_dept("SECURITY signals", {
+        "exposure_indicators": risk_profile.exposure_indicators,
+        "reputational_signals": risk_profile.reputational_signals,
+        "regulatory_signals": risk_profile.regulatory_signals,
+        "third_party_risk": risk_profile.third_party_risk,
+    })
+    marketing_block = _render_dept("MARKETING signals", {
+        "value_proposition": marketing_signal.value_proposition if marketing_signal else [],
+        "positioning":       marketing_signal.positioning       if marketing_signal else [],
+        "brand_voice":       marketing_signal.brand_voice       if marketing_signal else [],
+        "content_gaps":      marketing_signal.content_gaps      if marketing_signal else [],
+        "channel_signals":   marketing_signal.channel_signals   if marketing_signal else [],
+    }) if marketing_signal else "## MARKETING signals\n  (marketing dept did not produce signals)"
+
+    if mode == CascadeMode.SELF:
+        prompt = _PROMPT_SELF.format(
+            target=target,
+            business_context=_render_business_context(business_profile),
+            marketing_block=marketing_block,
+            gtm_block=gtm_block,
+            finance_block=finance_block,
+            security_block=security_block,
+            synergies_block=_render_synergies(synergies),
+            handoffs_block=_render_handoffs(handoffs),
+        )
+    else:
+        prompt = _PROMPT_TARGET.format(
+            target=target,
+            gtm_block=gtm_block,
+            finance_block=finance_block,
+            security_block=security_block,
+            synergies_block=_render_synergies(synergies),
+            handoffs_block=_render_handoffs(handoffs),
+        )
     raw = llm(prompt)
     data = json.loads(strip_fences(raw))
     # ensure target is preserved even if LLM omits it

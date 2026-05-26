@@ -35,6 +35,7 @@ def generate_and_cache(
     finance_llm=None,
     security_llm=None,
     strategy_llm=None,
+    marketing_llm=None,
     frontend_path: Path | None = FRONTEND_BRIEF,
     events_path: Path | None = None,
 ) -> CascadeBrief:
@@ -51,6 +52,7 @@ def generate_and_cache(
         finance_llm=finance_llm,
         security_llm=security_llm,
         strategy_llm=strategy_llm,
+        marketing_llm=marketing_llm,
         event_path=target_events,
     )
     cache.save_brief(brief)
@@ -113,6 +115,7 @@ def run_demo() -> CascadeBrief:
     from fixtures.fake_llm import (
         fake_finance_llm,
         fake_gtm_llm_with_hallucination,
+        fake_marketing_llm,
         fake_security_llm,
         fake_strategy_llm,
     )
@@ -122,6 +125,7 @@ def run_demo() -> CascadeBrief:
         sample_bundle(),
         gtm_llm=fake_gtm_llm_with_hallucination,
         finance_llm=fake_finance_llm,
+        marketing_llm=fake_marketing_llm,
         security_llm=fake_security_llm,
         strategy_llm=fake_strategy_llm,
     )

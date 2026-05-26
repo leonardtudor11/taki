@@ -516,5 +516,97 @@
       "Pull recent bill-shock complaint volume on G2 / Reddit \u2014 sizes the retention story."
     ],
     "generated_at": "2026-05-26T13:00:00+00:00"
-  }
+  },
+  "marketing_signal": {
+    "target": "Vercel",
+    "value_proposition": [
+      {
+        "text": "Vercel positions as the unified 'AI Cloud' \u2014 one platform spanning frontend, AI Gateway, agents, and workflows.",
+        "citations": [
+          {
+            "url": "https://vercel.com/",
+            "snippet": "AI Cloud AI Gateway One endpoint, all your models Sandbox",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "Spend-control narrative is foregrounded \u2014 'control your costs' headline + per-product caps suggest pricing-anxiety positioning.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Stay in control of your spending. Set a limit, get alerts, and we\u2019ll stop usage",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "positioning": [
+      {
+        "text": "Positioning anchors on developer-first plus enterprise SSO/SCIM tier \u2014 covers both the IC-developer and the procurement buyer in the same site.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Scale your app. Control your costs. Start free. Upgrade to Pro for $20/month",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "brand_voice": [
+      {
+        "text": "Voice is technical-precise \u2014 quantitative (action pricing, model latency) over emotive; mirrors the persona of senior engineers.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Vercel Agent Beta $0.30 per action + pass-through token cost",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.75
+      }
+    ],
+    "content_gaps": [
+      {
+        "text": "Comparative content vs Cloudflare Workers / Netlify / AWS Amplify is missing from the public site \u2014 Vercel's strongest narrative is hosted in third-party blogs, not their own.",
+        "citations": [
+          {
+            "url": "https://vercel.com/",
+            "snippet": "AI Cloud AI Gateway One endpoint, all your models Sandbox",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "text": "AI-product pricing carries no clear ROI calculator \u2014 bill-shock anxiety is acknowledged but not modelled for the buyer.",
+        "citations": [
+          {
+            "url": "https://vercel.com/pricing",
+            "snippet": "Vercel Agent Beta $0.30 per action + pass-through token cost",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.75
+      }
+    ],
+    "channel_signals": [
+      {
+        "text": "Open Positions page concentrates on direct-hire growth (eng + GTM) \u2014 partner/channel motion is not foregrounded.",
+        "citations": [
+          {
+            "url": "https://vercel.com/careers",
+            "snippet": "Open Positions at Vercel",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.65
+      }
+    ],
+    "generated_at": "2026-05-26T13:30:00+00:00"
+  },
+  "mode": "target"
 }

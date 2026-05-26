@@ -4,7 +4,20 @@
 // Rendering uses the DOM API + textContent (never innerHTML on user data) so
 // brief.json content cannot inject script. Citation URLs are scheme-validated.
 
+// V7 — dept registry now includes Marketing. Order intentional: Marketing
+// first in self-mode because content-gap claims drive most actionable items;
+// in target-mode it still sits before GTM (marketing → sales pipeline reads).
 const DEPTS = [
+  {
+    key: "marketing_signal", cls: "marketing", title: "Marketing",
+    groups: [
+      ["value_proposition", "Value proposition"],
+      ["positioning", "Positioning"],
+      ["brand_voice", "Brand voice"],
+      ["content_gaps", "Content gaps"],
+      ["channel_signals", "Channel signals"],
+    ],
+  },
   {
     key: "account_brief", cls: "gtm", title: "Revenue / GTM",
     groups: [
@@ -79,7 +92,10 @@ function renderClaim(claim) {
 }
 
 function renderPanel(dept, brief) {
-  const data = brief[dept.key] || {};
+  // Skip the panel entirely if the dept's payload isn't even present in the
+  // brief (e.g. legacy target-mode briefs predating the Marketing dept).
+  const data = brief[dept.key];
+  if (data == null) return null;
   const panel = el("div", {
     class: `panel ${dept.cls}`,
     role: "region",
@@ -314,7 +330,10 @@ function render(brief) {
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });
-  DEPTS.forEach((d) => cols.appendChild(renderPanel(d, brief)));
+  DEPTS.forEach((d) => {
+    const p = renderPanel(d, brief);
+    if (p) cols.appendChild(p);
+  });
   app.appendChild(cols);
 }
 
@@ -342,11 +361,84 @@ function _wireHeaderPullFresh() {
   btn.dataset.idleLabel = btn.textContent;
 }
 
+// V7 — onboarding modal for self-mode. Header "🚀 analyze my business" button
+// opens it; submit POSTs to /api/run mode=self with a BusinessProfile payload
+// and uses the same SSE-driven cytoscape animation as live demo / live run.
+function _wireSelfModal() {
+  const openBtn = document.getElementById("analyzeself");
+  const modal   = document.getElementById("selfmodal");
+  const form    = document.getElementById("selfform");
+  const warn    = document.getElementById("selfmodal-warn");
+  if (!openBtn || !modal || !form) return;
+
+  const open = () => {
+    if (warn) { warn.hidden = true; warn.textContent = ""; }
+    modal.hidden = false;
+    // focus the first text field for keyboard flow
+    const first = form.querySelector('input[name="name"]');
+    if (first) setTimeout(() => first.focus(), 30);
+    document.body.classList.add("modal-open");
+  };
+  const close = () => {
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+  };
+  openBtn.addEventListener("click", open);
+  modal.addEventListener("click", (e) => {
+    if (e.target && e.target.dataset && e.target.dataset.close !== undefined) close();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.hidden) close();
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const competitorRaw = (fd.get("competitor_urls") || "").toString();
+    const competitor_urls = competitorRaw
+      .split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+
+    const profile = {
+      name:             (fd.get("name") || "").toString().trim(),
+      url:              (fd.get("url")  || "").toString().trim(),
+      industry:         (fd.get("industry") || "").toString().trim(),
+      stage:            (fd.get("stage") || "early-revenue").toString(),
+      goal:             (fd.get("goal") || "").toString().trim(),
+      customer_segment: (fd.get("customer_segment") || "").toString().trim(),
+      competitor_urls,
+    };
+
+    if (!profile.name || !profile.url) {
+      if (warn) { warn.hidden = false; warn.textContent = "business name and URL are required"; }
+      return;
+    }
+
+    const container = document.getElementById("cascade-graph");
+    if (!container || !container._cy) {
+      if (warn) { warn.hidden = false; warn.textContent = "cascade graph not ready — try again in a second"; }
+      return;
+    }
+    if (typeof runLiveCascade !== "function") return;
+
+    const tip = container.parentElement.querySelector(".cascade-tip");
+    close();
+    runLiveCascade(
+      { mode: "self", profile },
+      {
+        cy: container._cy, tip,
+        buttons: { primary: openBtn },
+        labelWhenRunning: "⏳ analyzing…",
+      },
+    );
+  });
+}
+
 fetch("brief.json")
   .then((r) => { if (!r.ok) throw new Error(`brief.json ${r.status}`); return r.json(); })
   .then((b) => {
     render(b);
     _wireHeaderPullFresh();
+    _wireSelfModal();
   })
   .catch((e) => {
     const err = document.getElementById("error");

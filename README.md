@@ -1,6 +1,10 @@
 # Taki (滝 — "cascade")
 
-**An agentic enterprise: four AI departments — GTM, Finance, Security, and Strategy — cascading live web intelligence into a single executable plan a CRO can act on this week.**
+**An agentic enterprise for small businesses (and revenue teams) — five AI departments — Marketing, GTM, Finance, Security, and Strategy — cascading live web intelligence into a single executable plan you can act on this week.**
+
+Two modes, same pipeline:
+- **🚀 self mode** — paste YOUR business URL + competitor URLs into the onboarding form. Taki scrapes everything live, runs the four-dept cascade, and produces a strategic plan for YOUR business. Built for founders, not enterprise revenue teams.
+- **🎯 target mode** — classic — analyze an enterprise account someone might sell to.
 
 🏆 Track · [Bright Data — Web Data UNLOCKED](https://lablab.ai/ai-hackathons/brightdata-ai-agents-web-data-hackathon) (GTM-primary; Finance + Security as feeder departments)
 
@@ -18,13 +22,14 @@ dashboard at **http://localhost:5001** with the bundled real Vercel cascade.
 The Flask backend (`server.py`) serves both the static frontend and the live
 cascade SSE endpoint on the same port.
 
-Three actions are available in the cascade toolbar:
+Four actions available:
 
 | Button | What it does | Needs |
 |---|---|---|
-| **▶ replay cascade** | Animate the cached `brief.json` step-by-step (PII → leak → 3 depts → grounding → handoffs → synergies → assemble). Pure client-side. | nothing — works offline |
-| **▶ live demo** | Real backend run through the LangGraph StateGraph on the fixture bundle. Each node fires a real SSE event that drives the cytoscape graph in real time. | `server.py` running |
-| **⚡ live run ▾** | Real Bright Data scrape + Vertex/Gemini LLM call against a target you type into the popover. Same SSE animation. Writes the new `brief.json` and re-renders the dashboard on completion. | `.env` filled (BRIGHTDATA_API_KEY + GCP_PROJECT_ID or GEMINI_API_KEY) |
+| **🚀 analyze my business** (header) | Opens the onboarding form: paste YOUR site URL, business name, stage, goal, customer segment, and a few competitor URLs. Submit → Taki scrapes everything live (your site + each competitor), runs the four-dept cascade + strategy synthesis, produces a strategic plan for YOUR business. | `.env` filled + `server.py` running |
+| **▶ replay cascade** (toolbar) | Animate the cached `brief.json` step-by-step (PII → leak → 4 depts → grounding → handoffs → synergies → strategy → assemble). Pure client-side. | nothing — works offline |
+| **▶ live demo** (header) | Real backend run through the LangGraph StateGraph on the fixture bundle. Each node fires a real SSE event that drives the cytoscape graph in real time. | `server.py` running |
+| **⚡ live run ▾** (toolbar) | Target-mode classic: real Bright Data scrape + LLM call against a target company you type into the popover. | `.env` filled + `server.py` running |
 
 Other interactions:
 - **Click a dept node** → other panels dim, that dept's claims stay bright.
@@ -43,12 +48,13 @@ cp .env.example .env  # fill BRIGHTDATA_API_KEY + zones + GCP_PROJECT_ID
 
 For a target account, three department-agents run on **one shared live-web data layer** (Bright Data) and cascade their findings into each other — mirroring how a real company's departments synchronize — producing a single grounded **Cascade Brief**.
 
-| Department | Track | Output | Live data (Bright Data) |
-|---|---|---|---|
-| Revenue / GTM | 1 | `AccountBrief` — buying / competitor / hiring signals + outreach angle | SERP, company site, LinkedIn jobs, news, pricing |
-| Finance / Market | 2 | `MarketSignal` — pricing trend, expansion, web-traffic proxy, vendor health | pricing trends, jobs-as-alt-data, web-traffic proxy, vendor health |
-| Security / Compliance | 3 | `RiskProfile` + guardrails — exposure, reputational, regulatory, 3rd-party risk | exposure scan, reputational + regulatory signals, 3rd-party risk |
-| **Strategy (V6 — Chief of Staff)** | synthesis | `StrategicPlan` — headline · narrative · ICP fit · deal-size estimate · urgency · 3-5 prioritized plays · open questions | reads the 3 dept outputs + synergies + handoffs — no extra scraping |
+| Department | Output | Live data (Bright Data) |
+|---|---|---|
+| **Marketing (V7)** | `MarketingSignal` — value proposition · positioning · brand voice · content gaps · channel signals | your own site + any competitor URLs (per source tagged as `self` or `competitor`) |
+| Revenue / GTM | `AccountBrief` — buying / competitor / hiring signals + outreach angle | SERP, company site, LinkedIn jobs, news, pricing |
+| Finance / Market | `MarketSignal` — pricing trend, expansion, web-traffic proxy, vendor health | pricing trends, jobs-as-alt-data, web-traffic proxy, vendor health |
+| Security / Compliance | `RiskProfile` + guardrails — exposure, reputational, regulatory, 3rd-party risk | exposure scan, reputational + regulatory signals, 3rd-party risk |
+| **Strategy (Chief of Staff)** | `StrategicPlan` — headline · narrative · ICP fit · deal-size estimate · urgency · 3-5 prioritized plays · open questions | reads the 4 dept outputs + synergies + handoffs — no extra scraping |
 
 ## The metaphor → mechanism
 

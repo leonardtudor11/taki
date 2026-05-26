@@ -21,7 +21,9 @@ from pathlib import Path
 from agents import cascade_graph, finance, gtm, security
 from agents.schemas import (
     AccountBrief,
+    BusinessProfile,
     CascadeBrief,
+    CascadeMode,
     Citation,
     Claim,
     GuardrailReport,
@@ -194,7 +196,10 @@ def build_cascade_brief(
     finance_llm: LLMFn | None = None,
     security_llm: LLMFn | None = None,
     strategy_llm: LLMFn | None = None,
+    marketing_llm: LLMFn | None = None,
     event_path: Path | None = None,
+    mode: CascadeMode = CascadeMode.TARGET,
+    business_profile: BusinessProfile | None = None,
 ) -> CascadeBrief:
     """Full cascade: guardrails -> departments -> grounding -> synergy ->
     strategy -> brief.
@@ -221,5 +226,8 @@ def build_cascade_brief(
         finance_llm=finance_llm,
         security_llm=security_llm,
         strategy_llm=strategy_llm,
+        marketing_llm=marketing_llm,
         event_path=event_path,
+        mode=mode,
+        business_profile=business_profile,
     )

@@ -38,7 +38,7 @@ from flask import Flask, Response, jsonify, request, send_from_directory  # noqa
 from flask_cors import CORS  # noqa: E402
 
 from agents import cascade_graph  # noqa: E402
-from agents.schemas import SourceType  # noqa: E402
+from agents.schemas import BusinessProfile, CascadeMode, SourceType  # noqa: E402
 from services import cache  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
@@ -137,7 +137,7 @@ def api_run():
     target = (data.get("target") or "").strip()
     urls = data.get("urls") or []
 
-    if mode not in ("demo", "live"):
+    if mode not in ("demo", "live", "self"):
         return jsonify({"error": f"unknown mode: {mode}"}), 400
     if _run_lock.locked():
         return jsonify({"error": "another cascade is already running"}), 409
@@ -147,6 +147,16 @@ def api_run():
             return jsonify({"error": "live mode unavailable", "blockers": blockers}), 400
         if not target:
             return jsonify({"error": "target required for live mode"}), 400
+    if mode == "self":
+        # self-mode also needs BD + LLM
+        blockers = _live_blockers()
+        if blockers:
+            return jsonify({"error": "self mode unavailable", "blockers": blockers}), 400
+        profile_data = data.get("profile") or {}
+        if not profile_data.get("url"):
+            return jsonify({"error": "profile.url required for self mode"}), 400
+        if not profile_data.get("name"):
+            return jsonify({"error": "profile.name required for self mode"}), 400
 
     def stream():
         q: queue.Queue = queue.Queue()
@@ -165,6 +175,7 @@ def api_run():
                     from fixtures.fake_llm import (
                         fake_finance_llm,
                         fake_gtm_llm_with_hallucination,
+                        fake_marketing_llm,
                         fake_security_llm,
                         fake_strategy_llm,
                     )
@@ -178,11 +189,55 @@ def api_run():
                     graph = cascade_graph.build_graph(
                         gtm_llm=fake_gtm_llm_with_hallucination,
                         finance_llm=fake_finance_llm,
+                        marketing_llm=fake_marketing_llm,
                         security_llm=fake_security_llm,
                         strategy_llm=fake_strategy_llm,
                         on_event=emit,
                     )
-                else:
+                elif mode == "self":
+                    from services.brightdata import BrightDataClient, build_self_bundle
+
+                    profile_data = data.get("profile") or {}
+                    profile = BusinessProfile.model_validate({
+                        "name":             profile_data.get("name", ""),
+                        "url":              profile_data.get("url", ""),
+                        "industry":         profile_data.get("industry", ""),
+                        "stage":            profile_data.get("stage", "early-revenue"),
+                        "goal":             profile_data.get("goal", ""),
+                        "customer_segment": profile_data.get("customer_segment", ""),
+                        "competitor_urls":  profile_data.get("competitor_urls", []) or [],
+                        "competitor_names": profile_data.get("competitor_names", []) or [],
+                    })
+                    # default the main URL to a 'site' source; extra self URLs the
+                    # founder supplied tag along too.
+                    extra_self = profile_data.get("extra_urls", []) or []
+                    self_urls = [(profile.url, SourceType.SITE)] + _parse_urls(extra_self)
+                    competitor_urls = _parse_urls(profile.competitor_urls)
+
+                    q.put({
+                        "phase": "fetch", "status": "start", "mode": "self",
+                        "target": profile.name,
+                        "self_urls": len(self_urls),
+                        "competitor_urls": len(competitor_urls),
+                    })
+                    client = BrightDataClient()
+                    bundle = build_self_bundle(
+                        business_name=profile.name,
+                        self_urls=self_urls,
+                        competitor_urls=competitor_urls,
+                        client=client,
+                    )
+                    q.put({
+                        "phase": "fetch", "status": "done",
+                        "sources": len(bundle.sources),
+                        "competitors": bundle.competitor_names(),
+                    })
+                    graph = cascade_graph.build_graph(
+                        on_event=emit,
+                        mode=CascadeMode.SELF,
+                        business_profile=profile,
+                    )
+                else:  # live (target-mode)
                     from services.brightdata import BrightDataClient, build_bundle
 
                     q.put({
@@ -205,6 +260,7 @@ def api_run():
                 q.put({
                     "phase": "complete", "status": "done",
                     "target": brief.target,
+                    "mode": brief.mode.value,
                     "dropped": len(brief.guardrail_report.ungrounded_dropped),
                 })
             except Exception as exc:

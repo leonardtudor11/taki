@@ -18,7 +18,7 @@ import urllib.parse
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from agents.schemas import SharedBundle, SourceItem, SourceType
+from agents.schemas import SharedBundle, SourceItem, SourceSubject, SourceType
 
 _API = "https://api.brightdata.com/request"
 
@@ -129,3 +129,48 @@ def build_bundle(
             )
         )
     return SharedBundle(target=target, sources=sources)
+
+
+def _hostname(url: str) -> str:
+    try:
+        h = urllib.parse.urlparse(url).hostname or url
+        # strip leading www. so brands read clean
+        return h[4:] if h.startswith("www.") else h
+    except Exception:
+        return url
+
+
+def build_self_bundle(
+    business_name: str,
+    self_urls: list[tuple[str, SourceType]],
+    competitor_urls: list[tuple[str, SourceType]],
+    client: BrightDataClient,
+    cap_chars: int = 8000,
+) -> SharedBundle:
+    """Scrape the founder's own URLs (subject=self) + each competitor URL
+    (subject=competitor, competitor_name = hostname) into one bundle.
+
+    The bundle's target field is the founder's business name — the rest of the
+    cascade keys off it for prompts and the dashboard label.
+    """
+    sources: list[SourceItem] = []
+    for url, stype in self_urls or []:
+        sources.append(
+            SourceItem(
+                source_type=stype,
+                url=url,
+                text=html_to_text(client.unlock(url))[:cap_chars],
+                subject=SourceSubject.SELF,
+            )
+        )
+    for url, stype in competitor_urls or []:
+        sources.append(
+            SourceItem(
+                source_type=stype,
+                url=url,
+                text=html_to_text(client.unlock(url))[:cap_chars],
+                subject=SourceSubject.COMPETITOR,
+                competitor_name=_hostname(url),
+            )
+        )
+    return SharedBundle(target=business_name, sources=sources)

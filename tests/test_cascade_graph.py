@@ -8,16 +8,18 @@ from agents.schemas import CascadeBrief
 from fixtures.fake_llm import (
     fake_finance_llm,
     fake_gtm_llm,
+    fake_marketing_llm,
     fake_security_llm,
     fake_strategy_llm,
 )
 from fixtures.sample import sample_bundle
 
-# V6: include strategy_llm so the strategy node never falls back to the
-# real default LLM (which would hit Vertex/Gemini and burn tokens in tests).
+# V6/V7: include every dept LLM so no node falls back to the real default
+# LLM (which would hit Vertex/Gemini and burn tokens in tests).
 _FAKES = dict(
     gtm_llm=fake_gtm_llm,
     finance_llm=fake_finance_llm,
+    marketing_llm=fake_marketing_llm,
     security_llm=fake_security_llm,
     strategy_llm=fake_strategy_llm,
 )
@@ -60,9 +62,9 @@ def test_events_emitted_in_phase_order(tmp_path):
     leak_done_idx = next(i for i, e in enumerate(events) if e["phase"] == "leak" and e["status"] == "done")
     assert leak_done_idx < first_dept_idx, "leak filter must finish before any dept fires"
 
-    # all three dept-done events present
+    # all four dept-done events present (V7 added marketing)
     dept_done = {e["dept"] for e in events if e["phase"] == "dept" and e["status"] == "done"}
-    assert dept_done == {"gtm", "finance", "security"}
+    assert dept_done == {"marketing", "gtm", "finance", "security"}
 
     # grounding fires AFTER all depts complete (join semantics)
     grounding_idx = next(i for i, e in enumerate(events) if e["phase"] == "grounding" and e["status"] == "start")

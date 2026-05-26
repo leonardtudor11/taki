@@ -19,7 +19,12 @@
 //
 // Back-compat: if the caller passes a handoffs array (legacy), we wrap it.
 
-const DEPT_COLOR    = { gtm: '#5ad6e8', finance: '#98e08a', security: '#f0a849' };
+const DEPT_COLOR    = {
+  marketing: '#ff85c9',
+  gtm:       '#5ad6e8',
+  finance:   '#98e08a',
+  security:  '#f0a849',
+};
 const SYNERGY_COLOR = '#c8a8ff';
 const SHU           = '#e84a3a';
 const PAPER_DIM     = '#b8b2a4';
@@ -28,7 +33,9 @@ const BASE_TIP      = 'Click a department to filter · hover edges to read the c
 
 function deptKey(name) {
   const n = String(name || '').toLowerCase();
-  if (n.includes('gtm') || n.includes('revenue')) return 'gtm';
+  // 'marketing' first so 'market' matches finance only when 'marketing' isn't.
+  if (n.includes('marketing') || n.includes('brand') || n.includes('positioning')) return 'marketing';
+  if (n.includes('gtm') || n.includes('revenue') || n.includes('sales')) return 'gtm';
   if (n.includes('finance') || n.includes('market')) return 'finance';
   if (n.includes('security') || n.includes('compliance') || n.includes('risk')) return 'security';
   return null;
@@ -61,17 +68,20 @@ function flowEl(tag, cls, text) {
 
 function buildElements(brief) {
   const els = [
-    { data: { id: 'source',   label: 'Bright Data',   type: 'source', color: PAPER_DIM } },
-    { data: { id: 'gtm',      label: 'GTM',           type: 'dept', dept: 'gtm',      color: DEPT_COLOR.gtm } },
-    { data: { id: 'finance',  label: 'Finance',       type: 'dept', dept: 'finance',  color: DEPT_COLOR.finance } },
-    { data: { id: 'security', label: 'Security',      type: 'dept', dept: 'security', color: DEPT_COLOR.security } },
-    { data: { id: 'brief',    label: 'Cascade Brief', type: 'brief',  color: SHU } },
-    { data: { id: 'e_sg', source: 'source',   target: 'gtm',      type: 'feed',   color: DEPT_COLOR.gtm } },
-    { data: { id: 'e_sf', source: 'source',   target: 'finance',  type: 'feed',   color: DEPT_COLOR.finance } },
-    { data: { id: 'e_ss', source: 'source',   target: 'security', type: 'feed',   color: DEPT_COLOR.security } },
-    { data: { id: 'e_gb', source: 'gtm',      target: 'brief',    type: 'output', color: DEPT_COLOR.gtm } },
-    { data: { id: 'e_fb', source: 'finance',  target: 'brief',    type: 'output', color: DEPT_COLOR.finance } },
-    { data: { id: 'e_sb', source: 'security', target: 'brief',    type: 'output', color: DEPT_COLOR.security } },
+    { data: { id: 'source',    label: 'Bright Data',   type: 'source', color: PAPER_DIM } },
+    { data: { id: 'marketing', label: 'Marketing',     type: 'dept', dept: 'marketing', color: DEPT_COLOR.marketing } },
+    { data: { id: 'gtm',       label: 'GTM',           type: 'dept', dept: 'gtm',       color: DEPT_COLOR.gtm } },
+    { data: { id: 'finance',   label: 'Finance',       type: 'dept', dept: 'finance',   color: DEPT_COLOR.finance } },
+    { data: { id: 'security',  label: 'Security',      type: 'dept', dept: 'security',  color: DEPT_COLOR.security } },
+    { data: { id: 'brief',     label: 'Cascade Brief', type: 'brief',  color: SHU } },
+    { data: { id: 'e_sm', source: 'source',    target: 'marketing', type: 'feed',   color: DEPT_COLOR.marketing } },
+    { data: { id: 'e_sg', source: 'source',    target: 'gtm',       type: 'feed',   color: DEPT_COLOR.gtm } },
+    { data: { id: 'e_sf', source: 'source',    target: 'finance',   type: 'feed',   color: DEPT_COLOR.finance } },
+    { data: { id: 'e_ss', source: 'source',    target: 'security',  type: 'feed',   color: DEPT_COLOR.security } },
+    { data: { id: 'e_mb', source: 'marketing', target: 'brief',     type: 'output', color: DEPT_COLOR.marketing } },
+    { data: { id: 'e_gb', source: 'gtm',       target: 'brief',     type: 'output', color: DEPT_COLOR.gtm } },
+    { data: { id: 'e_fb', source: 'finance',   target: 'brief',     type: 'output', color: DEPT_COLOR.finance } },
+    { data: { id: 'e_sb', source: 'security',  target: 'brief',     type: 'output', color: DEPT_COLOR.security } },
   ];
 
   // Stagger handoff arcs so multiple handoffs that share neighbours don't
@@ -231,12 +241,15 @@ function cytoStyle() {
 // Preset layout — keeps the architecture story readable: source on top,
 // depts in a row, brief at the bottom. cy.fit() scales to container width.
 function presetPositions() {
+  // Four dept nodes in a row: marketing · gtm · finance · security
+  // (kept evenly spaced; cytoscape's fit() rescales to container width).
   return {
-    source:   { x: 380, y: 50 },
-    gtm:      { x: 120, y: 210 },
-    finance:  { x: 380, y: 210 },
-    security: { x: 640, y: 210 },
-    brief:    { x: 380, y: 380 },
+    source:    { x: 460, y: 50 },
+    marketing: { x: 100, y: 220 },
+    gtm:       { x: 340, y: 220 },
+    finance:   { x: 580, y: 220 },
+    security:  { x: 820, y: 220 },
+    brief:     { x: 460, y: 400 },
   };
 }
 
@@ -379,7 +392,12 @@ function renderTextFallback(container, tip, brief) {
 // alongside brief.json, future work can prefer it for authentic timestamps.
 
 function _claimCount(brief, dept) {
-  const m = { gtm: 'account_brief', finance: 'market_signal', security: 'risk_profile' };
+  const m = {
+    marketing: 'marketing_signal',
+    gtm:       'account_brief',
+    finance:   'market_signal',
+    security:  'risk_profile',
+  };
   const d = brief[m[dept]] || {};
   return Object.values(d).filter(Array.isArray).reduce((n, l) => n + l.length, 0);
 }
@@ -451,8 +469,8 @@ function replayCascade(brief, cy, tip, button) {
 
   // 3. parallel dept fan-out (stagger reveals so each is readable)
   t += 700;
-  ['gtm', 'finance', 'security'].forEach((d, i) => {
-    at(t + i * 180, () => {
+  ['marketing', 'gtm', 'finance', 'security'].forEach((d, i) => {
+    at(t + i * 160, () => {
       setTip(tip, `▶ ${d.toUpperCase()} agent · reading shared Bright Data bundle`, true);
       _reveal(cy, `node#${d}`);
       _reveal(cy, `edge[source = "source"][target = "${d}"]`);
@@ -461,9 +479,9 @@ function replayCascade(brief, cy, tip, button) {
   });
 
   // 4. dept-done emissions (staggered)
-  t += 1600;
-  ['gtm', 'finance', 'security'].forEach((d, i) => {
-    at(t + i * 360, () => {
+  t += 1700;
+  ['marketing', 'gtm', 'finance', 'security'].forEach((d, i) => {
+    at(t + i * 320, () => {
       const n = _claimCount(brief, d);
       setTip(tip, `✓ ${d.toUpperCase()} produced ${n} grounded claim${n === 1 ? '' : 's'}`, true);
       _pulseNode(cy, `node#${d}`);
@@ -471,13 +489,13 @@ function replayCascade(brief, cy, tip, button) {
   });
 
   // 5. grounding join
-  t += 1500;
+  t += 1700;
   at(t, () => {
     const dropped = (brief.guardrail_report && brief.guardrail_report.ungrounded_dropped) || [];
     setTip(tip,
       `🎯 grounding guard · dropped ${dropped.length} uncited claim${dropped.length === 1 ? '' : 's'}`,
       true);
-    ['gtm', 'finance', 'security'].forEach((d) => _pulseNode(cy, `node#${d}`));
+    ['marketing', 'gtm', 'finance', 'security'].forEach((d) => _pulseNode(cy, `node#${d}`));
   });
 
   // 6. handoffs — reveal each handoff edge with its message in the tooltip
@@ -610,14 +628,24 @@ function _handleLiveEvent(ev, cy, tip) {
   switch (ev.phase) {
     case 'fetch':
       if (ev.status === 'start') {
-        const msg = ev.mode === 'live'
-          ? `🌐 Bright Data · fetching ${ev.urls || ''} source${ev.urls === 1 ? '' : 's'} for ${ev.target || 'target'}…`
-          : '📦 loading shared bundle (demo fixture)…';
+        let msg;
+        if (ev.mode === 'self') {
+          const c = ev.competitor_urls || 0;
+          msg = `🌐 Bright Data · scraping ${ev.self_urls || 1} of your page${ev.self_urls === 1 ? '' : 's'} + ${c} competitor URL${c === 1 ? '' : 's'} for ${ev.target}…`;
+        } else if (ev.mode === 'live') {
+          msg = `🌐 Bright Data · fetching ${ev.urls || ''} source${ev.urls === 1 ? '' : 's'} for ${ev.target || 'target'}…`;
+        } else {
+          msg = '📦 loading shared bundle (demo fixture)…';
+        }
         setTip(tip, msg, true);
         _reveal(cy, 'node#source');
         _pulseNode(cy, 'node#source');
       } else {
-        setTip(tip, `✓ ${ev.sources || 0} source${ev.sources === 1 ? '' : 's'} ready in shared bundle`, true);
+        const c = (ev.competitors || []).length;
+        const extra = c ? ` (competitors: ${(ev.competitors || []).join(', ')})` : '';
+        setTip(tip,
+          `✓ ${ev.sources || 0} source${ev.sources === 1 ? '' : 's'} ready in shared bundle${extra}`,
+          true);
       }
       break;
     case 'pii':

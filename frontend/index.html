@@ -17,6 +17,7 @@
     --rule:       #2a2620;
     --rule-soft:  #1c1a17;
     --shu:        #e84a3a;   /* vermilion ink-stamp accent */
+    --marketing:  #ff85c9;   /* V7 — 4th dept colour, magenta-rose */
     --gtm:        #5ad6e8;
     --finance:    #98e08a;
     --security:   #f0a849;
@@ -127,6 +128,169 @@
   }
   .pullfresh:hover:not(:disabled) { background: rgba(232, 74, 58, 0.10); }
   .pullfresh:disabled { opacity: 0.55; cursor: wait; }
+
+  /* V7 — analyze my business primary CTA. Marketing-pink to differentiate
+     visually from the live-demo button. */
+  .analyzeself {
+    background: var(--marketing);
+    color: var(--ink);
+    border: 1px solid var(--marketing);
+    border-radius: 0;
+    padding: 8px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .analyzeself:hover:not(:disabled) { background: rgba(255,133,201,0.12); color: var(--marketing); }
+  .analyzeself:disabled { opacity: 0.55; cursor: wait; }
+
+  /* ───────── modal (self-mode onboarding) ───────── */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .modal[hidden] { display: none; }
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 6, 8, 0.78);
+    backdrop-filter: blur(2px);
+  }
+  .modal-panel {
+    position: relative;
+    z-index: 1;
+    width: min(560px, 100%);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: var(--ink-2);
+    border: 1px solid var(--marketing);
+    padding: 28px 32px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+  .modal-close {
+    position: absolute;
+    top: 10px; right: 12px;
+    background: transparent;
+    color: var(--paper-dim);
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+  .modal-close:hover { color: var(--paper); }
+  .modal-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--marketing);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+  }
+  .modal-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--paper);
+    letter-spacing: -0.015em;
+  }
+  .modal-lede {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--paper-dim);
+    margin: 0 0 6px;
+  }
+  .modal-warn {
+    border: 1px solid var(--bad);
+    background: rgba(255,115,103,0.08);
+    color: var(--bad);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    padding: 8px 10px;
+    line-height: 1.4;
+  }
+  .modal-row { display: flex; gap: 12px; }
+  .modal-row-2 > * { flex: 1; }
+  .modal-field { display: flex; flex-direction: column; gap: 4px; }
+  .modal-field > span {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  .modal-field input,
+  .modal-field textarea,
+  .modal-field select {
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    color: var(--paper);
+    padding: 8px 10px;
+    font-family: "Inter", -apple-system, sans-serif;
+    font-size: 14px;
+    border-radius: 0;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .modal-field textarea { font-family: "JetBrains Mono", monospace; font-size: 12px; line-height: 1.45; resize: vertical; }
+  .modal-field input:focus-visible,
+  .modal-field textarea:focus-visible,
+  .modal-field select:focus-visible { border-color: var(--marketing); }
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;
+  }
+  .modal-cancel,
+  .modal-run {
+    background: transparent;
+    border-radius: 0;
+    padding: 8px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+  }
+  .modal-cancel { color: var(--paper-dim); border: 1px solid var(--rule); }
+  .modal-cancel:hover { color: var(--paper); border-color: var(--paper-dim); }
+  .modal-run {
+    background: var(--marketing);
+    color: var(--ink);
+    border: 1px solid var(--marketing);
+    font-weight: 600;
+  }
+  .modal-run:hover { background: rgba(255,133,201,0.12); color: var(--marketing); }
+  .modal-footnote {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+  .modal-footnote code {
+    background: var(--ink);
+    padding: 1px 5px;
+    border: 1px solid var(--rule);
+    font-size: 9.5px;
+  }
+  @media (max-width: 600px) {
+    .modal-row { flex-direction: column; }
+    .modal-panel { padding: 20px 18px 18px; }
+  }
 
   /* ───────── main / stream lane ───────── */
   main {
@@ -649,6 +813,7 @@
     padding: 0;
     overflow: visible;
   }
+  .panel.marketing { border-top-color: var(--marketing); }
   .panel.gtm      { border-top-color: var(--gtm); }
   .panel.finance  { border-top-color: var(--finance); }
   .panel.security { border-top-color: var(--security); }
@@ -661,9 +826,12 @@
     letter-spacing: -0.005em;
     border: none;
   }
+  .panel.marketing h3 { color: var(--marketing); }
   .panel.gtm h3      { color: var(--gtm); }
   .panel.finance h3  { color: var(--finance); }
   .panel.security h3 { color: var(--security); }
+
+  .panel.marketing .claim-bar-fill { background: var(--marketing); }
 
   .group { padding: 4px 0 18px; }
   .group h4 {
@@ -832,11 +1000,82 @@
   <div class="meta">
     <span class="ts" id="ts"></span>
     <button class="pullfresh" id="pullfresh" title="Run the cascade live against the bundled fixture (no keys required)">▶ live demo</button>
+    <button class="analyzeself" id="analyzeself" title="Analyze YOUR business — paste your URL + competitors and get a strategic plan">🚀 analyze my business</button>
   </div>
 </header>
 <main id="app">
   <div id="error" class="hidden"></div>
 </main>
+
+<!-- V7 onboarding modal — opens when the header "🚀 analyze my business" button
+     fires. Submits to POST /api/run mode=self. -->
+<div class="modal" id="selfmodal" hidden role="dialog" aria-labelledby="selfmodal-title" aria-modal="true">
+  <div class="modal-backdrop" data-close></div>
+  <form class="modal-panel" id="selfform">
+    <button type="button" class="modal-close" data-close aria-label="Close">×</button>
+    <div class="modal-eyebrow">Small-business mode</div>
+    <h2 class="modal-title" id="selfmodal-title">Analyze your business</h2>
+    <p class="modal-lede">
+      Paste your URL and a few competitors. Taki scrapes everything live, runs
+      four AI departments — Marketing, GTM, Finance, Security — and synthesizes
+      one actionable plan you can execute this week.
+    </p>
+    <div class="modal-warn" id="selfmodal-warn" hidden></div>
+
+    <div class="modal-row modal-row-2">
+      <label class="modal-field">
+        <span>business name *</span>
+        <input name="name" type="text" placeholder="Acme Coffee Roasters" required />
+      </label>
+      <label class="modal-field">
+        <span>website URL *</span>
+        <input name="url" type="url" placeholder="https://acme.coffee" required />
+      </label>
+    </div>
+
+    <div class="modal-row modal-row-2">
+      <label class="modal-field">
+        <span>industry / category</span>
+        <input name="industry" type="text" placeholder="DTC specialty coffee" />
+      </label>
+      <label class="modal-field">
+        <span>stage</span>
+        <select name="stage">
+          <option value="idea">idea</option>
+          <option value="mvp">mvp</option>
+          <option value="pre-revenue">pre-revenue</option>
+          <option value="early-revenue" selected>early-revenue</option>
+          <option value="growth">growth</option>
+          <option value="scale">scale</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="modal-field">
+      <span>what's your biggest goal right now?</span>
+      <input name="goal" type="text" placeholder="Hit £30k MRR by end of year" />
+    </label>
+
+    <label class="modal-field">
+      <span>who's your customer? (segment / persona)</span>
+      <input name="customer_segment" type="text" placeholder="UK office managers ordering for 20-100 people" />
+    </label>
+
+    <label class="modal-field">
+      <span>competitor URLs (one per line — Taki scrapes each)</span>
+      <textarea name="competitor_urls" rows="4" placeholder="https://blue-bottle.com&#10;https://example-competitor.com/pricing:pricing"></textarea>
+    </label>
+
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" data-close>cancel</button>
+      <button type="submit" class="modal-run">🚀 run cascade</button>
+    </div>
+    <div class="modal-footnote">
+      Live mode uses your <code>.env</code> (Bright Data + Vertex/Gemini). One run scrapes ~4-6 pages ≈ $0.01 in BD credits.
+      Your data is never stored beyond <code>frontend/brief.json</code> in this repo.
+    </div>
+  </form>
+</div>
 <!-- cytoscape: interactive cascade graph · GSAP: scripted entry timing.
      Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
 <script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>

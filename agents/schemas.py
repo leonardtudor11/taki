@@ -29,12 +29,24 @@ class SourceType(str, Enum):
     OTHER = "other"
 
 
+class SourceSubject(str, Enum):
+    """Who this source is about. Lets self-mode prompts distinguish 'your
+    own site' from a competitor's site so analysis stays grounded in the
+    right perspective."""
+
+    TARGET = "target"          # target-account intelligence (default)
+    SELF = "self"              # the user's own business
+    COMPETITOR = "competitor"  # a named competitor of the user's business
+
+
 class SourceItem(BaseModel):
     """One raw scraped artifact in the shared bundle."""
 
     source_type: SourceType
     url: str
     text: str
+    subject: SourceSubject = SourceSubject.TARGET
+    competitor_name: str = ""  # populated when subject == COMPETITOR
     fetched_at: datetime = Field(default_factory=_now)
 
 
@@ -47,6 +59,17 @@ class SharedBundle(BaseModel):
 
     def texts(self) -> list[str]:
         return [s.text for s in self.sources]
+
+    def texts_by_subject(self, subject: SourceSubject) -> list[str]:
+        return [s.text for s in self.sources if s.subject == subject]
+
+    def competitor_names(self) -> list[str]:
+        seen: list[str] = []
+        for s in self.sources:
+            if s.subject == SourceSubject.COMPETITOR and s.competitor_name \
+                    and s.competitor_name not in seen:
+                seen.append(s.competitor_name)
+        return seen
 
 
 class Citation(BaseModel):
@@ -146,6 +169,31 @@ class MarketSignal(BaseModel):
         ]
 
 
+class MarketingSignal(BaseModel):
+    """Marketing department (V7) — positioning, brand voice, content + channel.
+
+    In self-mode the user's site is analysed for what *they* should improve.
+    In target-mode the same shape captures the target's marketing posture.
+    """
+
+    target: str
+    value_proposition: list[Claim] = Field(default_factory=list)
+    positioning: list[Claim] = Field(default_factory=list)
+    brand_voice: list[Claim] = Field(default_factory=list)
+    content_gaps: list[Claim] = Field(default_factory=list)
+    channel_signals: list[Claim] = Field(default_factory=list)
+    generated_at: datetime = Field(default_factory=_now)
+
+    def all_claims(self) -> list[Claim]:
+        return [
+            *self.value_proposition,
+            *self.positioning,
+            *self.brand_voice,
+            *self.content_gaps,
+            *self.channel_signals,
+        ]
+
+
 class RiskProfile(BaseModel):
     """Security / Compliance department (Track 3)."""
 
@@ -189,6 +237,59 @@ class GuardrailReport(BaseModel):
     leak_flags: list[str] = Field(default_factory=list)
     ungrounded_dropped: list[str] = Field(default_factory=list)
     passed: bool = True
+
+
+class CascadeMode(str, Enum):
+    """What perspective the cascade is run from.
+
+    - target: classic — analyze an enterprise account someone else might sell to.
+    - self:   V7 — small business analyses ITSELF + its competitors. Strategy
+              produces a plan FOR the user, not about them.
+    """
+
+    TARGET = "target"
+    SELF = "self"
+
+
+class Stage(str, Enum):
+    """Business maturity stage — used by the strategy prompt to tune advice."""
+
+    IDEA = "idea"
+    MVP = "mvp"
+    PRE_REVENUE = "pre-revenue"
+    EARLY_REVENUE = "early-revenue"
+    GROWTH = "growth"
+    SCALE = "scale"
+
+
+class BusinessProfile(BaseModel):
+    """User-supplied context for self-mode cascades.
+
+    Captured from the onboarding form on the dashboard so the strategy agent
+    has the founder's intent (goals, stage, ICP) — analysis without intent
+    devolves into generic SWOT.
+    """
+
+    name: str
+    url: str
+    industry: str = ""
+    stage: Stage = Stage.EARLY_REVENUE
+    goal: str = ""
+    customer_segment: str = ""
+    competitor_urls: list[str] = Field(default_factory=list)
+    competitor_names: list[str] = Field(default_factory=list)
+
+    @field_validator("stage", mode="before")
+    @classmethod
+    def _coerce_stage(cls, v):
+        if isinstance(v, Stage):
+            return v
+        if isinstance(v, str):
+            s = v.strip().lower().replace("_", "-")
+            for tier in Stage:
+                if tier.value == s:
+                    return tier
+        return Stage.EARLY_REVENUE
 
 
 class FitTier(str, Enum):
@@ -268,9 +369,12 @@ class CascadeBrief(BaseModel):
     """The unified deliverable every department cascades into."""
 
     target: str
+    mode: CascadeMode = CascadeMode.TARGET
+    business_profile: Optional[BusinessProfile] = None  # populated in self-mode
     generated_at: datetime = Field(default_factory=_now)
     account_brief: Optional[AccountBrief] = None
     market_signal: Optional[MarketSignal] = None
+    marketing_signal: Optional[MarketingSignal] = None
     risk_profile: Optional[RiskProfile] = None
     synergy_signals: list[SynergySignal] = Field(default_factory=list)
     handoffs: list[HandoffMessage] = Field(default_factory=list)

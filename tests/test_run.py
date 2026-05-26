@@ -4,6 +4,7 @@ from services import cache
 from fixtures.fake_llm import (
     fake_finance_llm,
     fake_gtm_llm,
+    fake_marketing_llm,
     fake_security_llm,
     fake_strategy_llm,
 )
@@ -17,6 +18,7 @@ def test_generate_and_cache_offline(tmp_path, monkeypatch):
         sample_bundle(),
         gtm_llm=fake_gtm_llm,
         finance_llm=fake_finance_llm,
+        marketing_llm=fake_marketing_llm,
         security_llm=fake_security_llm,
         strategy_llm=fake_strategy_llm,
         frontend_path=frontend,
