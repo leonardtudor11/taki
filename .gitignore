@@ -1,0 +1,21 @@
+# secrets
+.env
+*.key
+*-sa.json
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# node / frontend
+node_modules/
+.next/
+.vercel/
+
+# data cache (keep dirs, ignore scraped payloads)
+data/**/cache/
+data/**/raw/
+
+# os
+.DS_Store
