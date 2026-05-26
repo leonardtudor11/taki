@@ -3,3 +3,5 @@ pydantic>=2.9
 python-dotenv>=1.0
 tenacity>=9.0
 pytest>=8.0
+# Vertex AI via ADC (preferred LLM path). Lazy-imported in services/llm.py.
+google-genai>=2.3.0

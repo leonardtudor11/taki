@@ -23,12 +23,22 @@ is its own git commit. **40 tests green.** Core engine + dashboard complete.
 2. **Bright Data** — claim the $250, create zones (a **SERP** zone + a **Web
    Unlocker** zone), copy the API token. Set a **$50 spend cap** in their dashboard.
 
-3. **Gemini** — grab a free AI Studio key (simplest), or reuse your diligence
-   GCP service account (Vertex path is wired in `.env.example`).
+3. **Vertex AI (no JSON key, ADC)** — your org policy blocks SA key creation;
+   ADC user creds aren't affected. Run on your Mac once:
+   ```bash
+   gcloud auth login                                          # browser, sign in w/ mirel_leonard@yahoo.com
+   gcloud config set project <YOUR_PROJECT_ID>
+   gcloud auth application-default login                      # creates ADC at ~/.config/gcloud/
+   gcloud auth application-default set-quota-project <YOUR_PROJECT_ID>
+   gcloud services enable aiplatform.googleapis.com           # if not already on
+   gcloud auth application-default print-access-token         # verify — prints a token
+   ```
+   Then in `.env` set **only** `GCP_PROJECT_ID` (+ optional `GCP_LOCATION=global`).
+   Leave `GEMINI_API_KEY` empty — Vertex path is auto-picked.
 
 4. **Fill env**:
    ```bash
-   cd ~/taki && cp .env.example .env   # then edit .env: BD key+zones, GEMINI_API_KEY
+   cd ~/taki && cp .env.example .env   # edit: BD key+zones, GCP_PROJECT_ID
    ```
 
 5. **Generate a real brief**:
