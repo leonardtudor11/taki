@@ -21,8 +21,8 @@ Checkpoint log. One row per session. Updated at the end of each session before c
 | S4.3 | Pull Fresh live button | 🟡 pipeline done | 2/2 | self | (S4.3) | run.py live entrypoint built+tested offline; UI button = stub; **LIVE BLOCKED on keys** |
 | S4.4 | Deploy Vercel + cache accounts | ⏳ pending | — | — | — | **NEEDS YOU: Vercel auth** |
 | S5.1 | README + arch diagram + LICENSE | ✅ done | n/a | self | (S5.1) | + real example brief.json artifact |
-| S5.2 | Video + slides | ⏳ pending | — | — | — | **NEEDS YOU** |
-| S5.3 | Public repo + lablab form | ⏳ pending | — | — | — | **NEEDS YOU** |
+| S5.2 | Video + slides | 🟡 text drafted | n/a | self | (audit pass) | full 5-min script + 8-slide outline in docs/PRESENTATION.md — record/export pending |
+| S5.3 | Public repo + lablab form | 🟡 text drafted | n/a | self | (audit pass) | every form field + BD usage statement drafted — push + submit pending |
 
 ## Stop protocol (unattended runs)
 At each session: build → test → (audit) → update this table → `git commit`. If a session is BLOCKED (missing key/auth/decision): mark it, skip to the next *independent* session that is fixture-testable, and log the blocker here. Never fake a passing test.

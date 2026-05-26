@@ -1,5 +1,8 @@
 // Taki dashboard — reads a CascadeBrief JSON and renders the departments,
 // synergies, guardrail report, and (S4.2) the cascade-flow handoffs.
+//
+// Rendering uses the DOM API + textContent (never innerHTML on user data) so
+// brief.json content cannot inject script. Citation URLs are scheme-validated.
 
 const DEPTS = [
   {
@@ -30,39 +33,56 @@ const DEPTS = [
   },
 ];
 
-function el(tag, attrs = {}, html = "") {
+function el(tag, attrs, text) {
   const e = document.createElement(tag);
-  Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
-  if (html) e.innerHTML = html;
+  if (attrs) for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text != null) e.textContent = text;
   return e;
 }
 
-function esc(s) {
-  return String(s).replace(/[&<>"]/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// only http(s) URLs may render as live links; everything else becomes "#".
+function safeUrl(url) {
+  try {
+    const u = new URL(String(url || ""), window.location.href);
+    return (u.protocol === "http:" || u.protocol === "https:") ? u.href : "#";
+  } catch (_e) {
+    return "#";
+  }
 }
 
 function renderClaim(claim) {
-  const conf = claim.confidence != null
-    ? `<span class="conf">${Math.round(claim.confidence * 100)}%</span>` : "";
-  const cites = (claim.citations || [])
-    .map((c) => `<a class="cite" href="${esc(c.url)}" target="_blank" rel="noopener">§ ${esc(c.source_type || "src")}</a>`)
-    .join("");
-  return `<div class="claim">${conf}${esc(claim.text)}<div class="cites">${cites}</div></div>`;
+  const card = el("div", { class: "claim" });
+  if (claim.confidence != null) {
+    card.appendChild(el(
+      "span", { class: "conf" }, `${Math.round(claim.confidence * 100)}%`
+    ));
+  }
+  card.appendChild(document.createTextNode(String(claim.text || "")));
+  const cites = el("div", { class: "cites" });
+  (claim.citations || []).forEach((c) => {
+    const a = el(
+      "a",
+      { class: "cite", href: safeUrl(c.url), target: "_blank", rel: "noopener noreferrer" },
+      `§ ${String(c.source_type || "src")}`
+    );
+    cites.appendChild(a);
+  });
+  card.appendChild(cites);
+  return card;
 }
 
 function renderPanel(dept, brief) {
   const data = brief[dept.key] || {};
   const panel = el("div", { class: `panel ${dept.cls}` });
-  panel.appendChild(el("h3", {}, dept.title));
+  panel.appendChild(el("h3", null, dept.title));
   let any = false;
   dept.groups.forEach(([field, label]) => {
     const claims = data[field] || [];
     if (!claims.length) return;
     any = true;
     const g = el("div", { class: "group" });
-    g.appendChild(el("h4", {}, label));
-    claims.forEach((c) => (g.innerHTML += renderClaim(c)));
+    g.appendChild(el("h4", null, label));
+    claims.forEach((c) => g.appendChild(renderClaim(c)));
     panel.appendChild(g);
   });
   if (!any) panel.appendChild(el("div", { class: "empty" }, "No grounded signals."));
@@ -72,10 +92,22 @@ function renderPanel(dept, brief) {
 function renderBadges(report) {
   const wrap = el("div", { class: "badges" });
   const grounded = (report.ungrounded_dropped || []).length;
-  wrap.appendChild(el("span", { class: "badge ok" }, `🔒 PII redacted: <b>${report.pii_redactions || 0}</b>`));
-  wrap.appendChild(el("span", { class: "badge ok" }, `🚫 Sources withheld: <b>${(report.leak_flags || []).length}</b>`));
-  wrap.appendChild(el("span", { class: "badge ok" }, `🎯 Ungrounded dropped: <b>${grounded}</b>`));
-  wrap.appendChild(el("span", { class: "badge ok" }, `✅ Grounded: <b>${report.passed ? "yes" : "no"}</b>`));
+  const passedCls = report.passed ? "badge ok" : "badge";
+  wrap.appendChild(el("span", { class: "badge ok" }, ""));
+  wrap.lastChild.appendChild(document.createTextNode("🔒 PII redacted: "));
+  wrap.lastChild.appendChild(el("b", null, String(report.pii_redactions || 0)));
+
+  wrap.appendChild(el("span", { class: "badge ok" }, ""));
+  wrap.lastChild.appendChild(document.createTextNode("🚫 Sources withheld: "));
+  wrap.lastChild.appendChild(el("b", null, String((report.leak_flags || []).length)));
+
+  wrap.appendChild(el("span", { class: "badge ok" }, ""));
+  wrap.lastChild.appendChild(document.createTextNode("🎯 Ungrounded dropped: "));
+  wrap.lastChild.appendChild(el("b", null, String(grounded)));
+
+  wrap.appendChild(el("span", { class: passedCls }, ""));
+  wrap.lastChild.appendChild(document.createTextNode("✅ Grounded: "));
+  wrap.lastChild.appendChild(el("b", null, report.passed ? "yes" : "no"));
   return wrap;
 }
 
@@ -87,25 +119,31 @@ function renderSynergies(synergies) {
   synergies.forEach((s) => {
     const card = el("div", { class: "synergy" });
     card.appendChild(el("div", { class: "depts" }, (s.contributing_depts || []).join(" + ")));
-    card.appendChild(el("div", {}, esc(s.text)));
+    card.appendChild(el("div", null, String(s.text || "")));
     grid.appendChild(card);
   });
   wrap.appendChild(grid);
   return wrap;
 }
 
+function parseDateSafe(s) {
+  if (typeof s !== "string" || s.length > 64) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function render(brief) {
-  document.getElementById("target").textContent = brief.target || "";
-  document.getElementById("ts").textContent = brief.generated_at
-    ? `generated ${new Date(brief.generated_at).toLocaleString()}` : "";
+  document.getElementById("target").textContent = String(brief.target || "");
+  const d = parseDateSafe(brief.generated_at);
+  document.getElementById("ts").textContent = d ? `generated ${d.toLocaleString()}` : "";
 
   const app = document.getElementById("app");
-  app.innerHTML = "";
+  app.textContent = "";
 
   if (brief.executive_summary) {
     const ex = el("div", { class: "exec" });
-    ex.appendChild(el("h2", {}, "Executive summary"));
-    ex.appendChild(el("div", {}, esc(brief.executive_summary)));
+    ex.appendChild(el("h2", null, "Executive summary"));
+    ex.appendChild(el("div", null, String(brief.executive_summary)));
     app.appendChild(ex);
   }
 
