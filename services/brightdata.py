@@ -104,14 +104,22 @@ def build_bundle(
     urls: list[tuple[str, SourceType]] | None = None,
     cap_chars: int = 8000,
 ) -> SharedBundle:
-    """Scrape once into a SharedBundle: a SERP pass + each provided URL."""
-    sources: list[SourceItem] = [
-        SourceItem(
-            source_type=SourceType.SERP,
-            url=f"serp:{target}",
-            text=html_to_text(client.serp(f"{target} pricing careers news"))[:cap_chars],
+    """Scrape once into a SharedBundle.
+
+    Optional SERP discovery pass (only if a SERP zone is configured), then each
+    explicitly-provided URL via Unlocker. Path A demos run with URLs only.
+    """
+    sources: list[SourceItem] = []
+    if client.serp_zone:
+        sources.append(
+            SourceItem(
+                source_type=SourceType.SERP,
+                url=f"serp:{target}",
+                text=html_to_text(
+                    client.serp(f"{target} pricing careers news")
+                )[:cap_chars],
+            )
         )
-    ]
     for url, stype in urls or []:
         sources.append(
             SourceItem(
