@@ -1,6 +1,6 @@
 {
   "target": "Northwind Analytics",
-  "generated_at": "2026-05-26T12:30:16.076859Z",
+  "generated_at": "2026-05-26T12:47:56.275763Z",
   "account_brief": {
     "target": "Northwind Analytics",
     "buying_signals": [
@@ -31,7 +31,7 @@
       }
     ],
     "outreach_angle": "Congratulate on the Series B; tie to EU go-to-market.",
-    "generated_at": "2026-05-26T12:30:16.075407Z"
+    "generated_at": "2026-05-26T12:47:55.161902Z"
   },
   "market_signal": {
     "target": "Northwind Analytics",
@@ -63,7 +63,7 @@
     ],
     "web_traffic_proxy": [],
     "vendor_health_flags": [],
-    "generated_at": "2026-05-26T12:30:16.075585Z"
+    "generated_at": "2026-05-26T12:47:55.162337Z"
   },
   "risk_profile": {
     "target": "Northwind Analytics",
@@ -83,7 +83,7 @@
     ],
     "regulatory_signals": [],
     "third_party_risk": [],
-    "generated_at": "2026-05-26T12:30:16.075648Z"
+    "generated_at": "2026-05-26T12:47:55.162837Z"
   },
   "synergy_signals": [
     {

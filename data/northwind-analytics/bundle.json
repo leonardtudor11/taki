@@ -1,36 +1,36 @@
 {
   "target": "Northwind Analytics",
-  "fetched_at": "2026-05-26T12:30:15.809925Z",
+  "fetched_at": "2026-05-26T12:47:52.750994Z",
   "sources": [
     {
       "source_type": "pricing",
       "url": "https://northwind.example/pricing",
       "text": "Northwind Analytics raised its Pro plan from $49 to $79 per seat this quarter, and removed the free tier.",
-      "fetched_at": "2026-05-26T12:30:15.809772Z"
+      "fetched_at": "2026-05-26T12:47:52.750965Z"
     },
     {
       "source_type": "jobs",
       "url": "https://northwind.example/careers",
       "text": "Northwind Analytics is hiring 12 enterprise account executives and 4 solutions engineers across North America.",
-      "fetched_at": "2026-05-26T12:30:15.809918Z"
+      "fetched_at": "2026-05-26T12:47:52.750981Z"
     },
     {
       "source_type": "news",
       "url": "https://news.example/northwind-series-b",
       "text": "Northwind Analytics closed a $40M Series B led by Acme Ventures to expand into the EU market.",
-      "fetched_at": "2026-05-26T12:30:15.809920Z"
+      "fetched_at": "2026-05-26T12:47:52.750984Z"
     },
     {
       "source_type": "review",
       "url": "https://reviews.example/northwind",
       "text": "Customers praise Northwind's dashboards but report slow support response times since the recent pricing change.",
-      "fetched_at": "2026-05-26T12:30:15.809921Z"
+      "fetched_at": "2026-05-26T12:47:52.750987Z"
     },
     {
       "source_type": "site",
       "url": "https://northwind.example/contact",
       "text": "Reach our press office at jane.doe@northwind.example or call +1 (415) 555-0137. CONFIDENTIAL — internal board deck, do not distribute: projected churn 14%.",
-      "fetched_at": "2026-05-26T12:30:15.809923Z"
+      "fetched_at": "2026-05-26T12:47:52.750990Z"
     }
   ]
 }

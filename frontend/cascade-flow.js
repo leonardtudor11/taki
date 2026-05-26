@@ -34,9 +34,22 @@ function deptKey(name) {
   return null;
 }
 
-function clip(s, n) {
-  s = String(s || '');
-  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+// Derive a 1-2 word label for a handoff/synergy edge. Full message lives in
+// the tooltip strip below the graph (replay + hover both write to it), so the
+// edge label only needs to communicate the TOPIC at a glance — clipping a long
+// sentence with '…' is unreadable on top of an edge.
+function shortLabel(message, fallback) {
+  const m = String(message || '').toLowerCase();
+  if (m.includes('pricing'))                                return 'pricing';
+  if (m.includes('reputation'))                             return 'reputation';
+  if (m.includes('hiring') || m.includes('attack surface')) return 'hiring';
+  if (m.includes('churn'))                                  return 'churn risk';
+  if (m.includes('growth') || m.includes('expansion'))      return 'growth';
+  if (m.includes('vendor'))                                 return 'vendor';
+  if (m.includes('regulatory') || m.includes('compliance')) return 'regulatory';
+  // last resort: first two words, lowercased
+  if (fallback) return fallback;
+  return String(message || '').split(/\s+/).slice(0, 2).join(' ').toLowerCase();
 }
 
 function flowEl(tag, cls, text) {
@@ -61,6 +74,11 @@ function buildElements(brief) {
     { data: { id: 'e_sb', source: 'security', target: 'brief',    type: 'output', color: DEPT_COLOR.security } },
   ];
 
+  // Stagger handoff arcs so multiple handoffs that share neighbours don't
+  // pile their labels on top of each other. We assign each handoff an arc
+  // class (arc-1..arc-3); the stylesheet binds different control-point
+  // distances per class.
+  const arcClasses = ['arc-1', 'arc-2', 'arc-3'];
   (brief.handoffs || []).forEach((h, i) => {
     const a = deptKey(h.from_dept);
     const b = deptKey(h.to_dept);
@@ -68,13 +86,16 @@ function buildElements(brief) {
     els.push({
       data: {
         id: `h${i}`, source: a, target: b, type: 'handoff',
-        color: DEPT_COLOR[a], label: clip(h.message, 32),
+        color: DEPT_COLOR[a],
+        label: shortLabel(h.message),
         full: String(h.message || ''),
       },
+      classes: arcClasses[i % arcClasses.length],
     });
   });
 
   const seenPairs = new Set();
+  const synArcs = ['syn-arc-1', 'syn-arc-2'];
   (brief.synergy_signals || []).forEach((s, i) => {
     const depts = (s.contributing_depts || []).map(deptKey).filter(Boolean);
     const unique = [...new Set(depts)];
@@ -86,9 +107,11 @@ function buildElements(brief) {
       els.push({
         data: {
           id: `y${i}`, source: unique[0], target: unique[1], type: 'synergy',
-          color: SYNERGY_COLOR, label: 'synergy',
+          color: SYNERGY_COLOR,
+          label: shortLabel(s.text, 'synergy'),
           full: String(s.text || ''),
         },
+        classes: synArcs[i % synArcs.length],
       });
     }
   });
@@ -145,38 +168,61 @@ function cytoStyle() {
       selector: 'edge[type="handoff"]',
       style: {
         'curve-style': 'unbundled-bezier',
-        'control-point-distances': [-54],
         'control-point-weights': [0.5],
         label: 'data(label)',
-        'font-family': 'JetBrains Mono, monospace',
-        'font-size': 9,
-        color: PAPER_DIM,
+        'font-family': 'JetBrains Mono, ui-monospace, monospace',
+        'font-size': 11,
+        'font-weight': 600,
+        color: 'data(color)',
         'text-rotation': 'autorotate',
+        // solid INK pad + text outline = labels readable over anything
         'text-background-color': INK,
-        'text-background-opacity': 0.95,
-        'text-background-padding': 3,
-        'text-margin-y': -2,
+        'text-background-opacity': 1,
+        'text-background-padding': 4,
+        'text-background-shape': 'round-rectangle',
+        'text-border-color': 'data(color)',
+        'text-border-opacity': 0.45,
+        'text-border-width': 1,
+        'text-outline-color': INK,
+        'text-outline-width': 3,
+        'text-outline-opacity': 1,
+        'text-margin-y': -3,
       },
     },
+    // Stagger handoff arcs so labels don't pile on the same curve
+    { selector: 'edge.arc-1', style: { 'control-point-distances': [-60] } },
+    { selector: 'edge.arc-2', style: { 'control-point-distances': [-98] } },
+    { selector: 'edge.arc-3', style: { 'control-point-distances': [-136] } },
+
     {
       selector: 'edge[type="synergy"]',
       style: {
         'curve-style': 'unbundled-bezier',
-        'control-point-distances': [62],
         'control-point-weights': [0.5],
         'line-style': 'dashed',
         'line-dash-pattern': [6, 4],
         label: 'data(label)',
-        'font-family': 'JetBrains Mono, monospace',
-        'font-size': 9,
+        'font-family': 'JetBrains Mono, ui-monospace, monospace',
+        'font-size': 11,
+        'font-weight': 600,
         color: SYNERGY_COLOR,
         'text-rotation': 'autorotate',
         'text-background-color': INK,
-        'text-background-opacity': 0.95,
-        'text-background-padding': 3,
-        'text-margin-y': 2,
+        'text-background-opacity': 1,
+        'text-background-padding': 4,
+        'text-background-shape': 'round-rectangle',
+        'text-border-color': SYNERGY_COLOR,
+        'text-border-opacity': 0.45,
+        'text-border-width': 1,
+        'text-outline-color': INK,
+        'text-outline-width': 3,
+        'text-outline-opacity': 1,
+        'text-margin-y': 3,
       },
     },
+    { selector: 'edge.syn-arc-1', style: { 'control-point-distances': [70] } },
+    { selector: 'edge.syn-arc-2', style: { 'control-point-distances': [108] } },
+
     { selector: '.dim',      style: { opacity: 0.15 } },
     { selector: '.beam',     style: { width: 3 } },
   ];
@@ -485,6 +531,336 @@ function replayCascade(brief, cy, tip, button) {
   document.body._cascadeTimers = timers;
 }
 
+// ─── live cascade — SSE-driven animation from the backend ─────────────────
+// POSTs to /api/run on the local Flask backend (server.py). Each Server-Sent
+// Event maps to a cytoscape animation step, so the dashboard reflects the real
+// LangGraph cascade as it fires — not just a scripted replay.
+
+const BACKEND_BASE = '';   // same-origin when served by Flask; empty string is fine cross-origin too
+const RUN_ENDPOINT = '/api/run';
+const STATUS_ENDPOINT = '/api/status';
+
+async function _streamSSE(payload, onEvent, onError) {
+  let res;
+  try {
+    res = await fetch(BACKEND_BASE + RUN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    onError({
+      error: 'backend unreachable — start it with `python server.py` in another terminal',
+      cause: String(e && e.message || e),
+    });
+    return;
+  }
+  if (!res.ok) {
+    let body = { error: `HTTP ${res.status} ${res.statusText}` };
+    try { body = await res.json(); } catch (_e) {}
+    onError(body);
+    return;
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  while (true) {
+    let chunk;
+    try {
+      chunk = await reader.read();
+    } catch (e) {
+      onError({ error: 'stream broken', cause: String(e) });
+      return;
+    }
+    if (chunk.done) break;
+    buf += decoder.decode(chunk.value, { stream: true });
+    let idx;
+    while ((idx = buf.indexOf('\n\n')) !== -1) {
+      const block = buf.slice(0, idx);
+      buf = buf.slice(idx + 2);
+      const dataLine = block.split('\n').find((l) => l.startsWith('data: '));
+      if (!dataLine) continue;
+      try {
+        onEvent(JSON.parse(dataLine.slice(6)));
+      } catch (_e) { /* swallow malformed line */ }
+    }
+  }
+}
+
+function _handleLiveEvent(ev, cy, tip) {
+  switch (ev.phase) {
+    case 'fetch':
+      if (ev.status === 'start') {
+        const msg = ev.mode === 'live'
+          ? `🌐 Bright Data · fetching ${ev.urls || ''} source${ev.urls === 1 ? '' : 's'} for ${ev.target || 'target'}…`
+          : '📦 loading shared bundle (demo fixture)…';
+        setTip(tip, msg, true);
+        _reveal(cy, 'node#source');
+        _pulseNode(cy, 'node#source');
+      } else {
+        setTip(tip, `✓ ${ev.sources || 0} source${ev.sources === 1 ? '' : 's'} ready in shared bundle`, true);
+      }
+      break;
+    case 'pii':
+      if (ev.status === 'start') {
+        setTip(tip, '🔒 PII redaction · scrubbing emails + phones', true);
+        _pulseNode(cy, 'node#source');
+      } else {
+        const n = ev.redactions || 0;
+        setTip(tip, `✓ ${n} PII redaction${n === 1 ? '' : 's'}`, true);
+      }
+      break;
+    case 'leak':
+      if (ev.status === 'start') {
+        setTip(tip, '🚫 leak/scope guard · withholding confidential-marked sources', true);
+        _pulseNode(cy, 'node#source');
+      } else {
+        const n = (ev.flags || []).length;
+        setTip(tip, `✓ ${n} source${n === 1 ? '' : 's'} withheld`, true);
+      }
+      break;
+    case 'dept': {
+      const d = ev.dept;
+      if (!d) break;
+      if (ev.status === 'start') {
+        setTip(tip, `▶ ${d.toUpperCase()} agent · reading shared bundle`, true);
+        _reveal(cy, `node#${d}`);
+        _reveal(cy, `edge[source = "source"][target = "${d}"]`);
+        _pulseEdge(cy, `edge[source = "source"][target = "${d}"]`);
+      } else {
+        const n = ev.claims || 0;
+        setTip(tip, `✓ ${d.toUpperCase()} produced ${n} claim${n === 1 ? '' : 's'}`, true);
+        _pulseNode(cy, `node#${d}`);
+      }
+      break;
+    }
+    case 'grounding':
+      if (ev.status === 'start') {
+        setTip(tip, '🎯 grounding guard · checking every citation against the bundle', true);
+      } else {
+        const n = ev.dropped || 0;
+        setTip(tip, `🎯 grounding done · ${n} ungrounded claim${n === 1 ? '' : 's'} dropped`, true);
+        ['gtm', 'finance', 'security'].forEach((d) => _pulseNode(cy, `node#${d}`));
+      }
+      break;
+    case 'handoff': {
+      const a = deptKey(ev.from);
+      const b = deptKey(ev.to);
+      if (!a || !b) break;
+      const sel = `edge[id ^= "h"][source = "${a}"][target = "${b}"]`;
+      _reveal(cy, sel);
+      _pulseEdge(cy, sel);
+      setTip(tip, `↳ ${a.toUpperCase()} → ${b.toUpperCase()}: ${ev.message || ''}`, true);
+      break;
+    }
+    case 'synergy':
+      _reveal(cy, 'edge[type = "synergy"]');
+      _pulseEdge(cy, 'edge[type = "synergy"]');
+      setTip(tip, `⚡ synergy (${(ev.depts || []).join(' + ')}): ${ev.text || ''}`, true);
+      break;
+    case 'assemble':
+      _reveal(cy, 'edge[type = "output"]');
+      _reveal(cy, 'node#brief');
+      _pulseNode(cy, 'node#brief');
+      setTip(tip, '★ CascadeBrief assembled', true);
+      break;
+    case 'complete':
+      setTip(tip,
+        `✓ live cascade done · target: ${ev.target || '?'} · ${ev.dropped || 0} ungrounded dropped`,
+        true);
+      break;
+    case 'error':
+      setTip(tip, `✗ ${ev.error || 'unknown error'}`, true);
+      break;
+  }
+}
+
+function _restoreFromLive(cy, tip, buttons) {
+  _restore(cy);
+  document.body.classList.remove('replaying');
+  Object.values(buttons || {}).forEach((b) => { if (b) b.disabled = false; });
+  setTip(tip, BASE_TIP);
+}
+
+function runLiveCascade(payload, ctx) {
+  const { cy, tip, buttons, labelWhenRunning } = ctx;
+  if (!cy) return;
+  // Pre-flight: clear any focus, dim graph + page for the animation
+  Object.values(buttons || {}).forEach((b) => { if (b) b.disabled = true; });
+  if (buttons && buttons.primary) buttons.primary.textContent = labelWhenRunning || '⏳ running…';
+  document.body.classList.add('replaying');
+  delete document.body.dataset.focus;
+  cy.elements().removeClass('dim beam');
+  cy.elements(':selected').unselect();
+  _dimAll(cy);
+  setTip(tip, '⏳ contacting backend…', true);
+
+  let sawComplete = false;
+  let sawError = false;
+
+  _streamSSE(
+    payload,
+    (ev) => {
+      if (ev.phase === 'complete') sawComplete = true;
+      if (ev.phase === 'error') sawError = true;
+      _handleLiveEvent(ev, cy, tip);
+    },
+    (err) => {
+      sawError = true;
+      const detail = err.blockers ? `${err.error} (${err.blockers.join('; ')})` : err.error;
+      setTip(tip, `✗ ${detail || 'request failed'}`, true);
+    },
+  ).then(() => {
+    // Restore button labels regardless of outcome
+    if (buttons && buttons.primary) {
+      buttons.primary.textContent = buttons.primary.dataset.idleLabel || buttons.primary.textContent;
+    }
+    setTimeout(() => _restoreFromLive(cy, tip, buttons), sawError ? 600 : 1200);
+
+    // On a successful run the backend wrote a fresh frontend/brief.json — pull
+    // it in and re-render the dashboard so the panels reflect new data.
+    if (sawComplete && !sawError && typeof render === 'function') {
+      fetch('brief.json', { cache: 'no-store' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((b) => { if (b) setTimeout(() => render(b), 1400); })
+        .catch(() => {});
+    }
+  });
+}
+
+// ─── toolbar UI ───────────────────────────────────────────────────────────
+
+function _buildLiveForm() {
+  // small popover form for ⚡ live run: target + URL list. Hidden by default.
+  const form = flowEl('form', 'cascade-liveform');
+  form.hidden = true;
+  form.setAttribute('aria-label', 'Live cascade run inputs');
+
+  const targetLabel = flowEl('label', 'cascade-livefield');
+  targetLabel.appendChild(flowEl('span', 'cascade-livelabel', 'target'));
+  const targetInput = flowEl('input', 'cascade-liveinput');
+  targetInput.name = 'target';
+  targetInput.type = 'text';
+  targetInput.placeholder = 'Stripe';
+  targetInput.required = true;
+  targetLabel.appendChild(targetInput);
+
+  const urlsLabel = flowEl('label', 'cascade-livefield');
+  urlsLabel.appendChild(flowEl('span', 'cascade-livelabel', 'urls'));
+  const urlsArea = flowEl('textarea', 'cascade-liveinput cascade-liveurls');
+  urlsArea.name = 'urls';
+  urlsArea.rows = 3;
+  urlsArea.placeholder =
+    'one per line\nhttps://stripe.com/pricing:pricing\nhttps://stripe.com/jobs:jobs';
+  urlsLabel.appendChild(urlsArea);
+
+  const actions = flowEl('div', 'cascade-liveactions');
+  const cancel = flowEl('button', 'cascade-liveclose', 'cancel');
+  cancel.type = 'button';
+  const submit = flowEl('button', 'cascade-livesubmit', '⚡ run');
+  submit.type = 'submit';
+  actions.appendChild(cancel);
+  actions.appendChild(submit);
+
+  form.appendChild(targetLabel);
+  form.appendChild(urlsLabel);
+  form.appendChild(actions);
+
+  return { form, targetInput, urlsArea, cancel, submit };
+}
+
+function _wireToolbar(toolbar, container, tip) {
+  // Toolbar children:
+  //   ▶ replay cascade      (always works — animates cached brief.json)
+  //   ▶ live demo          (real backend, fixture cascade, no keys)
+  //   ⚡ live run ▾        (real backend, Bright Data + LLM; popover for target/urls)
+  const replayBtn  = flowEl('button', 'cascade-replay',   '▶ replay cascade');
+  const demoBtn    = flowEl('button', 'cascade-livedemo', '▶ live demo');
+  const liveBtn    = flowEl('button', 'cascade-liverun',  '⚡ live run ▾');
+  [replayBtn, demoBtn, liveBtn].forEach((b) => { b.type = 'button'; });
+  replayBtn.title = 'Animate the cached cascade — works offline';
+  demoBtn.title   = 'Run the cascade live against the fixture bundle (no keys needed)';
+  liveBtn.title   = 'Run the cascade live against a real target via Bright Data (.env keys required)';
+  replayBtn.dataset.idleLabel = replayBtn.textContent;
+  demoBtn.dataset.idleLabel   = demoBtn.textContent;
+  liveBtn.dataset.idleLabel   = liveBtn.textContent;
+
+  const liveWrap = flowEl('div', 'cascade-liverun-wrap');
+  liveWrap.appendChild(liveBtn);
+
+  const { form, targetInput, urlsArea, cancel, submit } = _buildLiveForm();
+  liveWrap.appendChild(form);
+
+  toolbar.appendChild(replayBtn);
+  toolbar.appendChild(demoBtn);
+  toolbar.appendChild(liveWrap);
+
+  const buttons = { primary: null, replay: replayBtn, demo: demoBtn, live: liveBtn };
+
+  const getCy = () => container._cy;
+
+  replayBtn.addEventListener('click', () => {
+    const cy = getCy(); if (!cy) return;
+    replayCascade(container._brief, cy, tip, replayBtn);
+  });
+
+  demoBtn.addEventListener('click', () => {
+    const cy = getCy(); if (!cy) return;
+    runLiveCascade({ mode: 'demo' }, {
+      cy, tip,
+      buttons: { ...buttons, primary: demoBtn },
+      labelWhenRunning: '⏳ live demo running…',
+    });
+  });
+
+  liveBtn.addEventListener('click', () => {
+    form.hidden = !form.hidden;
+    if (!form.hidden) setTimeout(() => targetInput.focus(), 30);
+  });
+  cancel.addEventListener('click', () => { form.hidden = true; });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const target = (targetInput.value || '').trim();
+    const urls = (urlsArea.value || '')
+      .split(/[\n,]/)
+      .map((u) => u.trim())
+      .filter(Boolean);
+    if (!target || !urls.length) {
+      setTip(tip, '✗ target and at least one URL required', true);
+      return;
+    }
+    form.hidden = true;
+    const cy = getCy(); if (!cy) return;
+    runLiveCascade({ mode: 'live', target, urls }, {
+      cy, tip,
+      buttons: { ...buttons, primary: liveBtn },
+      labelWhenRunning: '⏳ live run…',
+    });
+  });
+
+  // Reflect backend availability — if /api/status is unreachable, mark
+  // live buttons as such; replay still works either way.
+  fetch(BACKEND_BASE + STATUS_ENDPOINT, { cache: 'no-store' })
+    .then((r) => r.ok ? r.json() : null)
+    .then((s) => {
+      if (!s) {
+        demoBtn.classList.add('backend-down');
+        liveBtn.classList.add('backend-down');
+        demoBtn.title = 'Backend not running — start it with: python server.py';
+        liveBtn.title = demoBtn.title;
+      } else if (!(s.modes && s.modes.live)) {
+        liveBtn.classList.add('backend-down');
+        liveBtn.title = 'Live mode blocked: ' + (s.live_blockers || []).join('; ');
+      }
+    })
+    .catch(() => {
+      demoBtn.classList.add('backend-down');
+      liveBtn.classList.add('backend-down');
+      demoBtn.title = 'Backend not running — start it with: python server.py';
+      liveBtn.title = demoBtn.title;
+    });
+}
+
 function renderCascadeFlow(brief) {
   // Back-compat: legacy callers passed handoffs only; new callers pass the brief.
   const b = Array.isArray(brief) ? { handoffs: brief } : (brief || {});
@@ -492,16 +868,12 @@ function renderCascadeFlow(brief) {
   const wrap = flowEl('div', 'flow');
   wrap.appendChild(flowEl('div', 'section-title', 'Cascade flow — how the company thought'));
 
-  // toolbar — replay button, right-aligned
   const toolbar = flowEl('div', 'cascade-toolbar');
-  const replayBtn = flowEl('button', 'cascade-replay', '▶ replay cascade');
-  replayBtn.type = 'button';
-  replayBtn.title = 'Watch the cascade unfold step by step';
-  toolbar.appendChild(replayBtn);
   wrap.appendChild(toolbar);
 
   const container = flowEl('div', 'cascade-graph');
   container.id = 'cascade-graph';
+  container._brief = b;
   wrap.appendChild(container);
 
   const tip = flowEl('div', 'cascade-tip', BASE_TIP);
@@ -510,10 +882,7 @@ function renderCascadeFlow(brief) {
   // Wait one frame so the container is laid out before cytoscape measures it.
   requestAnimationFrame(() => {
     initCytoscape(container, tip, b);
-    replayBtn.addEventListener('click', () => {
-      const cy = container._cy;
-      if (cy) replayCascade(b, cy, tip, replayBtn);
-    });
+    _wireToolbar(toolbar, container, tip);
   });
   return wrap;
 }

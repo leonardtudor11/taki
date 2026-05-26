@@ -14,18 +14,24 @@ git clone https://github.com/leonardtudor11/taki && cd taki
 ```
 
 That creates a venv, installs deps, runs the 54-test suite, and opens the
-dashboard at **http://localhost:8000** with the bundled real Vercel cascade.
+dashboard at **http://localhost:5001** with the bundled real Vercel cascade.
+The Flask backend (`server.py`) serves both the static frontend and the live
+cascade SSE endpoint on the same port.
 
-Once it's open:
-- **Click a dept node** in the cytoscape graph → other panels dim, that
-  dept's claims stay bright.
-- **Hover an edge** → the handoff/synergy message expands in the strip below.
-- **▶ replay cascade** → watch the pipeline animate from PII → leak guard →
-  parallel dept agents → grounding → handoffs → synergies → assemble.
-- **Open the red "Hallucinations caught" drawer** → see every ungrounded
-  claim the grounding guard dropped before it could reach the brief.
+Three actions are available in the cascade toolbar:
 
-For a live run against your own target:
+| Button | What it does | Needs |
+|---|---|---|
+| **▶ replay cascade** | Animate the cached `brief.json` step-by-step (PII → leak → 3 depts → grounding → handoffs → synergies → assemble). Pure client-side. | nothing — works offline |
+| **▶ live demo** | Real backend run through the LangGraph StateGraph on the fixture bundle. Each node fires a real SSE event that drives the cytoscape graph in real time. | `server.py` running |
+| **⚡ live run ▾** | Real Bright Data scrape + Vertex/Gemini LLM call against a target you type into the popover. Same SSE animation. Writes the new `brief.json` and re-renders the dashboard on completion. | `.env` filled (BRIGHTDATA_API_KEY + GCP_PROJECT_ID or GEMINI_API_KEY) |
+
+Other interactions:
+- **Click a dept node** → other panels dim, that dept's claims stay bright.
+- **Hover an edge** → the handoff/synergy full message appears in the strip below the graph.
+- **Open the red "Hallucinations caught" drawer** → every ungrounded claim the grounding guard dropped, verbatim.
+
+CLI live run (no UI):
 ```bash
 cp .env.example .env  # fill BRIGHTDATA_API_KEY + zones + GCP_PROJECT_ID
 .venv/bin/python run.py "Stripe" \
@@ -102,6 +108,7 @@ and the web layer are dependency-injected.
 | Orchestration | **LangGraph** `StateGraph` | explicit parallel dept fan-out + per-node event stream |
 | Data contract | **Pydantic v2** | every claim grounded to a snippet that exists in the bundle |
 | Frontend | static HTML/JS + **cytoscape.js** + **GSAP** (CDN) | zero build step; drag-drop deploy on Vercel free tier |
+| Live backend | **Flask** + Server-Sent Events | one-process unified static + `/api/run` SSE stream that drives the cytoscape animation in real time |
 | Tests | **pytest** + injectable LLM fakes | 54/54 green, fully offline |
 
 ## Status

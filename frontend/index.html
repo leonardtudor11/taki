@@ -122,11 +122,11 @@
     font-size: 10.5px;
     text-transform: uppercase;
     letter-spacing: 0.18em;
-    cursor: not-allowed;
-    opacity: 0.55;
-    transition: background 0.2s ease;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
   }
-  .pullfresh:hover { background: rgba(232, 74, 58, 0.08); }
+  .pullfresh:hover:not(:disabled) { background: rgba(232, 74, 58, 0.10); }
+  .pullfresh:disabled { opacity: 0.55; cursor: wait; }
 
   /* ───────── main / stream lane ───────── */
   main {
@@ -241,12 +241,15 @@
   .cascade-toolbar {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
     padding: 0 2px 8px;
+    flex-wrap: wrap;
   }
-  .cascade-replay {
+  .cascade-replay,
+  .cascade-livedemo,
+  .cascade-liverun {
     background: transparent;
-    color: var(--shu);
-    border: 1px solid var(--shu);
     border-radius: 0;
     padding: 5px 12px;
     font-family: "JetBrains Mono", monospace;
@@ -254,13 +257,84 @@
     text-transform: uppercase;
     letter-spacing: 0.18em;
     cursor: pointer;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
   }
-  .cascade-replay:hover { background: rgba(232, 74, 58, 0.10); }
-  .cascade-replay:disabled {
+  .cascade-replay   { color: var(--shu);      border: 1px solid var(--shu); }
+  .cascade-livedemo { color: var(--gtm);      border: 1px solid var(--gtm); }
+  .cascade-liverun  { color: var(--finance);  border: 1px solid var(--finance); }
+  .cascade-replay:hover:not(:disabled)   { background: rgba(232, 74, 58, 0.10); }
+  .cascade-livedemo:hover:not(:disabled) { background: rgba(90, 214, 232, 0.10); }
+  .cascade-liverun:hover:not(:disabled)  { background: rgba(152, 224, 138, 0.10); }
+  .cascade-replay:disabled,
+  .cascade-livedemo:disabled,
+  .cascade-liverun:disabled {
     opacity: 0.45; cursor: wait;
     color: var(--paper-dim); border-color: var(--paper-dim);
   }
+  /* dim slightly when the backend hasn't been detected; still clickable so
+     the user sees the error tooltip when they try */
+  .cascade-livedemo.backend-down,
+  .cascade-liverun.backend-down {
+    color: var(--paper-dim); border-color: var(--rule);
+  }
+
+  /* live-run popover */
+  .cascade-liverun-wrap { position: relative; }
+  .cascade-liveform {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 12;
+    width: 300px;
+    background: var(--ink-2);
+    border: 1px solid var(--finance);
+    padding: 12px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  }
+  .cascade-liveform[hidden] { display: none; }
+  .cascade-livefield { display: flex; flex-direction: column; gap: 4px; }
+  .cascade-livelabel {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  .cascade-liveinput {
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    color: var(--paper);
+    padding: 6px 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    border-radius: 0;
+    outline: none;
+  }
+  .cascade-liveinput:focus-visible {
+    border-color: var(--finance);
+  }
+  .cascade-liveurls { resize: vertical; min-height: 60px; line-height: 1.4; }
+  .cascade-liveactions {
+    display: flex; justify-content: flex-end; gap: 6px; margin-top: 2px;
+  }
+  .cascade-liveclose,
+  .cascade-livesubmit {
+    background: transparent;
+    border-radius: 0;
+    padding: 5px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    cursor: pointer;
+  }
+  .cascade-liveclose  { color: var(--paper-dim); border: 1px solid var(--rule); }
+  .cascade-livesubmit { color: var(--finance);   border: 1px solid var(--finance); }
+  .cascade-liveclose:hover  { color: var(--paper); border-color: var(--paper-dim); }
+  .cascade-livesubmit:hover { background: rgba(152, 224, 138, 0.10); }
   /* during replay: dim everything else so the eye stays on the cascade */
   body.replaying .panel,
   body.replaying .synergy,
@@ -271,7 +345,7 @@
   body.replaying .cascade-graph { box-shadow: 0 0 0 1px var(--shu) inset; }
   .cascade-graph {
     width: 100%;
-    height: 420px;
+    height: 460px;
     background:
       radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.012), transparent 70%);
     border: 1px solid var(--rule);
@@ -556,7 +630,7 @@
   <span class="target" id="target">…</span>
   <div class="meta">
     <span class="ts" id="ts"></span>
-    <button class="pullfresh" id="pullfresh" title="Live mode needs Bright Data keys">⚡ pull fresh</button>
+    <button class="pullfresh" id="pullfresh" title="Run the cascade live against the bundled fixture (no keys required)">▶ live demo</button>
   </div>
 </header>
 <main id="app">

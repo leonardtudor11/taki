@@ -7,3 +7,6 @@ pytest>=8.0
 google-genai>=2.3.0
 # Multi-agent graph runtime — explicit parallel dept fan-out + event streaming.
 langgraph>=0.2,<0.3
+# Local backend for live cascade runs from the dashboard (server.py).
+flask>=3.0,<4
+flask-cors>=4,<6

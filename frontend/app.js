@@ -214,9 +214,36 @@ function render(brief) {
   app.appendChild(cols);
 }
 
+// Wire the header pull-fresh button to fire the live-demo cascade via the
+// backend, sharing the cytoscape graph that cascade-flow.js already manages.
+// If the backend isn't reachable, the click will surface the error in the
+// cascade tooltip strip; the page still works offline (replay button suffices).
+function _wireHeaderPullFresh() {
+  const btn = document.getElementById("pullfresh");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const container = document.getElementById("cascade-graph");
+    if (!container || !container._cy) return;
+    if (typeof runLiveCascade !== "function") return;
+    const tip = container.parentElement.querySelector(".cascade-tip");
+    runLiveCascade(
+      { mode: "demo" },
+      {
+        cy: container._cy, tip,
+        buttons: { primary: btn },
+        labelWhenRunning: "⏳ live demo running…",
+      },
+    );
+  });
+  btn.dataset.idleLabel = btn.textContent;
+}
+
 fetch("brief.json")
   .then((r) => { if (!r.ok) throw new Error(`brief.json ${r.status}`); return r.json(); })
-  .then(render)
+  .then((b) => {
+    render(b);
+    _wireHeaderPullFresh();
+  })
   .catch((e) => {
     const err = document.getElementById("error");
     err.textContent = "Could not load brief.json: " + e.message;
