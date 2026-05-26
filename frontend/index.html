@@ -3,101 +3,420 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Taki 滝 — Cascade Brief</title>
+<title>taki 滝 — Cascade Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b0f17; --panel: #131a26; --panel2: #1a2433; --line: #233045;
-    --text: #e6edf6; --muted: #8aa0bd; --accent: #4cc9f0;
-    --gtm: #4cc9f0; --finance: #80ffb0; --security: #ffb454; --synergy: #c792ea;
-    --bad: #ff6b6b; --ok: #57d9a3;
+    /* warm-ink palette — deliberately not the cold blue-panel look */
+    --ink:        #0d0e10;
+    --ink-2:      #15171b;
+    --paper:      #f1ede4;
+    --paper-dim:  #b8b2a4;
+    --rule:       #2a2620;
+    --rule-soft:  #1c1a17;
+    --shu:        #e84a3a;   /* vermilion ink-stamp accent */
+    --gtm:        #5ad6e8;
+    --finance:    #98e08a;
+    --security:   #f0a849;
+    --synergy:    #c8a8ff;
+    --bad:        #ff7367;
+    --ok:         #88e0a8;
   }
   * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
   body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.5;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    font-feature-settings: "ss01", "cv11";
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 12% -10%, rgba(90,214,232,0.06), transparent 70%),
+      radial-gradient(ellipse 55% 35% at 88% 0%, rgba(240,168,73,0.05), transparent 70%);
   }
+
+  /* ───────── header / brand ───────── */
   header {
-    padding: 24px 28px; border-bottom: 1px solid var(--line);
-    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: 28px;
+    padding: 30px 40px 22px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
   }
-  header h1 { margin: 0; font-size: 26px; letter-spacing: .5px; }
-  header .kanji { color: var(--accent); }
-  header .target { font-size: 18px; color: var(--muted); }
-  header .ts { margin-left: auto; font-size: 12px; color: var(--muted); }
-  main { padding: 22px 28px; max-width: 1280px; margin: 0 auto; }
-  .exec {
-    background: linear-gradient(90deg, var(--panel2), var(--panel));
-    border: 1px solid var(--line); border-left: 3px solid var(--accent);
-    border-radius: 10px; padding: 16px 18px; margin-bottom: 18px;
+  .brand { display: flex; align-items: flex-end; gap: 18px; }
+
+  .logo { width: 56px; height: 72px; flex: none; display: block; color: var(--paper-dim); }
+  .logo .cliff { stroke: currentColor; }
+  .logo path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 220;
+    stroke-dashoffset: 220;
+    animation: draw 1.4s cubic-bezier(.4,.0,.2,1) forwards;
   }
-  .exec h2 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--muted); }
-  .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
-  .badge {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
-    padding: 6px 14px; font-size: 13px; color: var(--muted);
+  .logo path.s2 { animation-delay: .12s; }
+  .logo path.s3 { animation-delay: .24s; }
+  .logo circle { opacity: 0; animation: fade .35s ease-out forwards 1.35s; }
+  .logo circle.s2 { animation-delay: 1.5s; }
+  .logo circle.s3 { animation-delay: 1.65s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fade { to { opacity: 1; } }
+
+  .wordmark { line-height: 1; }
+  .wordmark h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 96, "SOFT" 40;
+    font-weight: 500;
+    font-size: 46px;
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
   }
-  .badge b { color: var(--text); }
-  .badge.ok { border-color: var(--ok); }
-  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--muted); margin: 8px 0 12px; }
-  .synergy-grid { display: grid; gap: 12px; margin-bottom: 26px; }
-  .synergy {
-    background: var(--panel); border: 1px solid var(--line);
-    border-left: 3px solid var(--synergy); border-radius: 10px; padding: 14px 16px;
+  .wordmark .kanji {
+    color: var(--shu);
+    font-size: 28px;
+    margin-left: 6px;
+    vertical-align: 18px;
+    font-weight: 400;
   }
-  .synergy .depts { font-size: 12px; color: var(--synergy); margin-bottom: 4px;
-    text-transform: uppercase; letter-spacing: .5px; }
-  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .panel { background: var(--panel); border: 1px solid var(--line);
-    border-radius: 12px; padding: 0 0 8px; overflow: hidden; }
-  .panel h3 { margin: 0; padding: 14px 16px; font-size: 15px;
-    border-bottom: 1px solid var(--line); }
-  .panel.gtm h3 { color: var(--gtm); }
-  .panel.finance h3 { color: var(--finance); }
-  .panel.security h3 { color: var(--security); }
-  .group { padding: 12px 16px 4px; }
-  .group h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase;
-    letter-spacing: .5px; color: var(--muted); }
-  .claim { background: var(--panel2); border: 1px solid var(--line);
-    border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 14px; }
-  .claim .cites { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
-  .cite { font-size: 11px; color: var(--accent); text-decoration: none;
-    border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; }
-  .cite:hover { background: var(--panel); }
-  .conf { float: right; font-size: 11px; color: var(--muted); }
-  .empty { color: var(--muted); font-size: 13px; padding: 0 16px 10px; font-style: italic; }
+  .wordmark .tagline {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    color: var(--paper-dim);
+    text-transform: lowercase;
+    letter-spacing: 0.18em;
+  }
+
+  header .target {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--paper);
+    justify-self: end;
+    align-self: end;
+    text-align: right;
+    max-width: 50ch;
+  }
+  header .meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
   .pullfresh {
-    background: var(--accent); color: #002235; border: none; border-radius: 8px;
-    padding: 9px 16px; font-weight: 600; cursor: not-allowed; opacity: .55;
+    background: transparent;
+    color: var(--shu);
+    border: 1px solid var(--shu);
+    border-radius: 0;
+    padding: 7px 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    cursor: not-allowed;
+    opacity: 0.55;
+    transition: background 0.2s ease;
   }
-  #error { color: var(--bad); padding: 20px; }
-  .flow { margin-bottom: 26px; }
-  .flow-nodes { display: flex; gap: 12px; margin-bottom: 14px; }
-  .node { flex: 1; text-align: center; padding: 12px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--panel); font-weight: 600; }
-  .node.gtm { color: var(--gtm); border-color: var(--gtm); }
-  .node.finance { color: var(--finance); border-color: var(--finance); }
+  .pullfresh:hover { background: rgba(232, 74, 58, 0.08); }
+
+  /* ───────── main / stream lane ───────── */
+  main {
+    position: relative;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 36px 40px 80px;
+    padding-left: 104px;
+  }
+  /* 3-stream spine: continues the logo metaphor down the page */
+  main::before {
+    content: "";
+    position: absolute;
+    left: 40px; top: 0; bottom: 0; width: 48px;
+    pointer-events: none;
+    opacity: 0.16;
+    background:
+      linear-gradient(to bottom, transparent 0, var(--gtm)      18px, var(--gtm)      82%, transparent 100%) 6px  0/1px 100% no-repeat,
+      linear-gradient(to bottom, transparent 0, var(--finance)  18px, var(--finance)  72%, transparent 100%) 24px 0/1px 100% no-repeat,
+      linear-gradient(to bottom, transparent 0, var(--security) 18px, var(--security) 62%, transparent 100%) 42px 0/1px 100% no-repeat;
+  }
+
+  /* ───────── executive summary ───────── */
+  .exec {
+    background: transparent;
+    border: none;
+    border-left: 2px solid var(--shu);
+    padding: 4px 0 8px 22px;
+    margin: 6px 0 36px;
+    max-width: 760px;
+    border-radius: 0;
+  }
+  .exec h2 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    margin: 0 0 10px;
+  }
+  .exec > div:not(.section-title) {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 22px;
+    line-height: 1.42;
+    font-weight: 400;
+    color: var(--paper);
+    letter-spacing: -0.005em;
+  }
+
+  /* ───────── badges (guardrail report) ───────── */
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 38px; }
+  .badge {
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    padding: 6px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    color: var(--paper-dim);
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+  }
+  .badge b { color: var(--paper); font-weight: 500; }
+  .badge.ok { border-color: var(--ok); color: var(--ok); }
+  .badge.ok b { color: var(--ok); }
+
+  /* ───────── section titles ───────── */
+  .section-title {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--paper-dim);
+    margin: 30px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::before {
+    content: "";
+    width: 22px; height: 1px;
+    background: var(--paper-dim);
+  }
+
+  /* ───────── synergies ───────── */
+  .synergy-grid { display: grid; gap: 10px; margin-bottom: 32px; }
+  .synergy {
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--synergy);
+    border-radius: 0;
+    padding: 12px 16px;
+  }
+  .synergy .depts {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--synergy);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+  }
+  .synergy > div:last-child {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  /* ───────── cascade flow ───────── */
+  .flow { margin-bottom: 42px; }
+  .flow-nodes {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 6px;
+    padding: 14px 0 16px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .node {
+    flex: 1;
+    text-align: center;
+    padding: 11px 12px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    border-radius: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .node.gtm      { color: var(--gtm);      border-color: var(--gtm); }
+  .node.finance  { color: var(--finance);  border-color: var(--finance); }
   .node.security { color: var(--security); border-color: var(--security); }
-  .handoff { display: flex; align-items: center; gap: 10px; background: var(--panel);
-    border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
-    margin-bottom: 8px; font-size: 13px; flex-wrap: wrap; }
-  .hchip { font-size: 11px; padding: 2px 8px; border-radius: 6px;
-    border: 1px solid var(--line); text-transform: uppercase; letter-spacing: .5px; }
-  .hchip.gtm { color: var(--gtm); } .hchip.finance { color: var(--finance); }
-  .hchip.security { color: var(--security); }
-  .harrow { color: var(--muted); }
-  .hmsg { color: var(--text); }
-  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+
+  .handoff {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed var(--rule);
+    border-radius: 0;
+    padding: 10px 0;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .hchip {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  .hchip.gtm      { color: var(--gtm);      border-color: var(--gtm); }
+  .hchip.finance  { color: var(--finance);  border-color: var(--finance); }
+  .hchip.security { color: var(--security); border-color: var(--security); }
+  .harrow { color: var(--paper-dim); }
+  .hmsg {
+    color: var(--paper);
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+  }
+
+  /* ───────── departments ───────── */
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .panel {
+    background: transparent;
+    border: none;
+    border-top: 2px solid var(--rule);
+    border-radius: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .panel.gtm      { border-top-color: var(--gtm); }
+  .panel.finance  { border-top-color: var(--finance); }
+  .panel.security { border-top-color: var(--security); }
+  .panel h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
+    margin: 0;
+    padding: 14px 0 18px;
+    font-size: 20px;
+    letter-spacing: -0.005em;
+    border: none;
+  }
+  .panel.gtm h3      { color: var(--gtm); }
+  .panel.finance h3  { color: var(--finance); }
+  .panel.security h3 { color: var(--security); }
+
+  .group { padding: 4px 0 18px; }
+  .group h4 {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--paper-dim);
+    margin: 0 0 10px;
+  }
+
+  .claim {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule-soft);
+    border-radius: 0;
+    padding: 10px 0 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--paper);
+  }
+  .claim:last-child { border-bottom: none; }
+  .claim .cites { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .cite {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    color: var(--paper-dim);
+    text-decoration: none;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    padding: 2px 7px;
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .cite:hover { color: var(--shu); border-color: var(--shu); }
+  .conf {
+    float: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    margin-left: 10px;
+  }
+  .empty {
+    color: var(--paper-dim);
+    font-size: 13px;
+    font-style: italic;
+    padding: 8px 0;
+  }
+
+  #error {
+    color: var(--bad);
+    padding: 20px 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+  }
+  .hidden { display: none; }
+
+  /* ───────── responsive ───────── */
+  @media (max-width: 960px) {
+    main { padding: 28px 24px 60px; }
+    main::before { display: none; }
+    .cols { grid-template-columns: 1fr; gap: 32px; }
+    header {
+      grid-template-columns: 1fr;
+      padding: 22px 24px 18px;
+    }
+    header .target { justify-self: start; text-align: left; }
+    header .meta { align-items: flex-start; }
+    .wordmark h1 { font-size: 38px; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>Taki <span class="kanji">滝</span></h1>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 64 80" xmlns="http://www.w3.org/2000/svg" aria-label="Taki — three cascading streams" role="img">
+      <line class="cliff" x1="2" y1="6" x2="62" y2="6" stroke-width="1" opacity="0.35"/>
+      <path class="s1" d="M 12 6 Q 6 36 16 72" stroke="#5ad6e8" stroke-width="2"/>
+      <circle class="s1" cx="16" cy="74" r="2" fill="#5ad6e8"/>
+      <path class="s2" d="M 32 6 Q 36 38 28 76" stroke="#98e08a" stroke-width="2"/>
+      <circle class="s2" cx="28" cy="78" r="2" fill="#98e08a"/>
+      <path class="s3" d="M 52 6 Q 48 40 56 70" stroke="#f0a849" stroke-width="2"/>
+      <circle class="s3" cx="56" cy="72" r="2" fill="#f0a849"/>
+    </svg>
+    <div class="wordmark">
+      <h1>taki<span class="kanji">滝</span></h1>
+      <div class="tagline">cascading intelligence</div>
+    </div>
+  </div>
   <span class="target" id="target">…</span>
-  <button class="pullfresh" id="pullfresh" title="Live mode needs Bright Data keys">⚡ Pull Fresh</button>
-  <span class="ts" id="ts"></span>
+  <div class="meta">
+    <span class="ts" id="ts"></span>
+    <button class="pullfresh" id="pullfresh" title="Live mode needs Bright Data keys">⚡ pull fresh</button>
+  </div>
 </header>
 <main id="app">
   <div id="error" class="hidden"></div>

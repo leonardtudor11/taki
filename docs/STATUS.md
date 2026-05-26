@@ -36,8 +36,8 @@ At each session: build → test → (audit) → update this table → `git commi
 - Tests: 50/50.
 
 ## Active /ultraplan upgrade — V1→V3→V4→V2
-- **V1** Logo + identity reset (geometric monoline 滝 = 3 streams; refresh palette/typography distinct from diligence) — **next**
-- **V3** Interactive cascade graph (cytoscape.js + GSAP, CDN, no build)
+- **V1.1** Logo + identity reset — ✅ done (inline SVG monoline 滝 = 3 cyan/green/amber streams with draw-in animation; warm-ink palette; Fraunces+Inter+JBMono mix; vermilion 朱 accent; left stream-lane gutter replaces panel grid). frontend/index.html only; selectors preserved → app.js + cascade-flow.js untouched.
+- **V3** Interactive cascade graph (cytoscape.js + GSAP, CDN, no build) — **next**
 - **V4** UI/UX polish (ui-ux-pro-max skill, 21st.dev patterns, vanilla HTML/JS)
 - **V2** Real LangGraph backend (StateGraph + parallel dept nodes; same CascadeBrief output)
 
