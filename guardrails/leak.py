@@ -21,7 +21,12 @@ _MARKERS = [
     "internal memo",
     "under nda",
 ]
-_PATTERN = re.compile("|".join(re.escape(m) for m in _MARKERS), re.IGNORECASE)
+# Word-boundary lookarounds so "confidential" matches but "nonconfidential"
+# / "unconfidentialish" do not (avoids false positives on adjacent letters).
+_PATTERN = re.compile(
+    r"(?<![A-Za-z])(" + "|".join(re.escape(m) for m in _MARKERS) + r")(?![A-Za-z])",
+    re.IGNORECASE,
+)
 
 
 def scan(text: str) -> list[str]:

@@ -30,9 +30,11 @@ def get_default_llm() -> LLMFn:
         )
 
     def _complete(prompt: str) -> str:
+        # send the API key in a header rather than the URL so it does not end
+        # up in HTTP access logs, browser history, or proxy caches.
         resp = httpx.post(
             _ENDPOINT,
-            params={"key": key},
+            headers={"x-goog-api-key": key},
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {"response_mime_type": "application/json"},

@@ -26,3 +26,11 @@ def test_clean_bundle_has_no_flags():
     again, flags = filter_bundle(clean)
     assert flags == []
     assert len(again.sources) == 4
+
+
+def test_word_boundary_no_false_positive_inside_longer_word():
+    # "confidential" inside a longer word should NOT trigger
+    assert scan("Discussed nonconfidentialish matters openly.") == []
+    assert scan("confidentialish") == []
+    # whole-word still triggers
+    assert "confidential" in scan("This is confidential.")

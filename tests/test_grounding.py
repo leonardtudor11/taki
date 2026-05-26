@@ -63,3 +63,21 @@ def test_whitespace_insensitive_match():
     )
     kept, dropped = filter_claims([claim], b)
     assert len(kept) == 1
+
+
+def test_too_short_snippet_rejected_even_if_substring():
+    # short snippets are too easy to find in unrelated contexts -> reject.
+    b = sample_bundle()
+    claim = Claim(
+        text="they hire.",
+        citations=[
+            Citation(
+                url="https://northwind.example/careers",
+                snippet="hiring",  # 6 chars, below MIN_SNIPPET_LEN
+                source_type=SourceType.JOBS,
+            )
+        ],
+    )
+    kept, dropped = filter_claims([claim], b)
+    assert len(kept) == 0
+    assert dropped == ["they hire."]

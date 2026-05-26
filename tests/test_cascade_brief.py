@@ -43,3 +43,10 @@ def test_planted_hallucination_is_dropped():
     texts = " ".join(c.text for c in brief.account_brief.all_claims())
     assert "Globex" not in texts
     assert any("Globex" in d for d in brief.guardrail_report.ungrounded_dropped)
+
+
+def test_passed_flag_reflects_grounding():
+    clean = _build(fake_gtm_llm)
+    assert clean.guardrail_report.passed is True
+    halluc = _build(fake_gtm_llm_with_hallucination)
+    assert halluc.guardrail_report.passed is False

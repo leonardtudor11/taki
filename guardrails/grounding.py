@@ -17,12 +17,20 @@ def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
+# Substring matching can be tricked with a tiny snippet that appears in many
+# unrelated contexts ("is", "to", "the"). Require a meaningful minimum length
+# so the snippet must carry enough phrase context to be a real citation.
+MIN_SNIPPET_LEN = 15
+
+
 def is_grounded(claim: Claim, haystacks: list[str]) -> bool:
     if not claim.citations:
         return False
     for cite in claim.citations:
         snippet = _norm(cite.snippet)
-        if snippet and any(snippet in h for h in haystacks):
+        if len(snippet) < MIN_SNIPPET_LEN:
+            continue
+        if any(snippet in h for h in haystacks):
             return True
     return False
 

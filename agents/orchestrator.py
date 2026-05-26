@@ -212,11 +212,14 @@ def build_cascade_brief(
 
     synergies, handoffs = cross_pollinate(grounded)
 
+    # `passed` reflects grounding integrity: True only if no claim had to be
+    # dropped for lack of a real citation. PII + leak counts surface guardrail
+    # *activity* (the guards working as designed) — they are not failures.
     report = GuardrailReport(
         pii_redactions=pii_count,
         leak_flags=leak_flags,
         ungrounded_dropped=dropped,
-        passed=True,
+        passed=(len(dropped) == 0),
     )
 
     return CascadeBrief(
