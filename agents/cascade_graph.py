@@ -48,6 +48,7 @@ from agents import strategy as strategy_agent
 from agents import swot as swot_agent
 from agents.schemas import (
     AccountBrief,
+    BundleStats,
     BusinessProfile,
     CascadeBrief,
     CascadeMode,
@@ -69,6 +70,8 @@ from agents.schemas import (
     Sector,
     SectorSignal,
     SharedBundle,
+    SourceItem,
+    SourceSubject,
     StrategicPlan,
     Swot,
     SynergySignal,
@@ -142,6 +145,86 @@ class CascadeState(TypedDict, total=False):
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _is_subpath(url: str) -> bool:
+    """True when URL has a path beyond the site root ('' or '/').
+
+    Used by _compute_bundle_stats to detect V7.31 sub-page discovery
+    hits — root URLs are user-supplied seeds, paths beyond root came
+    from the concept-walk helper.
+    """
+    if not url:
+        return False
+    try:
+        from urllib.parse import urlparse
+        path = (urlparse(url).path or "").strip()
+    except Exception:
+        return False
+    return path not in ("", "/")
+
+
+def _compute_bundle_stats(
+    bundle: SharedBundle | None,
+    expert_quote_count: int = 0,
+) -> BundleStats:
+    """V7.37 — per-cascade bundle quality snapshot.
+
+    Tier counts use services.brightdata.classify_url. Sub-page count
+    detects URLs with a non-root path that came from the
+    discover_subpages helper (heuristic: subject=TARGET, source_type=SITE,
+    URL has > 1 path segment). Chrome fallback count detects Wikipedia
+    + Wayback Machine fallbacks from V7.30.
+    """
+    stats = BundleStats()
+    if not bundle or not bundle.sources:
+        stats.expert_quote_count = expert_quote_count
+        return stats
+
+    # Local import — services.brightdata pulls httpx + tenacity; keep the
+    # cascade_graph import surface minimal for tests that don't need BD.
+    from services.brightdata import classify_url
+
+    by_tier: dict[str, int] = {}
+    by_subject: dict[str, int] = {}
+    by_source_type: dict[str, int] = {}
+    expanded = 0
+    chrome = 0
+
+    for src in bundle.sources:
+        if not isinstance(src, SourceItem):
+            continue
+        url = src.url or ""
+        # tier
+        tier = classify_url(url) if url else "T0"
+        by_tier[tier] = by_tier.get(tier, 0) + 1
+        # subject
+        subj = src.subject.value if hasattr(src.subject, "value") else str(src.subject)
+        by_subject[subj] = by_subject.get(subj, 0) + 1
+        # source_type
+        st = src.source_type.value if hasattr(src.source_type, "value") else str(src.source_type)
+        by_source_type[st] = by_source_type.get(st, 0) + 1
+        # chrome fallback heuristic — V7.30 inserts these via
+        # fetch_js_chrome_fallbacks with wikipedia.org/wiki or
+        # web.archive.org hosts.
+        if "en.wikipedia.org/wiki" in url or "web.archive.org/web/" in url:
+            chrome += 1
+        # sub-page heuristic — V7.31 inserts SITE-typed TARGET-subject
+        # sources with non-root paths via discover_subpages. urlparse
+        # gives us the path component reliably; root is "" or "/".
+        elif (src.source_type.value == "site"
+              and subj == "target"
+              and _is_subpath(url)):
+            expanded += 1
+
+    stats.sources_total = len(bundle.sources)
+    stats.by_tier = by_tier
+    stats.by_subject = by_subject
+    stats.by_source_type = by_source_type
+    stats.expanded_subpages = expanded
+    stats.chrome_fallbacks = chrome
+    stats.expert_quote_count = expert_quote_count
+    return stats
 
 
 def _emit(on_event: EventCallback | None, event: dict) -> dict:
@@ -779,6 +862,13 @@ def build_graph(
             elif isinstance(signal, GenericSignal):
                 sector_kwargs["generic_signal"] = signal
 
+        # V7.37 — per-cascade bundle quality snapshot. Uses the post-
+        # grounding clean bundle (what the depts actually read).
+        expert_quotes_list = state.get("expert_quotes", [])
+        bundle_stats = _compute_bundle_stats(
+            state.get("clean", state.get("bundle")),
+            expert_quote_count=len(expert_quotes_list),
+        )
         brief = CascadeBrief(
             target=state["bundle"].target,
             mode=mode,
@@ -796,7 +886,8 @@ def build_graph(
             guardrail_report=report,
             executive_summary=exec_summary,
             strategic_plan=plan,
-            expert_quotes=state.get("expert_quotes", []),  # V7.34
+            expert_quotes=expert_quotes_list,                # V7.34
+            bundle_stats=bundle_stats,                       # V7.37
             **sector_kwargs,
         )
         total_claims = (

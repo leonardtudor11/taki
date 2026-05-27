@@ -506,6 +506,54 @@
     .sector-section-grid { grid-template-columns: 1fr; }
   }
 
+  /* V7.37 — Bundle stats strip. Single horizontal row of count chips
+     at the very top of the brief (above plan hero) so judges see the
+     trust signal — N sources, tier breakdown, enrichment hits — first. */
+  .bundle-stats {
+    margin: 24px 40px 0;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.014);
+    border: 1px solid var(--rule);
+    max-width: 1200px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .bundle-stats-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--paper-dim);
+    margin-right: 4px;
+  }
+  .bundle-stats-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .bundle-chip {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+    border: 1px solid var(--rule);
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .bundle-chip strong {
+    color: var(--paper);
+    font-weight: 600;
+    margin-right: 2px;
+  }
+  .bundle-chip-total strong { color: var(--shu); }
+  .bundle-chip-tier strong { color: inherit; }
+  @media (max-width: 900px) {
+    .bundle-stats { margin: 16px 16px 0; padding: 12px 14px; gap: 10px; }
+  }
+
   /* V7.34 — Expert quotes panel. Sits between sector signal and depts.
      Two-column grid of quote cards on desktop; single column on mobile. */
   .quotes-panel {
@@ -2047,7 +2095,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.34"></script>
-<script src="app.js?v=7.34"></script>
+<script src="cascade-flow.js?v=7.37"></script>
+<script src="app.js?v=7.37"></script>
 </body>
 </html>

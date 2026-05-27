@@ -818,6 +818,28 @@ class GenericSignal(_AutoListBase):
 SectorSignal = Union[PharmaSignal, SaasSignal, EnergySignal, GenericSignal]
 
 
+class BundleStats(_AutoListBase):
+    """V7.37 — per-cascade bundle quality snapshot.
+
+    Computed in assemble_node from the post-grounding clean bundle and
+    pinned to brief.bundle_stats so the dashboard can render a
+    trust-signal strip ('built on 12 sources: 2 T1 / 1 T2 / 5 T3 / 4 T5;
+    3 sub-pages + 1 chrome fallback + 5 expert quotes') without
+    re-inspecting the bundle.
+
+    Every field defaults to 0 / empty so old cached briefs deserialize
+    cleanly.
+    """
+
+    sources_total: int = 0
+    by_tier: dict[str, int] = Field(default_factory=dict)           # {"T1": 2, "T2": 1, ...}
+    by_subject: dict[str, int] = Field(default_factory=dict)        # {"target": 5, "competitor": 0, ...}
+    by_source_type: dict[str, int] = Field(default_factory=dict)    # {"site": 3, "news": 8, "review": 2}
+    expanded_subpages: int = 0   # V7.31 — sub-pages discover_subpages added
+    chrome_fallbacks: int = 0    # V7.30 — Wikipedia / Wayback fallback hits
+    expert_quote_count: int = 0  # V7.34
+
+
 class ExpertQuote(_AutoListBase):
     """V7.34 — verbatim attributed quote surfaced from the bundle.
 
@@ -870,3 +892,5 @@ class CascadeBrief(_AutoListBase):
     generic_signal: Optional[GenericSignal] = None
     # V7.34 — named-expert verbatim quotes extracted from the bundle.
     expert_quotes: list[ExpertQuote] = Field(default_factory=list)
+    # V7.37 — bundle quality snapshot (counts by tier / subject / type).
+    bundle_stats: Optional[BundleStats] = None

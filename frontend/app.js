@@ -393,6 +393,91 @@ function _renderGenericPanel(signal, color) {
 }
 
 
+// V7.37 — Bundle stats strip. Renders a single-line trust signal
+// ("12 sources · 2 T1 · 1 T2 · 5 T3 · 4 T5 · 3 sub-pages · 5 quotes")
+// so judges see what backed the brief at a glance.
+const _TIER_LABEL_ORDER = ["T1", "T2", "T3", "T4", "T5", "T6", "T0"];
+const _TIER_COLOR = {
+  T1: "#98e08a", // green   — regulator / official
+  T2: "#5ad6e8", // cyan    — academic
+  T3: "#ff85c9", // pink    — newspaper of record
+  T4: "#f0a849", // orange  — trade
+  T5: "#c8a8ff", // purple  — community
+  T6: "#c8a8ff",
+  T0: "#b8b2a4", // dim     — unknown
+};
+function renderBundleStats(brief) {
+  const s = brief && brief.bundle_stats;
+  if (!s || !s.sources_total) return null;
+  const wrap = el("section", {
+    class: "bundle-stats",
+    role: "region",
+    "aria-label": "Source quality",
+  });
+  wrap.appendChild(el("div", { class: "bundle-stats-eyebrow" }, "Built on"));
+
+  const chips = el("div", { class: "bundle-stats-chips" });
+
+  // Total sources chip — always first
+  const totalChip = el("span", { class: "bundle-chip bundle-chip-total" });
+  totalChip.appendChild(el("strong", null, String(s.sources_total)));
+  totalChip.appendChild(document.createTextNode(" source" + (s.sources_total !== 1 ? "s" : "")));
+  chips.appendChild(totalChip);
+
+  // Tier chips — only render tiers with > 0 count
+  const tierMap = (s.by_tier && typeof s.by_tier === "object") ? s.by_tier : {};
+  for (const t of _TIER_LABEL_ORDER) {
+    const n = tierMap[t];
+    if (!n) continue;
+    const chip = el("span", {
+      class: "bundle-chip bundle-chip-tier",
+      style: `color: ${_TIER_COLOR[t] || "#b8b2a4"}; border-color: ${_TIER_COLOR[t] || "#b8b2a4"}40`,
+      title: _tierTitle(t),
+    });
+    chip.appendChild(el("strong", null, String(n)));
+    chip.appendChild(document.createTextNode(" " + t));
+    chips.appendChild(chip);
+  }
+
+  // V7.30/31/34 enrichment chips — only when count > 0
+  if (s.expanded_subpages) {
+    chips.appendChild(_statChip(s.expanded_subpages,
+      "sub-page" + (s.expanded_subpages !== 1 ? "s" : ""),
+      "V7.31 — depth-pages auto-discovered on target's own site"));
+  }
+  if (s.chrome_fallbacks) {
+    chips.appendChild(_statChip(s.chrome_fallbacks,
+      "fallback" + (s.chrome_fallbacks !== 1 ? "s" : ""),
+      "V7.30 — Wikipedia + Wayback fallbacks for JS-blocked target pages"));
+  }
+  if (s.expert_quote_count) {
+    chips.appendChild(_statChip(s.expert_quote_count,
+      "quote" + (s.expert_quote_count !== 1 ? "s" : ""),
+      "V7.34 — named-expert verbatim quotes extracted"));
+  }
+
+  wrap.appendChild(chips);
+  return wrap;
+}
+function _statChip(n, label, title) {
+  const chip = el("span", { class: "bundle-chip", title: title || "" });
+  chip.appendChild(el("strong", null, String(n)));
+  chip.appendChild(document.createTextNode(" " + label));
+  return chip;
+}
+function _tierTitle(t) {
+  return ({
+    T1: "T1 — regulator / official / intergovernmental",
+    T2: "T2 — academic / peer-reviewed",
+    T3: "T3 — newspaper of record / top-tier analyst",
+    T4: "T4 — trade publication / industry analyst",
+    T5: "T5 — community / aggregator (Reddit / HN / Medium)",
+    T6: "T6 — review aggregator (G2 / Trustpilot / Capterra)",
+    T0: "T0 — uncategorized domain",
+  })[t] || t;
+}
+
+
 // V7.34 — Expert quotes panel. Renders verbatim attributed quotes
 // (analysts, regulators, journalists, named executives) above the
 // departments section. Skipped when brief.expert_quotes is empty so
@@ -1320,6 +1405,12 @@ function render(brief) {
 
   const app = document.getElementById("app");
   app.textContent = "";
+
+  // V7.37 — bundle stats strip sits at the very top so the trust signal
+  // (how many sources / what tiers / how much enrichment fired) is the
+  // first thing a judge sees above the plan hero.
+  const statsStrip = renderBundleStats(brief);
+  if (statsStrip) app.appendChild(statsStrip);
 
   // V6 — strategic plan hero (the conclusion). If absent, fall back to the
   // legacy templated exec summary so older briefs still render usefully.
