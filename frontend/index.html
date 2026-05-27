@@ -828,6 +828,96 @@
     .synergy:hover { border-left-width: 2px; padding-left: 16px; }
   }
 
+  /* ───────── contradictions (V7.23) ───────── */
+  .contradictions-grid {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .contradiction {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--security);
+    padding: 14px 18px 16px;
+    background: rgba(255, 255, 255, 0.012);
+  }
+  .contradiction-sev-1 { border-left-color: var(--paper-dim); }
+  .contradiction-sev-2 { border-left-color: var(--security); }
+  .contradiction-sev-3 { border-left-color: var(--bad); }
+  .contradiction-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .contradiction-axis {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--paper);
+  }
+  .contradiction-severity {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    color: var(--paper-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .contradiction-sev-3 .contradiction-severity { color: var(--bad); }
+  .contradiction-summary {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--paper);
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .contradiction-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: stretch;
+  }
+  .contradiction-side {
+    border: 1px solid var(--rule);
+    padding: 10px 12px 12px;
+    background: rgba(0, 0, 0, 0.22);
+  }
+  .contradiction-side-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--paper-dim);
+    margin-bottom: 8px;
+  }
+  .contradiction-claim {
+    font-size: 13px;
+    color: var(--paper);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .contradiction-vs {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--shu);
+    align-self: center;
+    padding: 0 4px;
+  }
+  .contradiction .cites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  @media (max-width: 640px) {
+    .contradiction-grid { grid-template-columns: 1fr; }
+    .contradiction-vs { padding: 6px 0; text-align: center; }
+  }
+
   /* ───────── claims 3D chart (V7.20) ───────── */
   .claims-chart-wrap { margin: 4px 0 36px; }
   .claims-chart-wrap .section-title { margin-bottom: 10px; }
@@ -1410,7 +1500,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.22"></script>
-<script src="app.js?v=7.22"></script>
+<script src="cascade-flow.js?v=7.23"></script>
+<script src="app.js?v=7.23"></script>
 </body>
 </html>

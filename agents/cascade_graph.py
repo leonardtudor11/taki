@@ -35,6 +35,7 @@ from typing import Annotated, Callable, TypedDict
 
 from agents import finance as finance_agent
 from agents import gtm as gtm_agent
+from agents import contradictions as contradictions_agent
 from agents import marketing as marketing_agent
 from agents import security as security_agent
 from agents import strategy as strategy_agent
@@ -45,6 +46,7 @@ from agents.schemas import (
     CascadeMode,
     Citation,
     Claim,
+    Contradiction,
     GuardrailReport,
     HandoffMessage,
     MarketSignal,
@@ -101,6 +103,7 @@ class CascadeState(TypedDict, total=False):
     synergies: list[SynergySignal]
     handoffs: list[HandoffMessage]
     strategic_plan: StrategicPlan
+    contradictions: list[Contradiction]
     events: Annotated[list[dict], operator.add]
     brief: CascadeBrief
     # V7 — self-mode inputs (closure-bound at build_graph; not in invoke state
@@ -184,6 +187,7 @@ def build_graph(
     security_llm: LLMFn | None = None,
     strategy_llm: LLMFn | None = None,
     marketing_llm: LLMFn | None = None,
+    contradictions_llm: LLMFn | None = None,
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -396,6 +400,38 @@ def build_graph(
             })
             return {"events": [start, err]}
 
+    def contradictions_node(state: CascadeState) -> dict:
+        """V7.23 — surface mutually-inconsistent claim pairs across depts.
+
+        Runs in parallel with strategy after cross_pollinate. Both consume
+        the grounded dept outputs; both feed into assemble. A failure here
+        leaves contradictions empty (it's a 'nice to have' layer, not a
+        gate) so the rest of the brief still ships.
+        """
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "contradictions", "status": "start",
+        })
+        try:
+            cs = contradictions_agent.analyze(
+                target=state["bundle"].target,
+                account_brief=state.get("account_brief"),
+                market_signal=state.get("market_signal"),
+                risk_profile=state.get("risk_profile"),
+                marketing_signal=state.get("marketing_signal"),
+                llm=contradictions_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "contradictions", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {"contradictions": [], "events": [start, err]}
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "contradictions", "status": "done",
+            "found": len(cs),
+        })
+        return {"contradictions": cs, "events": [start, done]}
+
     def assemble_node(state: CascadeState) -> dict:
         ab = state["account_brief"]
         ms = state["market_signal"]
@@ -426,6 +462,7 @@ def build_graph(
             risk_profile=rp,
             synergy_signals=synergies,
             handoffs=state.get("handoffs", []),
+            contradictions=state.get("contradictions", []),
             guardrail_report=report,
             executive_summary=exec_summary,
             strategic_plan=plan,
@@ -459,6 +496,7 @@ def build_graph(
     g.add_node("grounding", grounding_node)
     g.add_node("cross_pollinate", cross_node)
     g.add_node("strategy", strategy_node)
+    g.add_node("contradictions_pass", contradictions_node)  # node name must differ from state key
     g.add_node("assemble", assemble_node)
 
     g.add_edge(START, "pii_redact")
@@ -474,9 +512,13 @@ def build_graph(
     g.add_edge("marketing", "grounding")
     g.add_edge("security", "grounding")
     g.add_edge("grounding", "cross_pollinate")
-    # strategy reads everything below + above and synthesizes a real plan
+    # parallel branch: strategy synthesizes the plan;
+    # contradictions_pass surfaces opposing-source claim pairs (V7.23).
     g.add_edge("cross_pollinate", "strategy")
+    g.add_edge("cross_pollinate", "contradictions_pass")
+    # both join into assemble
     g.add_edge("strategy", "assemble")
+    g.add_edge("contradictions_pass", "assemble")
     g.add_edge("assemble", END)
 
     return g.compile()

@@ -453,6 +453,66 @@ function _openSynergyDrawer(synergy, brief) {
   drawer.focus({ preventScroll: true });
 }
 
+// V7.23 — Contradictions section: opposing-source claim pairs surfaced by
+// the contradictions agent. Each card is a side-by-side compare w/ severity
+// styling + citations under each side.
+function renderContradictions(contradictions) {
+  if (!contradictions || !contradictions.length) return null;
+  const wrap = el("div");
+  wrap.appendChild(el("div", { class: "section-title" }, "Contradictions — opposing-source claims"));
+  const grid = el("div", { class: "contradictions-grid" });
+  contradictions.forEach((c) => {
+    const sev = Math.max(1, Math.min(3, c.severity || 2));
+    const card = el("div", { class: `contradiction contradiction-sev-${sev}` });
+
+    const head = el("div", { class: "contradiction-head" });
+    head.appendChild(el("span", { class: "contradiction-axis" }, c.axis || "—"));
+    head.appendChild(el("span", { class: "contradiction-severity" }, `severity ${sev}/3`));
+    card.appendChild(head);
+
+    if (c.summary) {
+      card.appendChild(el("div", { class: "contradiction-summary" }, c.summary));
+    }
+
+    const cmp = el("div", { class: "contradiction-grid" });
+
+    const sideA = el("div", { class: "contradiction-side contradiction-side-a" });
+    sideA.appendChild(el("div", { class: "contradiction-side-label" }, "Source A says"));
+    sideA.appendChild(el("div", { class: "contradiction-claim" }, c.claim_a || ""));
+    const citesA = el("div", { class: "cites" });
+    (c.citations_a || []).forEach((cite) => {
+      citesA.appendChild(el(
+        "a",
+        { class: "cite", href: safeUrl(cite.url), target: "_blank", rel: "noopener noreferrer" },
+        `§ ${cite.source_type || "src"}`,
+      ));
+    });
+    if (citesA.childNodes.length) sideA.appendChild(citesA);
+    cmp.appendChild(sideA);
+
+    cmp.appendChild(el("div", { class: "contradiction-vs" }, "vs"));
+
+    const sideB = el("div", { class: "contradiction-side contradiction-side-b" });
+    sideB.appendChild(el("div", { class: "contradiction-side-label" }, "Source B says"));
+    sideB.appendChild(el("div", { class: "contradiction-claim" }, c.claim_b || ""));
+    const citesB = el("div", { class: "cites" });
+    (c.citations_b || []).forEach((cite) => {
+      citesB.appendChild(el(
+        "a",
+        { class: "cite", href: safeUrl(cite.url), target: "_blank", rel: "noopener noreferrer" },
+        `§ ${cite.source_type || "src"}`,
+      ));
+    });
+    if (citesB.childNodes.length) sideB.appendChild(citesB);
+    cmp.appendChild(sideB);
+
+    card.appendChild(cmp);
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  return wrap;
+}
+
 function renderSynergies(synergies, brief) {
   if (!synergies || !synergies.length) return null;
   const wrap = el("div");
@@ -684,6 +744,10 @@ function render(brief) {
 
   const syn = renderSynergies(brief.synergy_signals, brief);
   if (syn) app.appendChild(syn);
+
+  // V7.23 — Contradictions sit after synergies (both are cross-source layers)
+  const contras = renderContradictions(brief.contradictions);
+  if (contras) app.appendChild(contras);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });

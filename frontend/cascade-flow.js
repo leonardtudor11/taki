@@ -802,6 +802,20 @@ function _handleLiveEvent(ev, cy, tip) {
       _pulseEdge(cy, 'edge[type = "synergy"]');
       setTip(tip, `⚡ synergy (${(ev.depts || []).join(' + ')}): ${ev.text || ''}`, true);
       break;
+    case 'contradictions':
+      // V7.23 — runs in parallel w/ strategy; no pip (the pip strip stops at strategy)
+      if (ev.status === 'start') {
+        setTip(tip, '⚖ contradictions · scanning claims for opposing-source pairs…', true);
+      } else if (ev.status === 'done') {
+        const n = ev.found || 0;
+        setTip(tip,
+          n ? `⚖ contradictions · ${n} opposing-source pair${n === 1 ? '' : 's'} found`
+            : '⚖ contradictions · no opposing-source pairs surfaced',
+          true);
+      } else if (ev.status === 'error') {
+        setTip(tip, `⚠ contradictions failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
+      }
+      break;
     case 'strategy':
       if (ev.status === 'start') {
         setTip(tip, '★ strategy · Chief of Staff synthesizing the plan…', true);

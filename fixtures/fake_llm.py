@@ -423,3 +423,25 @@ def fake_strategy_llm(_prompt: str) -> str:
             "Quantify the support-latency complaint volume — is it 5 reviewers or 50?",
         ],
     })
+
+
+# ─── Contradictions (V7.23) ───────────────────────────────────────────────
+
+def fake_contradictions_llm(_prompt: str) -> str:
+    """Canned Contradiction list aligned with the Northwind fixture claims.
+
+    References the claim texts produced by fake_finance_llm + fake_security_llm
+    above so the contradictions agent can attach citations from the parent
+    claims and the test asserts the full round-trip.
+    """
+    return json.dumps({
+        "contradictions": [
+            {
+                "axis": "pricing",
+                "claim_a": "Northwind raised Pro tier from $49 to $79/seat — 61% increase landing alongside the new enterprise SKU.",
+                "claim_b": "Public reviews flag billing surprises that contradict the new pricing-page transparency.",
+                "severity": 2,
+                "summary": "Pricing page presents a clean $49→$79 step, but customer reviews report unexpected charges on the same plan.",
+            },
+        ],
+    })

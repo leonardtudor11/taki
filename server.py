@@ -231,6 +231,7 @@ def api_run():
             try:
                 if mode == "demo":
                     from fixtures.fake_llm import (
+                        fake_contradictions_llm,
                         fake_finance_llm,
                         fake_gtm_llm_with_hallucination,
                         fake_marketing_llm,
@@ -250,6 +251,7 @@ def api_run():
                         marketing_llm=fake_marketing_llm,
                         security_llm=fake_security_llm,
                         strategy_llm=fake_strategy_llm,
+                        contradictions_llm=fake_contradictions_llm,
                         on_event=emit,
                     )
                 elif mode == "self":

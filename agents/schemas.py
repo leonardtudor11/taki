@@ -405,6 +405,43 @@ class StrategicPlan(_AutoListBase):
         return FitTier.MEDIUM
 
 
+class Contradiction(_AutoListBase):
+    """V7.23 — two grounded claims that disagree on the same axis.
+
+    The contradictions agent reads every surviving claim across all depts
+    and surfaces pairs where the two sources are mutually inconsistent
+    (uptime promises vs documented outages, marketing pricing vs scraped
+    pricing, compliance breadth claims vs explicit gaps, etc.).
+
+    Each side keeps its own citations so the reader can verify the
+    tension is real, not a misread by the agent.
+    """
+
+    axis: str = ""                                  # short topic: 'uptime', 'pricing', 'compliance', 'valuation'
+    claim_a: str = ""                               # surviving claim text from one source
+    citations_a: list[Citation] = Field(default_factory=list)
+    claim_b: str = ""                               # contradicting claim from a different source
+    citations_b: list[Citation] = Field(default_factory=list)
+    severity: int = Field(default=2, ge=1, le=3)    # 1=minor disagreement, 3=material conflict
+    summary: str = ""                               # one-sentence framing of the tension
+
+    @field_validator("severity", mode="before")
+    @classmethod
+    def _coerce_severity(cls, v):
+        if isinstance(v, int):
+            return max(1, min(3, v))
+        if isinstance(v, str):
+            s = v.strip().lower()
+            words = {"minor": 1, "low": 1, "moderate": 2, "medium": 2, "med": 2, "major": 3, "high": 3, "material": 3}
+            if s in words:
+                return words[s]
+            try:
+                return max(1, min(3, int(float(s))))
+            except ValueError:
+                return 2
+        return 2
+
+
 class CascadeBrief(_AutoListBase):
     """The unified deliverable every department cascades into."""
 
@@ -418,6 +455,7 @@ class CascadeBrief(_AutoListBase):
     risk_profile: Optional[RiskProfile] = None
     synergy_signals: list[SynergySignal] = Field(default_factory=list)
     handoffs: list[HandoffMessage] = Field(default_factory=list)
+    contradictions: list[Contradiction] = Field(default_factory=list)
     guardrail_report: GuardrailReport = Field(default_factory=GuardrailReport)
     executive_summary: str = ""
     strategic_plan: Optional[StrategicPlan] = None
