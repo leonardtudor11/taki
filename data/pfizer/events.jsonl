@@ -1,0 +1,30 @@
+{"t": "2026-05-27T16:27:48.691693+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-27T16:27:48.692873+00:00", "phase": "pii", "status": "done", "redactions": 0}
+{"t": "2026-05-27T16:27:48.693330+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-27T16:27:48.694311+00:00", "phase": "leak", "status": "done", "flags": []}
+{"t": "2026-05-27T16:27:48.694904+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-27T16:27:48.695149+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-27T16:27:48.695264+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
+{"t": "2026-05-27T16:27:48.695371+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-27T16:28:26.652166+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 7}
+{"t": "2026-05-27T16:28:26.998955+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 9}
+{"t": "2026-05-27T16:28:35.200619+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 18}
+{"t": "2026-05-27T16:28:36.247471+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 13}
+{"t": "2026-05-27T16:28:36.250648+00:00", "phase": "grounding", "status": "start"}
+{"t": "2026-05-27T16:28:36.282907+00:00", "phase": "grounding", "status": "done", "dropped": 5}
+{"t": "2026-05-27T16:28:36.283928+00:00", "phase": "handoff", "from": "finance", "to": "gtm", "message": "Pricing change detected \u2014 adjust outreach timing/messaging."}
+{"t": "2026-05-27T16:28:36.283969+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Reputational signal \u2014 frame responsibly, do not weaponize."}
+{"t": "2026-05-27T16:28:36.284000+00:00", "phase": "handoff", "from": "gtm", "to": "security", "message": "Hiring expansion \u2014 new attack surface / vendors to monitor."}
+{"t": "2026-05-27T16:28:36.284039+00:00", "phase": "synergy", "depts": ["finance", "security"], "text": "Pricing increase coincides with support/reputation complaints \u2014 churn risk; time GTM outreach around retention, not upsell."}
+{"t": "2026-05-27T16:28:36.284069+00:00", "phase": "synergy", "depts": ["gtm", "finance"], "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach."}
+{"t": "2026-05-27T16:28:36.285273+00:00", "phase": "strategy", "status": "start"}
+{"t": "2026-05-27T16:28:36.285457+00:00", "phase": "porter", "status": "start"}
+{"t": "2026-05-27T16:28:36.285531+00:00", "phase": "swot", "status": "start"}
+{"t": "2026-05-27T16:28:36.285663+00:00", "phase": "contradictions", "status": "start"}
+{"t": "2026-05-27T16:28:36.285631+00:00", "phase": "pestle", "status": "start"}
+{"t": "2026-05-27T16:29:01.071703+00:00", "phase": "contradictions", "status": "done", "found": 2}
+{"t": "2026-05-27T16:29:11.384732+00:00", "phase": "swot", "status": "done", "s": 4, "w": 2, "o": 3, "t_": 4}
+{"t": "2026-05-27T16:29:17.403741+00:00", "phase": "strategy", "status": "done", "headline": "Pfizer's concurrent global expansion, product launches, and AI transformation create an immediate, enterprise-wide need for a unified revenue intelligence and risk management platform.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
+{"t": "2026-05-27T16:29:19.766621+00:00", "phase": "pestle", "status": "done", "political": 4, "economic": 4, "social": 3, "technological": 5, "legal": 5, "environmental": 2}
+{"t": "2026-05-27T16:29:43.710057+00:00", "phase": "porter", "status": "done", "rivalry": 4, "new_entrants": 1, "supplier_power": 3, "buyer_power": 4, "substitutes": 5}
+{"t": "2026-05-27T16:29:43.713191+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 42, "mode": "target"}

@@ -143,6 +143,29 @@
     font-size: 11px;
     color: var(--paper-dim);
   }
+  /* V7.27 — multi-brief gallery selector (hidden until cases.json loads) */
+  .caseselect {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    padding: 6px 28px 6px 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1 L6 7 L11 1' stroke='%23b8b2a4' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .caseselect:hover { border-color: var(--paper-dim); }
+  .caseselect:focus { outline: none; border-color: var(--shu); }
+  .caseselect option { background: var(--ink-2); color: var(--paper); text-transform: none; letter-spacing: 0; }
   .pullfresh {
     background: transparent;
     color: var(--shu);
@@ -1727,6 +1750,7 @@
   </div>
   <span class="target" id="target">…</span>
   <div class="meta">
+    <select class="caseselect" id="caseselect" hidden aria-label="Choose cached brief"></select>
     <span class="ts" id="ts"></span>
     <button class="pullfresh" id="pullfresh" title="Run the cascade live against the bundled fixture (no keys required)">▶ live demo</button>
     <button class="analyzeself" id="analyzeself" title="Analyze YOUR business — paste your URL + competitors and get a strategic plan">🚀 analyze my business</button>
@@ -1812,7 +1836,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.26"></script>
-<script src="app.js?v=7.26"></script>
+<script src="cascade-flow.js?v=7.27"></script>
+<script src="app.js?v=7.27"></script>
 </body>
 </html>

@@ -1,0 +1,30 @@
+{"t": "2026-05-27T16:23:38.402652+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-27T16:23:38.403432+00:00", "phase": "pii", "status": "done", "redactions": 0}
+{"t": "2026-05-27T16:23:38.403894+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-27T16:23:38.404532+00:00", "phase": "leak", "status": "done", "flags": []}
+{"t": "2026-05-27T16:23:38.405112+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-27T16:23:38.405269+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-27T16:23:38.405364+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
+{"t": "2026-05-27T16:23:38.405487+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-27T16:24:14.851424+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 7}
+{"t": "2026-05-27T16:24:20.589577+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 15}
+{"t": "2026-05-27T16:24:22.164384+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 11}
+{"t": "2026-05-27T16:24:28.022326+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 19}
+{"t": "2026-05-27T16:24:28.024581+00:00", "phase": "grounding", "status": "start"}
+{"t": "2026-05-27T16:24:28.050101+00:00", "phase": "grounding", "status": "done", "dropped": 11}
+{"t": "2026-05-27T16:24:28.051085+00:00", "phase": "handoff", "from": "finance", "to": "gtm", "message": "Pricing change detected \u2014 adjust outreach timing/messaging."}
+{"t": "2026-05-27T16:24:28.051131+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Reputational signal \u2014 frame responsibly, do not weaponize."}
+{"t": "2026-05-27T16:24:28.051163+00:00", "phase": "handoff", "from": "gtm", "to": "security", "message": "Hiring expansion \u2014 new attack surface / vendors to monitor."}
+{"t": "2026-05-27T16:24:28.051204+00:00", "phase": "synergy", "depts": ["finance", "security"], "text": "Pricing increase coincides with support/reputation complaints \u2014 churn risk; time GTM outreach around retention, not upsell."}
+{"t": "2026-05-27T16:24:28.051236+00:00", "phase": "synergy", "depts": ["gtm", "finance"], "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach."}
+{"t": "2026-05-27T16:24:28.052563+00:00", "phase": "strategy", "status": "start"}
+{"t": "2026-05-27T16:24:28.052764+00:00", "phase": "porter", "status": "start"}
+{"t": "2026-05-27T16:24:28.052859+00:00", "phase": "swot", "status": "start"}
+{"t": "2026-05-27T16:24:28.053013+00:00", "phase": "contradictions", "status": "start"}
+{"t": "2026-05-27T16:24:28.052971+00:00", "phase": "pestle", "status": "start"}
+{"t": "2026-05-27T16:24:56.872438+00:00", "phase": "contradictions", "status": "done", "found": 1}
+{"t": "2026-05-27T16:25:00.431929+00:00", "phase": "porter", "status": "done", "rivalry": 4, "new_entrants": 3, "supplier_power": 3, "buyer_power": 4, "substitutes": 5}
+{"t": "2026-05-27T16:25:03.174305+00:00", "phase": "strategy", "status": "done", "headline": "Notion's aggressive enterprise and AI expansion is outpacing its security and compliance infrastructure, creating an urgent opening for risk management and operational efficiency solutions.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
+{"t": "2026-05-27T16:25:06.792425+00:00", "phase": "swot", "status": "done", "s": 4, "w": 3, "o": 4, "t_": 3}
+{"t": "2026-05-27T16:25:21.093248+00:00", "phase": "pestle", "status": "done", "political": 1, "economic": 4, "social": 3, "technological": 5, "legal": 4, "environmental": 1}
+{"t": "2026-05-27T16:25:21.097870+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 41, "mode": "target"}

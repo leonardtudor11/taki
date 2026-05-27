@@ -1,0 +1,29 @@
+{
+  "default": "orchid",
+  "cases": [
+    {
+      "slug": "orchid",
+      "label": "Orchid SRL",
+      "industry": "Wind energy · Romania",
+      "brief": "brief.json"
+    },
+    {
+      "slug": "supabase",
+      "label": "Supabase",
+      "industry": "BaaS · USA",
+      "brief": "briefs/supabase.json"
+    },
+    {
+      "slug": "notion",
+      "label": "Notion",
+      "industry": "SaaS productivity · USA",
+      "brief": "briefs/notion.json"
+    },
+    {
+      "slug": "pfizer",
+      "label": "Pfizer",
+      "industry": "Pharma · USA",
+      "brief": "briefs/pfizer.json"
+    }
+  ]
+}

@@ -1321,16 +1321,80 @@ function _checkStatusOnLoad() {
     .catch(() => {});
 }
 
-fetch("brief.json")
-  .then((r) => { if (!r.ok) throw new Error(`brief.json ${r.status}`); return r.json(); })
+// ───────── case gallery — multi-brief switcher (?case=<slug>) ─────────
+//
+// Default behavior: fetch `brief.json` from the same origin (backwards
+// compatible — that's the Orchid brief shipped at /brief.json).
+//
+// With ?case=<slug>: fetch the brief path from cases.json. Lets the same
+// dashboard host multiple cached briefs without backend changes.
+let _CASES = null;
+
+async function _loadCases() {
+  if (_CASES) return _CASES;
+  try {
+    const r = await fetch("cases.json", { cache: "no-store" });
+    if (!r.ok) return null;
+    _CASES = await r.json();
+    return _CASES;
+  } catch {
+    return null;
+  }
+}
+
+function _currentSlug() {
+  return new URLSearchParams(location.search).get("case") || "";
+}
+
+async function _briefUrl() {
+  const slug = _currentSlug();
+  if (!slug) return "brief.json";
+  const data = await _loadCases();
+  const hit = data?.cases?.find((c) => c.slug === slug);
+  return hit?.brief || "brief.json";
+}
+
+async function _initCaseSelect() {
+  const sel = document.getElementById("caseselect");
+  if (!sel) return;
+  const data = await _loadCases();
+  if (!data?.cases?.length) {
+    sel.hidden = true;
+    return;
+  }
+  const activeSlug = _currentSlug() || data.default || data.cases[0].slug;
+  sel.innerHTML = "";
+  for (const c of data.cases) {
+    const opt = document.createElement("option");
+    opt.value = c.slug;
+    opt.textContent = `${c.label} — ${c.industry}`;
+    if (c.slug === activeSlug) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  sel.hidden = false;
+  sel.addEventListener("change", () => {
+    const url = new URL(location.href);
+    if (sel.value === (data.default || "")) {
+      url.searchParams.delete("case");
+    } else {
+      url.searchParams.set("case", sel.value);
+    }
+    location.href = url.toString();
+  });
+}
+
+_briefUrl()
+  .then((url) => fetch(url))
+  .then((r) => { if (!r.ok) throw new Error(`brief ${r.status}`); return r.json(); })
   .then((b) => {
     render(b);
     _wireHeaderPullFresh();
     _wireSelfModal();
+    _initCaseSelect();
     _checkStatusOnLoad();
   })
   .catch((e) => {
     const err = document.getElementById("error");
-    err.textContent = "Could not load brief.json: " + e.message;
+    err.textContent = "Could not load brief: " + e.message;
     err.classList.remove("hidden");
   });
