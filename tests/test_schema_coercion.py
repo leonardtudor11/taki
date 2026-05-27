@@ -158,3 +158,57 @@ def test_scalar_passed_for_list_of_claim_still_errors():
     Pydantic's standard list-type error — the coercer only wraps dict/str."""
     with pytest.raises(ValidationError):
         AccountBrief.model_validate({"target": "X", "buying_signals": 42})
+
+
+# ─── V7.15 — parse_into unwraps {"ClassName": {...}} double-wrap ─────────
+
+def test_parse_into_unwraps_schema_named_wrapper():
+    """LLMs occasionally return `{"RiskProfile": {...}}` instead of `{...}`.
+    parse_into unwraps that once, case- and underscore-insensitive."""
+    import json as _json
+    from agents.base import parse_into
+
+    inner = {
+        "target": "X",
+        "exposure_indicators": [],
+        "reputational_signals": [],
+        "regulatory_signals": [],
+        "third_party_risk": [],
+    }
+    rp = parse_into(_json.dumps({"RiskProfile": inner}), RiskProfile)
+    assert rp.target == "X"
+    rp = parse_into(_json.dumps({"risk_profile": inner}), RiskProfile)
+    assert rp.target == "X"
+    rp = parse_into(_json.dumps({"riskprofile": inner}), RiskProfile)
+    assert rp.target == "X"
+
+
+def test_parse_into_does_not_unwrap_unrelated_keys():
+    """If the single top-level key doesn't match the class name, the original
+    ValidationError surfaces — we don't blindly unwrap."""
+    import json as _json
+    from agents.base import parse_into
+
+    with pytest.raises(ValidationError):
+        parse_into(_json.dumps({"unrelated": {"target": "X"}}), RiskProfile)
+
+
+def test_parse_into_lifts_wrapped_sibling_target():
+    """Real LLM payload seen on Supabase live run — wrapped RiskProfile sits
+    alongside a sibling `target` key. Lift wrapped content into top-level,
+    outer keys win on conflict."""
+    import json as _json
+    from agents.base import parse_into
+
+    payload = {
+        "RiskProfile": {
+            "target": "WRONG_INNER",         # outer should win
+            "exposure_indicators": [],
+            "reputational_signals": [],
+            "regulatory_signals": [],
+            "third_party_risk": [],
+        },
+        "target": "Supabase",                # outer
+    }
+    rp = parse_into(_json.dumps(payload), RiskProfile)
+    assert rp.target == "Supabase"           # outer beat inner

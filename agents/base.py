@@ -28,7 +28,28 @@ def build_context(bundle: SharedBundle) -> str:
 
 
 def parse_into(raw: str, schema: type[T]) -> T:
-    return schema.model_validate(json.loads(strip_fences(raw)))
+    obj = json.loads(strip_fences(raw))
+    try:
+        return schema.model_validate(obj)
+    except Exception:
+        # V7.15 — LLMs occasionally wrap the schema content under a key
+        # matching the class name. Observed patterns:
+        #   pure wrap:   {"RiskProfile": {...}}
+        #   hybrid:      {"RiskProfile": {...}, "target": "X"}
+        # Lift the wrapped dict's keys into the top level, then re-validate.
+        # Outer (sibling) keys win on conflict — they look more like the
+        # user-supplied identity (e.g. `target` from the orchestrator).
+        if isinstance(obj, dict):
+            norm_class = schema.__name__.lower().replace("_", "")
+            for k in list(obj.keys()):
+                if k.lower().replace("_", "") == norm_class and isinstance(obj[k], dict):
+                    wrapped = obj.pop(k)
+                    merged = {**wrapped, **obj}   # outer (obj) wins on conflict
+                    try:
+                        return schema.model_validate(merged)
+                    except Exception:
+                        pass
+        raise
 
 
 GROUNDING_RULE = (
