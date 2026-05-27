@@ -365,6 +365,22 @@ def build_graph(
                 business_profile=business_profile,
                 marketing_signal=state.get("marketing_signal"),
             )
+            # V7.22-pt3 — apply cite-level grounding to strategy plays.
+            # The strategy LLM tends to paraphrase rather than copy snippets
+            # verbatim, so its citations slip past the guard. Prune them
+            # the same way dept claims are pruned. Plays w/ 0 verified
+            # cites are kept (the play conclusion may still be valid as
+            # a synthesis of verified dept claims) but render w/o evidence.
+            if plan and plan.recommended_plays:
+                haystacks = [grounding._norm(t) for t in state["bundle"].texts()]
+                cleaned_plays = []
+                for play in plan.recommended_plays:
+                    good = [c for c in play.citations if grounding._cite_is_grounded(c, haystacks)]
+                    if len(good) != len(play.citations):
+                        cleaned_plays.append(play.model_copy(update={"citations": good}))
+                    else:
+                        cleaned_plays.append(play)
+                plan = plan.model_copy(update={"recommended_plays": cleaned_plays})
             done = _emit(on_event, {
                 "t": _now_iso(), "phase": "strategy", "status": "done",
                 "headline": plan.headline,

@@ -2,26 +2,16 @@
   "target": "Supabase",
   "mode": "target",
   "business_profile": null,
-  "generated_at": "2026-05-26T23:59:37.710858Z",
+  "generated_at": "2026-05-27T09:24:11.675541Z",
   "account_brief": {
     "target": "Supabase",
     "buying_signals": [
       {
-        "text": "Supabase is actively targeting larger customers with an enterprise-focused pricing tier that offers custom solutions, Uptime SLAs, and BYO Cloud support, alongside a 'Team' plan starting at $599/month which includes compliance features like SOC2 and HIPAA.",
+        "text": "Supabase is actively moving upmarket, launching enterprise-focused plans and features to attract larger customers. They offer custom Enterprise plans with SLAs, designated support, and BYO Cloud options, and recently achieved ISO 27001 certification, signaling a push to meet stringent corporate requirements.",
         "citations": [
           {
             "url": "https://supabase.com/pricing",
-            "snippet": "Enterprise For large-scale applications running Internet scale workloads. Contact Us Custom Designated Support manager Uptime SLAs BYO Cloud supported",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Team Add features such as SSO, control over backups, and industry certifications. Get Started From $ 599 / month",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "HIPAA available as paid add-on",
+            "snippet": "Enterprise For large-scale applications running Internet scale workloads. Contact Us Custom Designated Support manager Uptime SLAs BYO Cloud supported 24×7×365 premium enterprise support",
             "source_type": "pricing"
           },
           {
@@ -33,47 +23,32 @@
         "confidence": 0.85
       },
       {
-        "text": "The company showcases strong customer success stories focused on scalability and cost savings, such as an 83% reduction in data infrastructure costs for one client and another scaling to one million users in seven months, demonstrating value for growing businesses.",
+        "text": "The company is experiencing hyper-growth, evidenced by a recent $100M funding round and a $5B valuation. However, this rapid scaling appears to be causing significant reliability issues, with multiple users reporting extended downtime, which poses a risk to their SaaS customers and their ability to uphold enterprise SLAs.",
         "citations": [
           {
-            "url": "https://supabase.com/customers",
-            "snippet": "Supabase migration delivers an 83% reduction in data infrastructure costs for Shotgun",
-            "source_type": "site"
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "On Friday, Supabase announced that it raised a fresh $100 million Series E at a $5 billion valuation, led by Accel and Peak XV.",
+            "source_type": "news"
           },
           {
-            "url": "https://supabase.com/customers",
-            "snippet": "Scaling securely: one million users in 7 months with Supabase Auth",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Humata Scales with Supabase: Achieving 4X Cost Savings and Enhanced Performance",
-            "source_type": "site"
+            "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+            "snippet": "Supabase downtime is becoming a problem. Any cost-effective alternatives? Question Supabase was down yesterday and my SaaS was affected.",
+            "source_type": "review"
           }
         ],
         "confidence": 0.85
       },
       {
-        "text": "Supabase is expanding its product line to include AI-focused and enterprise-grade features, such as Vector embeddings, official integrations with ChatGPT and Claude, and offering Log Drains on its Pro plan.",
+        "text": "Supabase has made several acquisitions, including Hydra and BKND, to enhance its platform capabilities, suggesting an inorganic growth strategy to quickly add features and talent.",
         "citations": [
           {
-            "url": "https://supabase.com",
-            "snippet": "Vector Integrate your favorite ML-models to store, index and search vector embeddings .",
-            "source_type": "site"
-          },
-          {
             "url": "https://supabase.com/blog",
-            "snippet": "Supabase Is Now an Official ChatGPT App",
+            "snippet": "Hydra joins Supabase company 10 Feb 2026",
             "source_type": "news"
           },
           {
             "url": "https://supabase.com/blog",
-            "snippet": "Supabase is now an official Claude connector",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Log Drains: Now available on Pro",
+            "snippet": "BKND joins Supabase company 3 Feb 2026",
             "source_type": "news"
           }
         ],
@@ -82,7 +57,7 @@
     ],
     "competitor_moves": [
       {
-        "text": "Supabase explicitly positions itself as a favorable alternative to competitors by highlighting customer migrations from platforms like Firebase, AWS RDS, and Pinecone, often citing better cost, performance, and experience.",
+        "text": "Supabase is successfully winning customers from major competitors like Firebase, AWS, and Pinecone, with multiple case studies highlighting migrations that resulted in significant cost savings and better developer experience.",
         "citations": [
           {
             "url": "https://supabase.com/customers",
@@ -91,44 +66,23 @@
           },
           {
             "url": "https://supabase.com/customers",
-            "snippet": "Berri AI boosts productivity by migrating from AWS RDS to Supabase Vector",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
             "snippet": "Firecrawl switches from Pinecone to Supabase Vector for PostgreSQL vector embeddings.",
             "source_type": "site"
           },
           {
-            "url": "https://supabase.com",
-            "snippet": "Lately been using Supabase over AWS/ GCP for products to save on costs and rapid builds(Vibe Code) that do not need all the Infra and the hefty costs that come with AWS/ GCP out the door.",
+            "url": "https://supabase.com/customers",
+            "snippet": "Berri AI boosts productivity by migrating from AWS RDS to Supabase Vector",
             "source_type": "site"
           }
         ],
         "confidence": 0.85
       },
       {
-        "text": "The company is pursuing inorganic growth by acquiring other companies, such as Hydra and BKND, to accelerate its product roadmap and enhance its competitive stance.",
+        "text": "The platform is consistently positioned as a direct, open-source alternative to Google's Firebase, resonating strongly with developers who prefer a relational (Postgres) database over NoSQL options and seek to avoid vendor lock-in.",
         "citations": [
           {
-            "url": "https://supabase.com/blog",
-            "snippet": "Hydra joins Supabase",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "BKND joins Supabase",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Supabase is forming strategic partnerships with major technology companies like Stripe to deepen its integration within the developer ecosystem.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase Joins the Stripe Projects Developer Preview",
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "It was originally a Y Combinator startup that offered developers a Postgres-based open source alternative to Google’s Firebase.",
             "source_type": "news"
           }
         ],
@@ -137,7 +91,28 @@
     ],
     "hiring_signals": [
       {
-        "text": "Supabase is significantly expanding its go-to-market function by hiring for numerous sales and customer-facing roles globally, including Enterprise Account Executives, Solutions Architects, and regional sales leads for APAC and LATAM.",
+        "text": "Supabase is heavily investing in global sales expansion by hiring Account Executives and Sales Leads for AMER, APAC, and LATAM regions, signaling a strategic push to build a worldwide go-to-market presence.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Account Executive , APAC",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Account Executive, LATAM",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Sales Lead (AMER)",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The company is building a dedicated enterprise sales motion, evidenced by open roles for 'Enterprise Account Executive' and 'Strategic Customer Solutions Architect'. This indicates a direct focus on acquiring and supporting large, complex customers.",
         "citations": [
           {
             "url": "https://supabase.com/careers",
@@ -146,35 +121,14 @@
           },
           {
             "url": "https://supabase.com/careers",
-            "snippet": "Account Executive , APAC",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Sales Lead (AMER)",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Strategic Customer Solutions Architect (EMEA)",
+            "snippet": "Strategic Customer Solutions Architect (AMER)",
             "source_type": "jobs"
           }
         ],
         "confidence": 0.85
       },
       {
-        "text": "The company is investing in revenue operations by hiring a \"GTM Engineer\", indicating a focus on building scalable systems and processes to support its sales and marketing growth.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "RevOps GTM Engineer AMER",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Supabase is building out its partnership capabilities with open roles for a \"Platform Evangelist - AWS\" and an \"Associate Partner Development Manager,\" signaling a strategic push to grow through its partner ecosystem.",
+        "text": "Supabase is developing a partner ecosystem, with roles like 'Associate Partner Development Manager' and 'Platform Evangelist - AWS', to increase adoption and integrations within major cloud platforms.",
         "citations": [
           {
             "url": "https://supabase.com/careers",
@@ -188,49 +142,54 @@
           }
         ],
         "confidence": 0.85
+      },
+      {
+        "text": "To address reliability concerns and support its growing enterprise customer base, Supabase is expanding its support and reliability teams, hiring for roles like 'Customer Reliability Engineer' and specialized 'Database Support Engineer' across all major regions.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Customer Reliability Engineer AMER",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Database Support Engineer (EMEA)",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.85
       }
     ],
-    "outreach_angle": "Given Supabase's rapid expansion into the enterprise market with new compliance offerings and a growing global GTM team, I was curious how you're scaling your internal revenue systems to support this upmarket motion.",
-    "generated_at": "2026-05-26T23:58:55.498436Z"
+    "outreach_angle": "I saw Supabase is rapidly expanding its enterprise GTM team after the recent funding round — as you scale to support customers with uptime SLAs, I was curious how you're tackling the platform stability challenges that come with hyper-growth.",
+    "generated_at": "2026-05-27T09:23:18.320706Z"
   },
   "market_signal": {
     "target": "Supabase",
     "pricing_trend": [
       {
-        "text": "Supabase offers a freemium pricing model that includes Free, Pro (from $25/month), Team (from $599/month), and custom Enterprise tiers, designed to scale with user needs.",
+        "text": "Supabase offers a tiered pricing model, including a free tier for small projects, a Pro plan starting at $25/month, a Team plan from $599/month, and a custom Enterprise plan. The paid plans operate on a usage-based model for compute and other resources beyond the included quotas.",
         "citations": [
           {
             "url": "https://supabase.com/pricing",
-            "snippet": "Predictable pricing, designed to scale Start building for free, collaborate with your team, then scale to millions of users",
+            "snippet": "Pro Most Popular For production applications with the power to scale. Get Started From $ 25 / month",
             "source_type": "pricing"
           },
           {
             "url": "https://supabase.com/pricing",
-            "snippet": "Free $ 0 / month\nPro Most Popular For production applications with the power to scale. Get Started From $ 25 / month\nTeam Add features such as SSO, control over backups, and industry certifications. Get Started From $ 599 / month\nEnterprise For large-scale applications running Internet scale workloads. Contact Us Custom",
+            "snippet": "Team Add features such as SSO, control over backups, and industry certifications. Get Started From $ 599 / month",
             "source_type": "pricing"
           }
         ],
         "confidence": 0.85
       },
       {
-        "text": "The pricing structure includes usage-based billing for compute resources, with paid plans receiving credits to offset costs, and a default spend cap on the Pro plan to prevent unexpected charges.",
+        "text": "Several customers report significant cost savings after adopting Supabase. For example, Humata achieved 4x cost savings, Shotgun reduced data infrastructure costs by 83%, and Good Tape saw a 60% cost reduction.",
         "citations": [
           {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Paid Plans come with $10 /month in compute credits to cover one Micro instance or offset the cost of any other instance.",
-            "source_type": "pricing"
+            "url": "https://supabase.com/customers",
+            "snippet": "Humata Scales with Supabase: Achieving 4X Cost Savings and Enhanced Performance",
+            "source_type": "site"
           },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "The Pro Plan has a spend cap enabled by default to keep costs under control. If you want to scale beyond the plan's included quota, simply switch off the spend cap to pay for additional resources.",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Multiple customer case studies report significant cost savings after adopting Supabase, with reductions of up to 83% noted.",
-        "citations": [
           {
             "url": "https://supabase.com/customers",
             "snippet": "Supabase migration delivers an 83% reduction in data infrastructure costs for Shotgun",
@@ -243,21 +202,609 @@
           },
           {
             "url": "https://supabase.com/customers",
-            "snippet": "Humata Scales with Supabase: Achieving 4X Cost Savings and Enhanced Performance",
+            "snippet": "How eXp Realty Unlocked Enterprise Innovation and Cut SaaS Costs with Supabase",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "Following a major funding round, some users have expressed concern about the long-term sustainability of the free tier, fearing it might be reduced or removed to meet investor expectations for profitability.",
+        "citations": [
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1l8pape/so_whats_next_for_supabase_after_that_massive",
+            "snippet": "How tf are they affording all these free tier users? Is this even sustainable? (Edit: when the free tier inevitably gets axed, RIP to all the indie devs out there)",
+            "source_type": "review"
+          }
+        ],
+        "confidence": 0.25
+      }
+    ],
+    "expansion_contraction": [
+      {
+        "text": "Supabase has demonstrated rapid financial growth, raising $380 million in one year and reaching a $5 billion valuation with its recent $100 million Series E round. The company's total funding has reached $500 million.",
+        "citations": [
+          {
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "On Friday, Supabase announced that it raised a fresh $100 million Series E at a $5 billion valuation, led by Accel and Peak XV. This is just four months after closing its $200 million Series D at a $2 billion valuation, led by Accel.",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The company is in an expansion phase, with a team of over 280 members and numerous open job positions across Sales, Engineering, Product, and Marketing, indicating significant hiring activity.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "280+ team members in 55+ countries",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Open positions Want to build the best developer platform? We’d love to talk to you.",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "Supabase is expanding through acquisitions, having recently brought the companies Hydra and BKND into its fold.",
+        "citations": [
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Hydra joins Supabase company 10 Feb 2026",
+            "source_type": "news"
+          },
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "BKND joins Supabase company 3 Feb 2026",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "Supabase is growing its ecosystem through integrations and partnerships with major tech players, including becoming an official app for ChatGPT, an official connector for Claude, and joining the Stripe Projects Developer Preview.",
+        "citations": [
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase Is Now an Official ChatGPT App product 8 May 2026",
+            "source_type": "news"
+          },
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase is now an official Claude connector product 3 Feb 2026",
+            "source_type": "news"
+          },
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase Joins the Stripe Projects Developer Preview product 19 Mar 2026",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The company showcases a growing customer base, including enterprises like eXp Realty and fast-growing startups, with one case study highlighting a client that scaled to one million users in seven months.",
+        "citations": [
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "How eXp Realty Unlocked Enterprise Innovation and Cut SaaS Costs with Supabase",
             "source_type": "site"
           },
           {
-            "url": "https://supabase.com",
-            "snippet": "Lately been using Supabase over AWS/ GCP for products to save on costs and rapid builds(Vibe Code) that do not need all the Infra and the hefty costs that come with AWS/ GCP out the door.",
+            "url": "https://supabase.com/customers",
+            "snippet": "Scaling securely: one million users in 7 months with Supabase Auth",
             "source_type": "site"
           }
         ],
         "confidence": 0.85
       }
     ],
-    "expansion_contraction": [
+    "web_traffic_proxy": [
       {
-        "text": "The company is growing through acquisitions, having recently brought on the teams from Hydra and BKND.",
+        "text": "Supabase has a large and growing developer community, claiming over 540,000 community members and 100,000 GitHub stars, indicating high engagement and popularity.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "540,000+ community members",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "100,000 GitHub stars company 2 Apr 2026",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The platform is receiving strong positive feedback from the developer community, with users on social media praising its ease of use, rapid setup, and overall developer experience.",
+        "citations": [
+          {
+            "url": "https://supabase.com/home",
+            "snippet": "For new startups, they seem to have gone from &quot;promising&quot; to &quot;standard&quot; in remarkably short order.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
+      }
+    ],
+    "vendor_health_flags": [
+      {
+        "text": "Multiple users have reported significant service downtime and outages affecting their applications, with one user citing 10 days of downtime in the eu-west-2 region and others noting recurring outages in major regions like us-east-1.",
+        "citations": [
+          {
+            "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+            "snippet": "Supabase downtime is becoming a problem. Any cost-effective alternatives?",
+            "source_type": "news"
+          },
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1imwtd5/useast1_down_goodbye_supabase",
+            "snippet": "us-east-1 DOWN - goodbye supabase realtime How can one of the biggest regions be down for more than 2.5 hours (and still be down). Second time in less than 4 months, no response from support, no communication on twitter or anywhere.",
+            "source_type": "news"
+          },
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase incident on February 12, 2026 product 13 Feb 2026",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The company is investing in security and compliance, holding SOC2 Type 2, HIPAA, and ISO 27001 certifications, and is actively hiring for security-focused product management roles.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "SOC2 Type 2 Certified HIPAA Compliant ISO 27001 Certified",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase is now ISO 27001 certified company 22 Apr 2026",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.85
+      }
+    ],
+    "generated_at": "2026-05-27T09:23:14.736131Z"
+  },
+  "marketing_signal": {
+    "target": "Supabase",
+    "value_proposition": [
+      {
+        "text": "Supabase offers an integrated, all-in-one platform that combines essential backend services, saving developers from assembling disparate tools.",
+        "citations": [
+          {
+            "url": "https://supabase.com",
+            "snippet": "Start your project with a Postgres database, Authentication, instant APIs, Edge Functions, Realtime subscriptions, Storage, and Vector embeddings.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com",
+            "snippet": "Best of breed products. Integrated as a platform.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "The platform is designed for rapid development and extreme ease of use, enabling developers to build and launch projects in a fraction of the usual time.",
+        "citations": [
+          {
+            "url": "https://supabase.com",
+            "snippet": "Build in a weekend Scale to millions",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Quilia Saves 75% in Development Time with Supabase’s Data API and RLS Features",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "Supabase provides a scalable and cost-effective solution, positioning itself as a cheaper alternative to major cloud providers like AWS and GCP without sacrificing performance.",
+        "citations": [
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Good Tape migrates to Supabase managed Postgres and Authentication and achieves database efficiency and a 60% cost reduction.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com",
+            "snippet": "Lately been using Supabase over AWS/ GCP for products to save on costs and rapid builds(Vibe Code) that do not need all the Infra and the hefty costs that come with AWS/ GCP out the door. Great solution overall.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Humata Scales with Supabase: Achieving 4X Cost Savings and Enhanced Performance",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "The platform is built on the trusted and powerful foundation of PostgreSQL and other open-source tools, providing developers with portability and reliability.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "We deeply believe in the efficacy of collaborative open source",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "positioning": [
+      {
+        "text": "Supabase is positioned as the leading open-source alternative to Google's Firebase, leveraging the familiarity of Postgres to attract developers.",
+        "citations": [
+          {
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "It was originally a Y Combinator startup that offered developers a Postgres-based open source alternative to Google’s Firebase.",
+            "source_type": "news"
+          },
+          {
+            "url": "https://www.reddit.com/r/FlutterDev/comments/1axet00/why_anyone_would_choose_firebase_over_supabase",
+            "snippet": "Why anyone would choose Firebase over Supabase?",
+            "source_type": "review"
+          },
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "How Mobbin migrated 200,000 users from Firebase for a better authentication experience.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "They define themselves as 'The Postgres Development Platform', moving beyond just a database to a comprehensive toolkit for building on PostgreSQL.",
+        "citations": [
+          {
+            "url": "https://supabase.com",
+            "snippet": "Supabase | The Postgres Development Platform.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Supabase is the Postgres development platform, built by developers for developers.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "Supabase is aligning itself with the modern AI and 'vibe-coding' development trends, positioning itself as the backend of choice for AI-powered applications and tools.",
+        "citations": [
+          {
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "It is increasingly used as the database of choice for Figma and other uber popular AI coding tools like Replit, Cursor , and Claude Code , it says.",
+            "source_type": "news"
+          },
+          {
+            "url": "https://supabase.com",
+            "snippet": "Integrate your favorite ML-models to store, index and search vector embeddings .",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Solutions AI Builders No Code Beginners Developers Postgres Devs Vibe Coders Hackathon Contestants Startups Agencies Enterprise Innovation Teams",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "They frame themselves as having gone from a 'promising' startup to the 'standard' choice for new projects, suggesting market leadership and widespread adoption.",
+        "citations": [
+          {
+            "url": "https://supabase.com",
+            "snippet": "Trusted by fast-growing companies worldwide",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "brand_voice": [
+      {
+        "text": "The brand voice is authentically developer-centric, using language and cultural references that resonate with a technical audience.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Supabase is the Postgres development platform, built by developers for developers.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "30,000+ memes posted (and counting)",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "Supabase's tone is confident, enthusiastic, and often aspirational, using bold claims about speed and scale.",
+        "citations": [
+          {
+            "url": "https://supabase.com",
+            "snippet": "Build in a weekend Scale to millions",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com",
+            "snippet": "Sometimes the hype is actually justified! #Supabase",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "The voice is modern and informal, embracing terms like 'Vibe Coders' and highlighting a fun, lightweight developer experience.",
+        "citations": [
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Solutions AI Builders No Code Beginners Developers Postgres Devs Vibe Coders",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com",
+            "snippet": "It’s fun, feels lightweight, and really quick to spin up user auth and a few tables. Almost too easy! Highly recommend.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "content_gaps": [
+      {
+        "text": "There is a significant content gap regarding platform reliability and uptime, as user concerns about downtime are prevalent in community forums but not proactively addressed with high-level, reassuring content on the main site.",
+        "citations": [
+          {
+            "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+            "snippet": "Supabase downtime is becoming a problem. Any cost-effective alternatives?",
+            "source_type": "news"
+          },
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1o6aayg/10_days_of_downtime_how_is_this_ok",
+            "snippet": "10 days of downtime! How is this ok?",
+            "source_type": "news"
+          },
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1imwtd5/useast1_down_goodbye_supabase",
+            "snippet": "us-east-1 DOWN - goodbye supabase",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "Supabase is not adequately addressing community concerns about its long-term business strategy and the sustainability of its free tier following significant VC funding, leading to user speculation and distrust.",
+        "citations": [
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1l8pape/so_whats_next_for_supabase_after_that_massive",
+            "snippet": "Can we still trust them not to pull a rug on us? How tf are they affording all these free tier users? Is this even sustainable?",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "A critical page detailing security and compliance information is inaccessible (404 error), creating a major credibility gap for enterprise and security-conscious customers, despite claims of SOC2, HIPAA, and ISO certifications in site footers.",
+        "citations": [
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "We protect your data. More on Security SOC2 Type 2 Certified HIPAA Compliant ISO 27001 Certified",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "channel_signals": [
+      {
+        "text": "Supabase heavily invests in building and nurturing a developer community through channels like Discord, GitHub, and by prominently featuring social media testimonials on their homepage.",
+        "citations": [
+          {
+            "url": "https://supabase.com",
+            "snippet": "Join the community Discover what our community has to say about their Supabase experience. Join us on Discord",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "Developer Relations (DevRel) is a core marketing channel, with investment in technical blog content, comprehensive documentation, and hiring for specific DevRel roles.",
+        "citations": [
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase blog 26 May 2026 · 10 minute read Protecting your Supabase projects from npm supply chain attacks",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "Open Source is treated as a strategic marketing asset, used to attract contributors, build trust, and drive adoption.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "1,500+ Contributors building Supabase",
+            "source_type": "site"
+          },
+          {
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "Interestingly, because Supabase is open source and supported by a community of developers — claiming 4 million developers as users — it is allowing community members to also buy stock as part of this Series E funding, the company said.",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "They utilize a targeted content marketing strategy, creating specific solution pages and customer stories for distinct developer personas like 'AI Builders,' 'Vibe Coders,' and 'Enterprise Innovation Teams'.",
+        "citations": [
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Solutions AI Builders No Code Beginners Developers Postgres Devs Vibe Coders Hackathon Contestants Startups Agencies Enterprise Innovation Teams",
+            "source_type": "site"
+          },
+          {
+            "url": "https://supabase.com/customers",
+            "snippet": "Discover case studies on how Supabase is being used around the world to quickly create outstanding products and set new industry standards.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "generated_at": "2026-05-27T09:23:22.871913Z"
+  },
+  "risk_profile": {
+    "target": "Supabase",
+    "exposure_indicators": [
+      {
+        "text": "The service has operational limitations on its free tier, including pausing projects after one week of inactivity and not providing automatic backups, which could lead to data loss or disruption.",
+        "citations": [
+          {
+            "url": "https://supabase.com/pricing",
+            "snippet": "Free projects are paused after 1 week of inactivity.",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://supabase.com/pricing",
+            "snippet": "Automatic backups Not included in free",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.03
+      },
+      {
+        "text": "The company's rapid growth and high valuation may create pressure to prioritize expansion over platform stability and security.",
+        "citations": [
+          {
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "On Friday, Supabase announced that it raised a fresh $100 million Series E at a $5 billion valuation, led by Accel and Peak XV. This is just four months after closing its $200 million Series D at a $2 billion valuation, led by Accel.",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.02
+      },
+      {
+        "text": "As a fully remote company with staff in over 55 countries, Supabase faces operational and security challenges inherent in managing a globally distributed workforce and infrastructure.",
+        "citations": [
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "280+ team members in 55+ countries",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://supabase.com/careers",
+            "snippet": "Working in a globally distributed team is rewarding but has its challenges. We are across many different timezones, so we use tools like Notion, Slack, and Discord to stay connected to our team, and our community.",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.02
+      },
+      {
+        "text": "The service may be susceptible to disruption from internet censorship or network blocking at a regional level, impacting global availability.",
+        "citations": [
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Navigating Regional Network Blocks",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.02
+      }
+    ],
+    "reputational_signals": [
+      {
+        "text": "Users have reported multiple, significant downtime events, including prolonged regional outages, that have impacted customer applications and led them to consider alternatives.",
+        "citations": [
+          {
+            "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+            "snippet": "Supabase downtime is becoming a problem. Any cost-effective alternatives?",
+            "source_type": "news"
+          },
+          {
+            "url": "https_//www.reddit.com/r/Supabase/comments/1imwtd5/useast1_down_goodbye_supabase",
+            "snippet": "us-east-1 DOWN - goodbye supabase",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.03
+      },
+      {
+        "text": "During service outages, users have reported being unable to access the Supabase dashboard to inspect their data, and have criticized a lack of timely communication from the company.",
+        "citations": [
+          {
+            "url": "https_//www.reddit.com/r/Supabase/comments/1imwtd5/useast1_down_goodbye_supabase",
+            "snippet": "no response from support, no communication on twitter or anywhere. Just a status page message.",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.03
+      },
+      {
+        "text": "The company has publicly disclosed service incidents, which, while transparent, confirm the occurrence of service-impacting events.",
+        "citations": [
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Supabase incident on February 12, 2026",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.03
+      },
+      {
+        "text": "Users have expressed concern over the company's financial model and the long-term sustainability of its free tier, fearing future changes driven by VC pressure.",
+        "citations": [
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1l8pape/so_whats_next_for_supabase_after_that_massive",
+            "snippet": "How tf are they affording all these free tier users? Is this even sustainable? (Edit: when the free tier inevitably gets axed, RIP to all the indie devs out there)",
+            "source_type": "news"
+          },
+          {
+            "url": "https://www.reddit.com/r/Supabase/comments/1jb4586/what_is_the_future_of_supabase",
+            "snippet": "Can we continue to trust Supabase? How much money is the free plan costing the company? Does the economics work?",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.02
+      }
+    ],
+    "regulatory_signals": [
+      {
+        "text": "Compliance certifications, such as SOC2, ISO 27001, and HIPAA-eligibility, are restricted to high-cost enterprise plans, leaving lower-tiered plans without these regulatory assurances.",
+        "citations": [
+          {
+            "url": "https://supabase.com/pricing",
+            "snippet": "HIPAA available as paid add-on",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.03
+      }
+    ],
+    "third_party_risk": [
+      {
+        "text": "The platform's reliance on open source, including over 1,500 external contributors and dependencies like npm, exposes it to supply chain risks.",
+        "citations": [
+          {
+            "url": "https://supabase.com/blog",
+            "snippet": "Protecting your Supabase projects from npm supply chain attacks",
+            "source_type": "news"
+          }
+        ],
+        "confidence": 0.03
+      },
+      {
+        "text": "The company has recently acquired other companies, such as Hydra and BKND, which can introduce integration and security risks from the absorbed technologies and personnel.",
         "citations": [
           {
             "url": "https://supabase.com/blog",
@@ -270,500 +817,31 @@
             "source_type": "news"
           }
         ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Supabase is actively forming partnerships with major technology companies, including becoming an official app for ChatGPT, a connector for Claude, and joining the Stripe Projects Developer Preview.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase Is Now an Official ChatGPT App",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase is now an official Claude connector",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase Joins the Stripe Projects Developer Preview",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
+        "confidence": 0.02
       }
     ],
-    "web_traffic_proxy": [
-      {
-        "text": "Supabase has cultivated a large and engaged developer community, with over 540,000 members and achieving a milestone of 100,000 GitHub stars.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "540,000+ community members",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "100,000 GitHub stars",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
-      }
-    ],
-    "vendor_health_flags": [
-      {
-        "text": "The company has achieved key enterprise-readiness certifications, including SOC2 Type 2, HIPAA compliance, and ISO 27001.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "SOC2 Type 2 Certified HIPAA Compliant ISO 27001 Certified",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase is now ISO 27001 certified",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Supabase is successfully attracting customers from competitors, with case studies highlighting migrations from Firebase, Pinecone, and AWS RDS.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "How Mobbin migrated 200,000 users from Firebase for a better authentication experience.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Firecrawl switches from Pinecone to Supabase Vector for PostgreSQL vector embeddings.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Berri AI boosts productivity by migrating from AWS RDS to Supabase Vector",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "The platform is gaining strong traction within the AI development space, with customers like Berri AI, Humata, and Markprompt using it for AI-powered applications.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Hyper builds AI marketing agents on Supabase",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Humata Scales with Supabase: Achieving 4X Cost Savings and Enhanced Performance",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Markprompt and Supabase - GDPR-compliant AI chatbots for docs and websites.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 0.85
-      }
-    ],
-    "generated_at": "2026-05-26T23:58:54.954149Z"
-  },
-  "marketing_signal": {
-    "target": "Supabase",
-    "value_proposition": [
-      {
-        "text": "Supabase enables developers to build and scale applications rapidly, from a weekend project to millions of users.",
-        "citations": [
-          {
-            "url": "https://supabase.com",
-            "snippet": "Build in a weekend Scale to millions",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "It provides a comprehensive, integrated backend-as-a-service platform built around Postgres, including Auth, APIs, Edge Functions, Realtime, Storage, and Vector embeddings.",
-        "citations": [
-          {
-            "url": "https://supabase.com",
-            "snippet": "Supabase is the Postgres development platform. Start your project with a Postgres database, Authentication, instant APIs, Edge Functions, Realtime subscriptions, Storage, and Vector embeddings.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The platform offers significant cost and time savings compared to traditional infrastructure or other providers.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Supabase migration delivers an 83% reduction in data infrastructure costs for Shotgun",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Quilia Saves 75% in Development Time with Supabase’s Data API and RLS Features",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "Lately been using Supabase over AWS/ GCP for products to save on costs and rapid builds(Vibe Code) that do not need all the Infra and the hefty costs that come with AWS/ GCP out the door.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Supabase provides a predictable, usage-based pricing model designed to scale with the application, featuring a generous free tier to start.",
-        "citations": [
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Predictable pricing, designed to scale",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Start building for free, collaborate with your team, then scale to millions of users",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 1.0
-      }
-    ],
-    "positioning": [
-      {
-        "text": "Supabase positions itself as the definitive development platform centered on Postgres.",
-        "citations": [
-          {
-            "url": "https://supabase.com",
-            "snippet": "Supabase | The Postgres Development Platform.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "Every project is a full Postgres database , the world's most trusted relational database.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The company frames itself as a superior alternative to other BaaS providers like Firebase and cloud giants like AWS, emphasizing better experience, lower cost, and migration paths.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "How Mobbin migrated 200,000 users from Firebase for a better authentication experience.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Firecrawl switches from Pinecone to Supabase Vector for PostgreSQL vector embeddings.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Berri AI boosts productivity by migrating from AWS RDS to Supabase Vector",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Supabase is positioned as a key player in the AI development ecosystem through native integrations with leading AI models and vector database capabilities.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase Is Now an Official ChatGPT App",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase is now an official Claude connector",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "Integrate your favorite ML-models to store, index and search vector embeddings .",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The platform is marketed as being 'built by developers, for developers,' emphasizing an open-source ethos and a focus on developer experience.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Supabase is the Postgres development platform, built by developers for developers.",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "We deeply believe in the efficacy of collaborative open source",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 1.0
-      }
-    ],
-    "brand_voice": [
-      {
-        "text": "The tone is confident, direct, and values-driven, with a touch of developer-culture humor.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Undeniable So good you earn respect, reliable, consistently deliver.",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "30,000+ memes posted (and counting)",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The messaging consistently emphasizes an exceptional developer experience (DX), speed, and ease of use.",
-        "citations": [
-          {
-            "url": "https://supabase.com",
-            "snippet": "Supabase is the best product experience I've had in years. Not just tech - taste. From docs to latency to the URL structure that makes you think \"oh, that's obvious\"",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "It’s fun, feels lightweight, and really quick to spin up user auth and a few tables. Almost too easy! Highly recommend.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The company communicates with a strong belief in open-source principles and community collaboration.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "1,500+ Contributors building Supabase",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "Join the community Discover what our community has to say about their Supabase experience.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      }
-    ],
-    "content_gaps": [],
-    "channel_signals": [
-      {
-        "text": "Supabase invests heavily in community building on platforms like Discord and GitHub.",
-        "citations": [
-          {
-            "url": "https://supabase.com",
-            "snippet": "Join us on Discord",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "100,000 GitHub stars",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The company maintains an active technical blog and a presence across multiple social media platforms, including Twitter, YouTube, and TikTok.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase blog",
-            "source_type": "news"
-          },
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Twitter GitHub Discord Youtube TikTok Instagram",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Customer stories and case studies are a primary marketing channel to demonstrate value and use cases.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "Customer stories Discover case studies on how Supabase is being used around the world to quickly create outstanding products and set new industry standards.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Hiring priorities indicate a strategic push into Developer Relations, Events, Enterprise Sales, and Channel Partnerships, particularly with AWS.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Developer Relations Engineer (San Francisco, CA)",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Enterprise Account Executive , Bay Area",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Platform Evangelist - AWS",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Field & Events Marketing Manager AMER",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 1.0
-      }
-    ],
-    "generated_at": "2026-05-26T23:58:54.630355Z"
-  },
-  "risk_profile": {
-    "target": "Supabase",
-    "exposure_indicators": [
-      {
-        "text": "The platform has experienced at least one publicly disclosed service incident.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase incident on February 12, 2026",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Projects on the free tier are paused after one week of inactivity, which could lead to service disruption for non-paying users.",
-        "citations": [
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Free projects are paused after 1 week of inactivity.",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "The free plan lacks automatic backups, creating a significant risk of data loss for projects on that tier.",
-        "citations": [
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Automatic backups Not included in free",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "The service's accessibility may be compromised in certain areas due to regional network blocks.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Navigating Regional Network Blocks",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.5
-      },
-      {
-        "text": "Supabase acknowledges that its users' projects are vulnerable to npm supply chain attacks, a known risk in the Javascript ecosystem.",
-        "citations": [
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "Protecting your Supabase projects from npm supply chain attacks",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "The free tier offers only one hour of authentication audit logs, severely limiting the ability to investigate security incidents.",
-        "citations": [
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Auth Audit Logs 1 hour",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.85
-      }
-    ],
-    "reputational_signals": [],
-    "regulatory_signals": [
-      {
-        "text": "HIPAA compliance is not included by default and is only available as a paid add-on for the 'Team' plan, posing a risk for healthcare applications built on lower tiers.",
-        "citations": [
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "HIPAA available as paid add-on",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.85
-      }
-    ],
-    "third_party_risk": [
-      {
-        "text": "Supabase has deep integrations with and dependencies on external services like OpenAI, Hugging Face, and Stripe, exposing it to potential risks from those third parties.",
-        "citations": [
-          {
-            "url": "https://supabase.com/",
-            "snippet": "Integrate your favorite ML-models to store, index and search vector embeddings . OpenAI logo OpenAI Hugging Face logo Hugging Face",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "We're Transferring the Stripe Sync Engine to Stripe",
-            "source_type": "news"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "The company operates with a globally distributed team, which, while presented as a strength, introduces operational and security challenges.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Working in a globally distributed team is rewarding but has its challenges.",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 0.5
-      },
-      {
-        "text": "The platform is built as open source with a large number of contributors, which can introduce supply chain risks if code contributions are not rigorously vetted.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "1,500+ Contributors building Supabase",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 0.5
-      }
-    ],
-    "generated_at": "2026-05-26T23:58:54.217602Z"
+    "generated_at": "2026-05-27T09:23:19.830533Z"
   },
   "synergy_signals": [
+    {
+      "text": "Pricing increase coincides with support/reputation complaints — churn risk; time GTM outreach around retention, not upsell.",
+      "contributing_depts": [
+        "finance",
+        "security"
+      ],
+      "citations": [
+        {
+          "url": "https://supabase.com/pricing",
+          "snippet": "Pro Most Popular For production applications with the power to scale. Get Started From $ 25 / month",
+          "source_type": "pricing"
+        },
+        {
+          "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+          "snippet": "Supabase downtime is becoming a problem. Any cost-effective alternatives?",
+          "source_type": "news"
+        }
+      ]
+    },
     {
       "text": "Hiring plus funding/expansion signals a growth account — prioritize and resource the outreach.",
       "contributing_depts": [
@@ -773,12 +851,12 @@
       "citations": [
         {
           "url": "https://supabase.com/careers",
-          "snippet": "Enterprise Account Executive , Bay Area",
+          "snippet": "Account Executive , APAC",
           "source_type": "jobs"
         },
         {
-          "url": "https://supabase.com/blog",
-          "snippet": "Hydra joins Supabase",
+          "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+          "snippet": "On Friday, Supabase announced that it raised a fresh $100 million Series E at a $5 billion valuation, led by Accel and Peak XV. This is just four months after closing its $200 million Series D at a $2 billion valuation, led by Accel.",
           "source_type": "news"
         }
       ]
@@ -792,12 +870,24 @@
       "refs": [
         "https://supabase.com/pricing",
         "https://supabase.com/pricing",
-        "https://supabase.com/pricing",
-        "https://supabase.com/pricing",
         "https://supabase.com/customers",
         "https://supabase.com/customers",
         "https://supabase.com/customers",
-        "https://supabase.com"
+        "https://supabase.com/customers",
+        "https://www.reddit.com/r/Supabase/comments/1l8pape/so_whats_next_for_supabase_after_that_massive"
+      ]
+    },
+    {
+      "from_dept": "security",
+      "to_dept": "gtm",
+      "message": "Reputational signal — frame responsibly, do not weaponize.",
+      "refs": [
+        "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+        "https_//www.reddit.com/r/Supabase/comments/1imwtd5/useast1_down_goodbye_supabase",
+        "https_//www.reddit.com/r/Supabase/comments/1imwtd5/useast1_down_goodbye_supabase",
+        "https://supabase.com/blog",
+        "https://www.reddit.com/r/Supabase/comments/1l8pape/so_whats_next_for_supabase_after_that_massive",
+        "https://www.reddit.com/r/Supabase/comments/1jb4586/what_is_the_future_of_supabase"
       ]
     },
     {
@@ -811,130 +901,127 @@
         "https://supabase.com/careers",
         "https://supabase.com/careers",
         "https://supabase.com/careers",
+        "https://supabase.com/careers",
+        "https://supabase.com/careers",
         "https://supabase.com/careers"
       ]
     }
   ],
   "guardrail_report": {
-    "pii_redactions": 0,
+    "pii_redactions": 1,
     "leak_flags": [],
     "ungrounded_dropped": [
-      "A new role for a \"Product Manager - Pricing & Billing\" indicates a strategic focus on optimizing monetization, packaging, and revenue generation.",
-      "Supabase is undergoing significant expansion, evidenced by a large number of open positions across sales, engineering, marketing, and solutions architecture in the Americas, APAC, and EMEA regions.",
-      "The company is focusing on optimizing its monetization strategy, indicated by an open role for a Product Manager for Pricing & Billing.",
-      "Supabase is experiencing rapid market adoption, with community members observing it has quickly moved from a 'promising' to a 'standard' choice for new startups.",
-      "Supabase has raised $500 million in funding, indicating strong investor confidence and significant capital for continued growth.",
-      "The company's primary security and compliance information page is inaccessible, returning a 404 error, which may negatively impact customer trust and due diligence efforts.",
-      "Supabase has acknowledged that AI tools may not use its platform correctly, potentially leading to users building insecure applications.",
-      "SOC2 and ISO 27001 compliance are restricted to the 'Team' plan (starting from $599/month), leaving users on lower-cost plans without these certified environments.",
-      "The platform simplifies security for developers, especially for solo founders and small teams, through features like built-in Auth with Row Level Security (RLS).",
-      "Supabase has quickly moved from a 'promising' tool to a 'standard' for new startups, indicating strong market adoption and validation.",
-      "The brand voice is developer-centric, authentic, and community-driven, heavily leveraging user testimonials on its homepage.",
-      "A key landing page for security and compliance information is broken or missing, returning a 404 error."
+      "Supabase is focusing on optimizing its monetization strategy, indicated by hiring for a 'Product Manager - Pricing & Billing'. Their model includes self-serve tiers and usage-based components, creating potential complexity as they scale and try to meet investor growth expectations.",
+      "Reliability issues and extended downtime are creating churn risk and opening opportunities for competitors. Following an outage in a major AWS region, a user expressed intent to migrate to AWS or Azure, indicating that stability is a critical decision factor for their customers.",
+      "The company is actively developing its pricing and billing strategy, as indicated by an open position for a \"Product Manager - Pricing & Billing\".",
+      "Supabase is frequently discussed and compared positively against its main competitor, Firebase, in developer forums for its use of a relational database (Postgres) and perceived better developer experience.",
+      "Following substantial venture capital funding and a high valuation, community members have raised concerns about increased pressure from investors to grow phenomenally, which could impact future business and pricing models.",
+      "The company's primary web page for \"Security and Compliance\" is a broken link, returning a 404 error, which undermines confidence in its security posture and transparency.",
+      "Supabase's core offering is an aggregation of open-source tools, primarily Postgres, which creates a dependency on the security and maintenance of these underlying technologies."
     ],
     "passed": false
   },
-  "executive_summary": "Supabase's aggressive move upmarket, coupled with a nascent GTM team and tiered security model, creates an immediate opening to position our platform as essential for de-risking their enterprise growth. — act this quarter.",
+  "executive_summary": "Supabase's hyper-growth is outstripping its platform stability, creating an immediate, enterprise-level reliability and compliance risk that we can solve. — act this quarter.",
   "strategic_plan": {
     "target": "Supabase",
-    "headline": "Supabase's aggressive move upmarket, coupled with a nascent GTM team and tiered security model, creates an immediate opening to position our platform as essential for de-risking their enterprise growth.",
-    "narrative": "Supabase, an open-source developer platform, is rapidly commercializing its massive community of 500k+ developers by launching a formal enterprise sales motion. They are moving upmarket with new pricing tiers, acquiring companies like Hydra to accelerate their roadmap, and explicitly targeting competitors' customers with claims of better cost and performance. This transition from a product-led growth (PLG) company to a hybrid model with a dedicated sales force represents a critical inflection point.\n\nThe urgency to engage is driven by their active, real-time build-out of a global go-to-market function. Current job openings for Enterprise AEs, Solutions Architects, a 'GTM Engineer,' and partner managers signal they are constructing the sales engine and its supporting operational and technical stack right now. Engaging them during this foundational phase provides a unique opportunity to become an embedded part of their growth infrastructure, rather than attempting to displace an established solution later.\nThe primary risk for Supabase—and opportunity for us—lies in the dissonance between their enterprise ambitions and their current offering's maturity. Significant security and compliance gaps exist in their lower tiers, such as HIPAA as a paid add-on, severely limited audit logs on the free plan, and lack of automatic backups. As their new sales team targets larger, more discerning customers, these gaps will become significant friction points in their sales cycle. Furthermore, their reliance on third-party integrations and an open-source model expands their supply chain risk, a key concern for the enterprise clients they now seek.",
+    "headline": "Supabase's hyper-growth is outstripping its platform stability, creating an immediate, enterprise-level reliability and compliance risk that we can solve.",
+    "narrative": "Supabase is a high-flying, open-source alternative to Firebase that has successfully leveraged a developer-first strategy and cost savings to fuel hyper-growth, culminating in a $5B valuation. They are now aggressively moving upmarket, building a global enterprise sales force, acquiring key technologies, and pursuing enterprise-grade certifications to attract larger, more lucrative customers.\n\nThe timing to engage is now. This rapid, venture-fueled expansion is creating significant growing pains. Widespread, public reports of significant platform downtime and regional outages directly contradict their ability to serve enterprise clients and uphold SLAs. They are simultaneously hiring an enterprise sales team to sell contracts they may be unable to fulfill and hiring reliability engineers to fix the underlying problem, creating a perfect storm of internal pressure and external vulnerability.\n\nThe primary risk for Supabase is reputational and operational; they cannot build a billion-dollar enterprise business on an unstable foundation. This is compounded by compliance risk, as key certifications like SOC2 and HIPAA are gated behind expensive enterprise plans, leaving the vast majority of their user base unprotected. Finally, their reliance on open-source dependencies and recent M&A activity introduces third-party supply chain risk, while intense VC pressure to justify their valuation could force unpopular decisions that alienate their core community.",
     "icp_fit": "high",
-    "icp_rationale": "Supabase is a fast-growing tech company moving into the enterprise segment and actively hiring a global GTM team, indicating a need for scalable sales, compliance, and security solutions.",
-    "deal_size_estimate": "$75k-$250k ARR",
-    "deal_size_rationale": "This estimate is based on their investment in a global enterprise GTM team, their need to equip that team to win seven-figure deals, and the requirement to solve compliance and security gaps (e.g., SOC2, HIPAA) to be credible in the enterprise market.",
+    "icp_rationale": "Supabase has significant funding, is actively building an enterprise sales motion to move upmarket, and is experiencing critical, publicly-documented reliability failures that threaten their ability to meet enterprise SLAs and justify their valuation.",
+    "deal_size_estimate": "$100k-$300k ARR",
+    "deal_size_rationale": "Based on their employee count (>280), recent $100M funding round, global sales expansion, and explicit strategy to acquire large enterprise customers, which indicates a capacity and need for enterprise-grade solutions.",
     "urgency": "act this quarter",
-    "urgency_rationale": "Active hiring for a global GTM team and a 'GTM Engineer' indicates they are building their sales engine now, creating a critical window to influence their tech stack and processes.",
+    "urgency_rationale": "The acute, public conflict between their enterprise sales ambitions and their current platform instability creates an immediate, high-stakes problem that requires a solution now.",
     "recommended_plays": [
       {
-        "text": "GTM team to initiate multi-threaded outreach to new sales leadership and the 'GTM Engineer' role, positioning our solution as critical infrastructure to build a scalable and efficient enterprise sales motion.",
+        "text": "GTM sales team to initiate targeted outreach to newly hired Enterprise AEs and Sales Leads, framing our solution as a critical enabler for their GTM motion by guaranteeing the platform stability required to meet SLAs and close enterprise deals.",
         "priority": 1,
         "timeframe": "this week",
         "owners": [
           "gtm"
         ],
-        "rationale": "Supabase is building its GTM function from the ground up and will need tooling to support scalable growth; engaging the roles responsible for building these systems is the most direct path to embedding our solution.",
+        "rationale": "The new enterprise sales team's success is directly threatened by the platform's reliability issues. They will be highly receptive to a solution that de-risks their sales targets and makes it possible to sign enterprise contracts.",
         "citations": [
           {
             "url": "https://supabase.com/careers",
-            "snippet": "Supabase is significantly expanding its go-to-market function by hiring for numerous sales and customer-facing roles globally, including Enterprise Account Executives, Solutions Architects, and regional sales leads for APAC and LATAM.",
+            "snippet": "The company is building a dedicated enterprise sales motion, evidenced by open roles for 'Enterprise Account Executive' and 'Strategic Customer Solutions Architect'.",
             "source_type": "site"
           },
           {
-            "url": "https://supabase.com/careers",
-            "snippet": "The company is investing in revenue operations by hiring a \"GTM Engineer\", indicating a focus on building scalable systems and processes to support its sales and marketing growth.",
+            "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+            "snippet": "Multiple users have reported significant service downtime and outages affecting their applications, with one user citing 10 days of downtime in the eu-west-2 region and others noting recurring outages in major regions like us-east-1.",
             "source_type": "site"
           }
         ]
       },
       {
-        "text": "Security and GTM teams to co-develop a 'Compliance Upsell' motion, highlighting how our platform helps bridge the security gaps (e.g., limited logs, add-on HIPAA) between Supabase's lower tiers and the expectations of their new enterprise targets.",
+        "text": "GTM and Security teams to develop a joint proposal for Supabase leadership, highlighting how integrating our capabilities can extend compliance assurances (SOC2, HIPAA) across all pricing tiers, turning a current weakness into a competitive advantage.",
         "priority": 2,
         "timeframe": "30 days",
         "owners": [
           "gtm",
           "security"
         ],
-        "rationale": "Supabase's own pricing model creates a security and compliance gap that their new enterprise sales team will need to solve for larger customers. We can be the solution that enables them to sell upmarket effectively.",
+        "rationale": "Their compliance is restricted to high-cost plans, creating risk for their wider user base and a barrier to upmarket conversion. Offering a path to democratize compliance strengthens their entire business, from their community roots to their enterprise ambitions.",
         "citations": [
           {
             "url": "https://supabase.com/pricing",
-            "snippet": "HIPAA compliance is not included by default and is only available as a paid add-on for the 'Team' plan, posing a risk for healthcare applications built on lower tiers.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "The free tier offers only one hour of authentication audit logs, severely limiting the ability to investigate security incidents.",
+            "snippet": "Compliance certifications, such as SOC2, ISO 27001, and HIPAA-eligibility, are restricted to high-cost enterprise plans, leaving lower-tiered plans without these regulatory assurances.",
             "source_type": "site"
           }
         ]
       },
       {
-        "text": "GTM to create a targeted campaign for Supabase's sales team, showcasing how we help them win more AI-focused customers by addressing the underlying third-party and supply chain risks inherent in their AI integrations.",
+        "text": "Finance and GTM to craft executive-level messaging for Supabase's C-suite/investors, positioning our solution as a de-risking strategy to protect their $5B valuation by mitigating churn risk caused by platform instability.",
         "priority": 3,
         "timeframe": "this quarter",
         "owners": [
-          "gtm",
-          "security"
+          "finance",
+          "gtm"
         ],
-        "rationale": "Supabase is successfully attracting AI companies, which are highly sensitive to security and third-party risk. We can position our solution as a sales accelerant for them in this key growth market.",
+        "rationale": "The high valuation and recent funding create immense pressure to perform. The current reliability issues represent a direct threat to achieving growth projections, making a pitch focused on protecting the investment thesis highly relevant.",
         "citations": [
           {
-            "url": "https://supabase.com/customers",
-            "snippet": "The platform is gaining strong traction within the AI development space, with customers like Berri AI, Humata, and Markprompt using it for AI-powered applications.",
+            "url": "https://techcrunch.com/2025/10/03/supabase-nabs-5b-valuation-four-months-after-hitting-2b",
+            "snippet": "The company is experiencing hyper-growth, evidenced by a recent $100M funding round and a $5B valuation. However, this rapid scaling appears to be causing significant reliability issues, with multiple users reporting extended downtime, which poses a risk to their SaaS customers and their ability to uphold enterprise SLAs.",
             "source_type": "site"
           },
           {
-            "url": "https://supabase.com/",
-            "snippet": "Supabase has deep integrations with and dependencies on external services like OpenAI, Hugging Face, and Stripe, exposing it to potential risks from those third parties.",
+            "url": "https://www.reddit.com/r/webdev/comments/1r444hi/supabase_downtime_is_becoming_a_problem_any",
+            "snippet": "Users have reported multiple, significant downtime events, including prolonged regional outages, that have impacted customer applications and led them to consider alternatives.",
             "source_type": "site"
           }
         ]
       },
       {
-        "text": "GTM leadership to engage Supabase's new partner-focused hires to explore a joint strategy targeting the AWS ecosystem, positioning our platform as a value-add for their cloud marketplace and co-sell motions.",
+        "text": "Security team to prepare a technical brief for Supabase's new Customer Reliability and Database Support Engineers on managing third-party and supply chain risks inherited from their open-source foundation and M&A activity.",
         "priority": 4,
         "timeframe": "this quarter",
         "owners": [
-          "gtm"
+          "security"
         ],
-        "rationale": "They are explicitly hiring to build out their partner ecosystem, particularly around AWS. This provides a formal channel to establish a strategic alliance early in their partner program's development.",
+        "rationale": "As they staff up to fix reliability, it's crucial to address the root causes of risk, including their complex software supply chain. This builds trust with technical teams and positions us as a knowledgeable partner who understands their specific challenges.",
         "citations": [
           {
+            "url": "https://supabase.com/blog",
+            "snippet": "The platform's reliance on open source, including over 1,500 external contributors and dependencies like npm, exposes it to supply chain risks.",
+            "source_type": "site"
+          },
+          {
             "url": "https://supabase.com/careers",
-            "snippet": "Supabase is building out its partnership capabilities with open roles for a \"Platform Evangelist - AWS\" and an \"Associate Partner Development Manager,\" signaling a strategic push to grow through its partner ecosystem.",
+            "snippet": "To address reliability concerns and support its growing enterprise customer base, Supabase is expanding its support and reliability teams, hiring for roles like 'Customer Reliability Engineer' and specialized 'Database Support Engineer' across all major regions.",
             "source_type": "site"
           }
         ]
       }
     ],
     "open_questions": [
-      "Who is the executive sponsor leading the GTM expansion and new hiring wave?",
-      "What is their current revenue operations and security technology stack?",
-      "Have they appointed a CISO or Head of Security to oversee enterprise compliance requirements like SOC2 and HIPAA?",
-      "What is the target headcount for the Enterprise Account Executive team in the next 12 months?",
-      "Can we identify the specific individuals recently hired into the 'GTM Engineer' and Partner Development roles?"
+      "Who is the executive sponsor for the new Enterprise GTM motion?",
+      "What specific SLAs are being offered in their custom Enterprise plans?",
+      "Has the recent downtime caused any publicly-known major customer churn, particularly from their named case studies?",
+      "What is the internal reporting structure for the new Customer Reliability Engineering (CRE) team?",
+      "Is the technical and security integration of acquisitions like Hydra and BKND complete and fully audited?"
     ],
-    "generated_at": "2026-05-26T23:59:37.707248Z"
+    "generated_at": "2026-05-27T09:24:11.672693Z"
   }
 }
