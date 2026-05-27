@@ -71,7 +71,14 @@ say "wiring runtime SA permissions"
 PROJECT_NUM="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
 RUNTIME_SA="${PROJECT_NUM}-compute@developer.gserviceaccount.com"
 
-for role in roles/aiplatform.user roles/secretmanager.secretAccessor; do
+for role in \
+    roles/aiplatform.user \
+    roles/secretmanager.secretAccessor \
+    roles/storage.objectViewer \
+    roles/artifactregistry.writer \
+    roles/logging.logWriter \
+    roles/cloudbuild.builds.builder \
+    ; do
   gcloud projects add-iam-policy-binding "$PROJECT" \
     --member="serviceAccount:${RUNTIME_SA}" \
     --role="$role" --quiet >/dev/null
