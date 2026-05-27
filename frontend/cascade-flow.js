@@ -143,13 +143,47 @@ const SECTOR_NODE_DEFS = {
 };
 
 
+// V7.32 — per-dept signal counts feed into dept node labels so each
+// brief's graph reads visibly different even when cross_pollinate
+// handoffs/synergies hit identical templates across cases. Source field
+// names mirror agents/schemas.py:
+//   Marketing → marketing_signal.{value_proposition,positioning,brand_voice,content_gaps,channel_signals}
+//   GTM       → account_brief.{buying_signals,competitor_moves,hiring_signals}
+//   Finance   → market_signal.{pricing_trend,expansion_contraction,web_traffic_proxy,vendor_health_flags}
+//   Security  → risk_profile.{exposure_indicators,reputational_signals,regulatory_signals,third_party_risk}
+const DEPT_SIGNAL_PATHS = {
+  marketing: ['marketing_signal', ['value_proposition','positioning','brand_voice','content_gaps','channel_signals']],
+  gtm:       ['account_brief',    ['buying_signals','competitor_moves','hiring_signals']],
+  finance:   ['market_signal',    ['pricing_trend','expansion_contraction','web_traffic_proxy','vendor_health_flags']],
+  security:  ['risk_profile',     ['exposure_indicators','reputational_signals','regulatory_signals','third_party_risk']],
+};
+
+function deptSignalCount(brief, dept) {
+  const def = DEPT_SIGNAL_PATHS[dept];
+  if (!def || !brief) return 0;
+  const [block, fields] = def;
+  const obj = brief[block];
+  if (!obj || typeof obj !== 'object') return 0;
+  let total = 0;
+  for (const f of fields) {
+    const v = obj[f];
+    if (Array.isArray(v)) total += v.length;
+  }
+  return total;
+}
+
+function deptLabel(brief, dept, base) {
+  const n = deptSignalCount(brief, dept);
+  return n > 0 ? `${base} · ${n}` : base;
+}
+
 function buildElements(brief) {
   const els = [
     { data: { id: 'source',    label: 'Bright Data',   type: 'source', color: PAPER_DIM } },
-    { data: { id: 'marketing', label: 'Marketing',     type: 'dept', dept: 'marketing', color: DEPT_COLOR.marketing } },
-    { data: { id: 'gtm',       label: 'GTM',           type: 'dept', dept: 'gtm',       color: DEPT_COLOR.gtm } },
-    { data: { id: 'finance',   label: 'Finance',       type: 'dept', dept: 'finance',   color: DEPT_COLOR.finance } },
-    { data: { id: 'security',  label: 'Security',      type: 'dept', dept: 'security',  color: DEPT_COLOR.security } },
+    { data: { id: 'marketing', label: deptLabel(brief, 'marketing', 'Marketing'), type: 'dept', dept: 'marketing', color: DEPT_COLOR.marketing } },
+    { data: { id: 'gtm',       label: deptLabel(brief, 'gtm',       'GTM'),       type: 'dept', dept: 'gtm',       color: DEPT_COLOR.gtm } },
+    { data: { id: 'finance',   label: deptLabel(brief, 'finance',   'Finance'),   type: 'dept', dept: 'finance',   color: DEPT_COLOR.finance } },
+    { data: { id: 'security',  label: deptLabel(brief, 'security',  'Security'),  type: 'dept', dept: 'security',  color: DEPT_COLOR.security } },
     { data: { id: 'brief',     label: 'Cascade Brief', type: 'brief',  color: SHU } },
     { data: { id: 'e_sm', source: 'source',    target: 'marketing', type: 'feed',   color: DEPT_COLOR.marketing } },
     { data: { id: 'e_sg', source: 'source',    target: 'gtm',       type: 'feed',   color: DEPT_COLOR.gtm } },
@@ -173,12 +207,17 @@ function buildElements(brief) {
     for (const n of def.nodes) {
       const bucket = sectorSignal[n.field];
       const count = Array.isArray(bucket) ? bucket.length : 0;
-      const labelWithCount = count > 0 ? `${n.label} (${count})` : n.label;
+      // V7.32 — ALWAYS show count (including 0) so two cases with the
+      // same sector (e.g. Notion vs Supabase both saas) read distinctly
+      // at a glance — '· 0' vs '· 6' tells the story without any data
+      // panel inspection.
+      const labelWithCount = `${n.label} · ${count}`;
       els.push({
         data: {
           id: n.id, label: labelWithCount,
           type: 'sector', sectorKey: sector,
           color: def.color,
+          count: count,
         },
       });
       els.push({
@@ -282,16 +321,37 @@ function cytoStyle() {
         'font-weight': 500,
       },
     },
+    // V7.32 — fade out empty sector buckets so the contrast between
+    // "sector pass extracted nothing here" and "extracted N items" is
+    // legible without reading the numbers.
+    {
+      selector: 'node[type="sector"][count = 0]',
+      style: {
+        'border-opacity': 0.45,
+        'color': PAPER_DIM,
+        'border-color': PAPER_DIM,
+      },
+    },
 
     {
       selector: 'edge',
       style: {
-        width: 1.5,
+        width: 1.8,
         'line-color': 'data(color)',
         'target-arrow-color': 'data(color)',
         'target-arrow-shape': 'triangle',
-        'arrow-scale': 0.9,
+        'target-arrow-fill': 'filled',
+        'arrow-scale': 1.15,
         'curve-style': 'bezier',
+        // V7.32 — force the arrow tip to land exactly on the node border
+        // and the source to leave the node border cleanly. Without these,
+        // cytoscape sometimes routes the arrow to the node centroid and
+        // the triangle floats a few pixels off the node, reading as
+        // "disconnected" on the dashboard.
+        'source-endpoint': 'outside-to-node-or-label',
+        'target-endpoint': 'outside-to-node-or-label',
+        'source-distance-from-node': 1,
+        'target-distance-from-node': 1,
         opacity: 0,
         'transition-property': 'opacity, width',
         'transition-duration': '0.25s',
@@ -322,10 +382,13 @@ function cytoStyle() {
         'text-margin-y': -3,
       },
     },
-    // Stagger handoff arcs so labels don't pile on the same curve
-    { selector: 'edge.arc-1', style: { 'control-point-distances': [-60] } },
-    { selector: 'edge.arc-2', style: { 'control-point-distances': [-98] } },
-    { selector: 'edge.arc-3', style: { 'control-point-distances': [-136] } },
+    // Stagger handoff arcs so labels don't pile on the same curve.
+    // V7.32 — tightened from -60/-98/-136 to -45/-78/-110 so arcs land
+    // on target nodes at a gentler angle (steep angles made cytoscape's
+    // arrow tip appear to "float" off the node corner).
+    { selector: 'edge.arc-1', style: { 'control-point-distances': [-45] } },
+    { selector: 'edge.arc-2', style: { 'control-point-distances': [-78] } },
+    { selector: 'edge.arc-3', style: { 'control-point-distances': [-110] } },
 
     {
       selector: 'edge[type="synergy"]',
