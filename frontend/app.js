@@ -333,7 +333,127 @@ function _deptKeyFor(name) {
   return null;
 }
 
-function renderSynergies(synergies) {
+// V7.19 — section → dept mapping for the synergy drawer's "related claims" view
+const _SECTION_DEPT = {
+  account_brief:    "gtm",
+  market_signal:    "finance",
+  risk_profile:     "security",
+  marketing_signal: "marketing",
+};
+
+function _claimsForSynergy(brief, synergy) {
+  const synergyUrls = new Set((synergy.citations || []).map((c) => c.url).filter(Boolean));
+  const out = [];
+  Object.entries(_SECTION_DEPT).forEach(([sec, dept]) => {
+    const section = brief && brief[sec];
+    if (!section) return;
+    Object.entries(section).forEach(([field, claims]) => {
+      if (!Array.isArray(claims)) return;
+      claims.forEach((cl) => {
+        if ((cl.citations || []).some((c) => synergyUrls.has(c.url))) {
+          out.push({ dept, field, claim: cl });
+        }
+      });
+    });
+  });
+  return out;
+}
+
+function _ensureSynergyDrawer() {
+  let backdrop = document.getElementById("synergy-drawer-backdrop");
+  let drawer   = document.getElementById("synergy-drawer");
+  if (backdrop && drawer) return { backdrop, drawer };
+  backdrop = el("div", {
+    id: "synergy-drawer-backdrop",
+    class: "synergy-drawer-backdrop",
+    "aria-hidden": "true",
+  });
+  drawer = el("aside", {
+    id: "synergy-drawer",
+    class: "synergy-drawer",
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "Synergy details",
+    tabindex: "-1",
+  });
+  document.body.appendChild(backdrop);
+  document.body.appendChild(drawer);
+  backdrop.addEventListener("click", _closeSynergyDrawer);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drawer.dataset.open === "true") _closeSynergyDrawer();
+  });
+  return { backdrop, drawer };
+}
+
+function _closeSynergyDrawer() {
+  const backdrop = document.getElementById("synergy-drawer-backdrop");
+  const drawer   = document.getElementById("synergy-drawer");
+  if (backdrop) backdrop.dataset.open = "false";
+  if (drawer)   drawer.dataset.open   = "false";
+}
+
+function _openSynergyDrawer(synergy, brief) {
+  const { backdrop, drawer } = _ensureSynergyDrawer();
+  drawer.textContent = "";
+
+  const closeBtn = el("button", {
+    class: "synergy-drawer-close",
+    type: "button",
+    "aria-label": "Close drawer",
+  }, "✕ close");
+  closeBtn.addEventListener("click", _closeSynergyDrawer);
+  drawer.appendChild(closeBtn);
+
+  drawer.appendChild(el("h3", null, "Cross-department synergy"));
+  drawer.appendChild(el(
+    "div",
+    { class: "depts-pill" },
+    (synergy.contributing_depts || []).join(" + "),
+  ));
+  drawer.appendChild(el("div", { class: "syn-text" }, String(synergy.text || "")));
+
+  if ((synergy.citations || []).length) {
+    drawer.appendChild(el("div", { class: "syn-section-title" },
+      `Grounding citations (${synergy.citations.length})`));
+    synergy.citations.forEach((c) => {
+      const a = el("a", {
+        class: "syn-cite",
+        href: safeUrl(c.url),
+        target: "_blank",
+        rel: "noopener noreferrer",
+      });
+      a.appendChild(el("div", { class: "syn-cite-url" },
+        `§ ${c.source_type || "src"} · ${c.url || ""}`));
+      if (c.snippet) {
+        a.appendChild(el("div", { class: "syn-cite-snippet" }, `"${c.snippet}"`));
+      }
+      drawer.appendChild(a);
+    });
+  }
+
+  const related = _claimsForSynergy(brief, synergy);
+  if (related.length) {
+    drawer.appendChild(el("div", { class: "syn-section-title" },
+      `Related claims (${related.length})`));
+    related.forEach((m) => {
+      const w = el("div", { class: `syn-claim syn-claim-${m.dept}` });
+      w.appendChild(el("div", { class: "syn-claim-dept" },
+        `${m.dept.toUpperCase()} · ${m.field.replace(/_/g, " ")}`));
+      w.appendChild(el("div", { class: "syn-claim-text" }, m.claim.text || ""));
+      drawer.appendChild(w);
+    });
+  } else {
+    drawer.appendChild(el("div", { class: "syn-section-title" }, "Related claims"));
+    drawer.appendChild(el("div", { class: "syn-empty" },
+      "No dept claims share the synergy's citation URLs — the synergy was inferred from cross-bundle patterns the depts didn't independently call out."));
+  }
+
+  backdrop.dataset.open = "true";
+  drawer.dataset.open   = "true";
+  drawer.focus({ preventScroll: true });
+}
+
+function renderSynergies(synergies, brief) {
   if (!synergies || !synergies.length) return null;
   const wrap = el("div");
   wrap.appendChild(el("div", { class: "section-title" }, "Cross-department synergy"));
@@ -345,9 +465,21 @@ function renderSynergies(synergies) {
       .map(_deptKeyFor)
       .filter((d) => _DEPT_KEYS.includes(d));
     const classes = ["synergy", ...depts.map((d) => `has-${d}`)];
-    const card = el("div", { class: classes.join(" ") });
+    const card = el("div", {
+      class: classes.join(" "),
+      role: "button",
+      tabindex: "0",
+      "aria-label": `Open synergy details: ${(s.contributing_depts || []).join(" + ")}`,
+    });
     card.appendChild(el("div", { class: "depts" }, (s.contributing_depts || []).join(" + ")));
     card.appendChild(el("div", null, String(s.text || "")));
+    card.addEventListener("click", () => _openSynergyDrawer(s, brief));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        card.click();
+      }
+    });
     grid.appendChild(card);
   });
   wrap.appendChild(grid);
@@ -391,7 +523,7 @@ function render(brief) {
     if (flow) app.appendChild(flow);
   }
 
-  const syn = renderSynergies(brief.synergy_signals);
+  const syn = renderSynergies(brief.synergy_signals, brief);
   if (syn) app.appendChild(syn);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
