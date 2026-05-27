@@ -17,6 +17,10 @@ node_modules/
 data/**/cache/
 data/**/raw/
 
+# failed BD targets — kept locally for forensics, never committed
+# (stripe.com blocks Web Unlocker → empty bundle; see docs/RESUME.md)
+data/stripe/
+
 # event stream mirror — backend writes this beside brief.json on live runs;
 # the dashboard's replay mode synthesizes its own timing from brief.json so
 # committing this would only confuse (events for one target served alongside
