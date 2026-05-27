@@ -691,6 +691,22 @@ function _handleLiveEvent(ev, cy, tip) {
         // no-op — the summary line covers it; keep individual 'ok' silent
       }
       break;
+    case 'serp':
+      // V7.22 — Google SERP discovery streams BEFORE fetch. Tip-only updates;
+      // no pip — the pip strip starts at 'pii' phase below.
+      if (ev.status === 'serp_start') {
+        setTip(tip, `🔎 SERP discovery · ${ev.query}`, true);
+      } else if (ev.status === 'serp_done') {
+        const n = ev.found || 0;
+        setTip(tip, `🔎 SERP · "${ev.query}" → ${n} external source${n === 1 ? '' : 's'}`, true);
+      } else if (ev.status === 'serp_error') {
+        setTip(tip, `⚠ SERP query failed: ${ev.query} (${ev.error || 'unknown'})`, true);
+      } else if (ev.status === 'summary') {
+        const n = ev.discovered || 0;
+        const added = ev.added_to_bundle != null ? ` · ${ev.added_to_bundle} scraped into bundle` : '';
+        setTip(tip, `🔎 SERP discovery done · ${n} external URL${n === 1 ? '' : 's'} found${added}`, true);
+      }
+      break;
     case 'fetch':
       if (ev.status === 'url_error') {
         setTip(tip, `✗ scrape failed: ${ev.url} — ${ev.error || 'unknown'}`, true);

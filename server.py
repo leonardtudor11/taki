@@ -253,7 +253,15 @@ def api_run():
                         on_event=emit,
                     )
                 elif mode == "self":
-                    from services.brightdata import BrightDataClient, build_self_bundle
+                    from urllib.parse import urlparse as _urlparse
+
+                    from services.brightdata import (
+                        BrightDataClient,
+                        build_self_bundle,
+                        default_external_queries,
+                        discover_external_sources,
+                        html_to_text,
+                    )
 
                     profile_data = data.get("profile") or {}
                     profile = BusinessProfile.model_validate({
@@ -339,11 +347,70 @@ def api_run():
                         on_error=_emit_url_error,
                         on_discover=_emit_discovery,
                     )
+
+                    # V7.22 — SERP-based external source discovery, applied
+                    # to self-mode for parity with live-mode. Surfaces what
+                    # the rest of the internet says about the founder's biz
+                    # (reviews, comparisons, incidents, funding) so the
+                    # cascade isn't restricted to scraping the founder's
+                    # own site + manually-supplied competitor URLs.
+                    self_host = (_urlparse(profile.url).hostname or "").lower()
+                    comp_hosts = [
+                        (_urlparse(u).hostname or "").lower()
+                        for u, _ in audited_comp
+                        if _urlparse(u).hostname
+                    ]
+                    excl = sorted({h for h in [self_host, *comp_hosts] if h})
+
+                    def _emit_serp(ev: dict) -> None:
+                        q.put({"phase": "serp", **ev})
+
+                    serp_queries = default_external_queries(profile.name)
+                    external = discover_external_sources(
+                        target=profile.name,
+                        client=client,
+                        queries=serp_queries,
+                        exclude_hosts=excl,
+                        n_per_query=3,
+                        on_event=_emit_serp,
+                    )
+
+                    # Scrape each discovered URL inline + append to bundle.
+                    # Failures don't abort the cascade — they emit url_error
+                    # events alongside any from the primary scrape.
+                    from agents.schemas import SourceItem, SourceSubject
+                    added = 0
+                    for url, stype in external:
+                        try:
+                            text = html_to_text(client.unlock(url))[:8000]
+                        except Exception as e:
+                            _emit_url_error({
+                                "url": url, "subject": "external",
+                                "error": f"{type(e).__name__}: {e}",
+                            })
+                            continue
+                        if not text:
+                            continue
+                        bundle.sources.append(SourceItem(
+                            source_type=stype,
+                            url=url,
+                            text=text,
+                            subject=SourceSubject.SELF,  # external context about the founder's biz
+                        ))
+                        added += 1
+                    q.put({
+                        "phase": "serp", "status": "summary",
+                        "discovered": len(external),
+                        "added_to_bundle": added,
+                        "queries": [q for q, _ in serp_queries],
+                    })
+
                     q.put({
                         "phase": "fetch", "status": "done",
                         "sources": len(bundle.sources),
                         "competitors": bundle.competitor_names(),
                         "url_errors": len(url_errors),
+                        "external_added": added,
                     })
                     graph = cascade_graph.build_graph(
                         on_event=emit,
@@ -351,17 +418,61 @@ def api_run():
                         business_profile=profile,
                     )
                 else:  # live (target-mode)
-                    from services.brightdata import BrightDataClient, build_bundle
+                    from urllib.parse import urlparse as _urlparse
+
+                    from services.brightdata import (
+                        BrightDataClient,
+                        build_bundle,
+                        default_external_queries,
+                        discover_external_sources,
+                    )
+
+                    user_urls = _parse_urls(urls)
+                    # Derive target-domain exclude list from the user-supplied
+                    # URLs so SERP discovery skips the target's own pages.
+                    target_hosts = sorted({
+                        (_urlparse(u).hostname or "").lower()
+                        for u, _ in user_urls
+                        if _urlparse(u).hostname
+                    })
 
                     q.put({
                         "phase": "fetch", "status": "start", "mode": "live",
-                        "target": target, "urls": len(urls),
+                        "target": target, "urls": len(user_urls),
                     })
                     client = BrightDataClient()
-                    bundle = build_bundle(target, client, _parse_urls(urls))
+
+                    # V7.22 — SERP-based external source discovery. Fires 4
+                    # Google searches (review / vs-competitors / outage /
+                    # funding) through Web Unlocker, extracts top 3 result
+                    # URLs per query that aren't on the target's own domain.
+                    # Adds 8-12 external perspectives (Reddit / HN / news /
+                    # analyst / review-site) into the bundle so the depts
+                    # can cite mixed-domain evidence, not just the target's
+                    # own marketing copy.
+                    def _emit_serp(ev: dict) -> None:
+                        q.put({"phase": "serp", **ev})
+
+                    serp_queries = default_external_queries(target)
+                    external = discover_external_sources(
+                        target=target,
+                        client=client,
+                        queries=serp_queries,
+                        exclude_hosts=target_hosts,
+                        n_per_query=3,
+                        on_event=_emit_serp,
+                    )
+                    q.put({
+                        "phase": "serp", "status": "summary",
+                        "discovered": len(external),
+                        "queries": [q for q, _ in serp_queries],
+                    })
+
+                    bundle = build_bundle(target, client, user_urls + external)
                     q.put({
                         "phase": "fetch", "status": "done",
                         "sources": len(bundle.sources),
+                        "external_added": len(external),
                     })
                     graph = cascade_graph.build_graph(on_event=emit)
 
