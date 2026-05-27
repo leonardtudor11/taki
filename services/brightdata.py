@@ -103,6 +103,128 @@ class BrightDataClient:
         return self._request(self.unlocker_zone, url)
 
 
+# ─── V7.22 — SERP-based external source discovery ────────────────────────
+#
+# Surfaces non-target-domain perspectives (reviews, HN/Reddit threads,
+# competitor comparisons, incident reports, funding news) so the cascade
+# isn't restricted to scraping the target's own marketing copy.
+#
+# Uses the Web Unlocker zone against google.com/search rather than the
+# SERP zone (which is often unconfigured in dev .env files) — google.com
+# is just a regular URL to the unlocker.
+
+_SERP_HREF_RE = re.compile(
+    r'href="(?:/url\?q=)?(https?://[^"&<>\s]+)',
+    re.IGNORECASE,
+)
+
+# Hosts that pollute SERP results without informational value.
+_SERP_BLOCKLIST = (
+    "google.", "gstatic.", "youtube.", "webcache.", "doubleclick.",
+    "googleadservices.", "googlesyndication.",
+)
+
+
+def _clean_serp_url(url: str) -> str:
+    """Strip text fragments (#:~:text=...) and one trailing slash. Preserve query."""
+    u = url.split("#")[0]
+    if u.endswith("/") and u.count("/") > 3:  # keep trailing on bare-domain (https://host/)
+        u = u[:-1]
+    return u
+
+
+def parse_serp_results(
+    html: str,
+    exclude_hosts: set[str] | None = None,
+    max_urls: int = 12,
+) -> list[str]:
+    """Extract external result URLs from a Google SERP page.
+
+    Drops Google internals, the target's own domain (+subdomains), URL
+    fragments, and duplicates. Order preserved as in the HTML so the
+    higher-ranked results come first.
+    """
+    excl = {h.lower() for h in (exclude_hosts or set())}
+    seen: set[str] = set()
+    out: list[str] = []
+    for u in _SERP_HREF_RE.findall(html):
+        u = _clean_serp_url(u)
+        if not u or u in seen:
+            continue
+        host = (urllib.parse.urlparse(u).hostname or "").lower()
+        if not host:
+            continue
+        if any(part in host for part in _SERP_BLOCKLIST):
+            continue
+        if any(host == h or host.endswith("." + h) for h in excl):
+            continue
+        seen.add(u)
+        out.append(u)
+        if len(out) >= max_urls:
+            break
+    return out
+
+
+def discover_external_sources(
+    target: str,
+    client: BrightDataClient,
+    queries: list[tuple[str, SourceType]],
+    exclude_hosts: list[str] | None = None,
+    n_per_query: int = 3,
+    on_event=None,
+) -> list[tuple[str, SourceType]]:
+    """Run each Google SERP query, extract top result URLs, tag w/ source_type.
+
+    Returns deduplicated list of (url, source_type) tuples in query order.
+    Failures on individual queries are reported via on_event but don't
+    abort the whole discovery pass — one flaky query shouldn't burn the run.
+    """
+    excl = {h.lower() for h in (exclude_hosts or [])}
+    out: list[tuple[str, SourceType]] = []
+    seen_urls: set[str] = set()
+
+    for query, stype in queries:
+        if on_event:
+            on_event({"status": "serp_start", "query": query})
+        try:
+            q = urllib.parse.quote(query)
+            html = client.unlock(f"https://www.google.com/search?q={q}")
+        except Exception as e:
+            if on_event:
+                on_event({
+                    "status": "serp_error", "query": query,
+                    "error": f"{type(e).__name__}: {e}",
+                })
+            continue
+        urls = parse_serp_results(html, exclude_hosts=excl, max_urls=n_per_query * 4)
+        picked = 0
+        for u in urls:
+            if u in seen_urls:
+                continue
+            seen_urls.add(u)
+            out.append((u, stype))
+            picked += 1
+            if picked >= n_per_query:
+                break
+        if on_event:
+            on_event({
+                "status": "serp_done", "query": query,
+                "found": picked, "source_type": stype.value,
+            })
+    return out
+
+
+def default_external_queries(target: str) -> list[tuple[str, SourceType]]:
+    """Canonical 4-query set used by live + self modes. Order matters for the
+    streaming pip UX (review → competitor → outage → funding)."""
+    return [
+        (f'"{target}" review OR critique',                          SourceType.REVIEW),
+        (f'"{target}" vs Firebase OR Neon OR PlanetScale',          SourceType.REVIEW),
+        (f'"{target}" outage OR downtime OR incident',              SourceType.NEWS),
+        (f'"{target}" funding OR valuation OR Series',              SourceType.NEWS),
+    ]
+
+
 def build_bundle(
     target: str,
     client: BrightDataClient,
