@@ -530,9 +530,21 @@ def api_run():
                     def _emit_chrome(ev: dict) -> None:
                         q.put({"phase": "chrome_fallback", **ev})
 
+                    # V7.31 — auto-discover depth-pages on the TARGET's own
+                    # domain. expand_url is pinned to the FIRST user URL so
+                    # SERP-discovered external sources (Reddit / news /
+                    # analyst) never get expanded. on_discover streams each
+                    # concept hit so the dashboard can show 'found
+                    # /pricing, /careers, /investors...' in real time.
+                    def _emit_discover(ev: dict) -> None:
+                        q.put({"phase": "subpage_discover", **ev})
+
+                    expand_seed = user_urls[0][0] if user_urls else None
                     bundle = build_bundle(
                         target, client, user_urls + external,
                         on_chrome=_emit_chrome,
+                        expand_url=expand_seed,
+                        on_discover=_emit_discover,
                     )
                     q.put({
                         "phase": "fetch", "status": "done",

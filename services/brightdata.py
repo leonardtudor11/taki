@@ -880,6 +880,9 @@ def build_bundle(
     *,
     chrome_fallback: bool = True,
     on_chrome=None,
+    expand_subpages: bool = True,
+    expand_url: str | None = None,
+    on_discover=None,
 ) -> SharedBundle:
     """Scrape once into a SharedBundle.
 
@@ -893,6 +896,17 @@ def build_bundle(
     thin original is kept in the bundle alongside the fallbacks — agents
     still see whatever brand copy did land, but now have real content to
     cite.
+
+    V7.31 — when `expand_subpages` is true (default), walk concept groups
+    (about / team / pricing / case-studies / careers / news / investors /
+    research / blog / certifications / products / references) under
+    `expand_url`'s site root and pick up the first synonym per concept
+    that scrapes cleanly. `expand_url` should be the target's own URL
+    (NOT a SERP-discovered external source like Reddit / news); callers
+    in target-mode should pass `user_urls[0][0]`. If `expand_url` is
+    None, falls back to `urls[0][0]`. Expansion is skipped automatically
+    when the primary URL returned JS chrome — sub-pages on a JS-blocked
+    SPA will be chrome too, wasting Unlocker spend.
     """
     sources: list[SourceItem] = []
     if client.serp_zone:
@@ -928,6 +942,21 @@ def build_bundle(
             cap_chars=cap_chars,
             on_event=on_chrome,
         ))
+    # V7.31 — auto-discover depth-pages on the target's own domain.
+    # Only fires for healthy primary scrapes (chrome shells would yield
+    # chrome sub-pages and burn Unlocker credit for no signal).
+    if expand_subpages and first_chromed is None:
+        base = expand_url or (urls[0][0] if urls else None)
+        if base:
+            skip = {s.url for s in sources}
+            sources.extend(discover_subpages(
+                base_url=base,
+                client=client,
+                subject=SourceSubject.TARGET,
+                cap_chars=cap_chars,
+                skip_urls=skip,
+                on_discover=on_discover,
+            ))
     return SharedBundle(target=target, sources=sources)
 
 
@@ -955,7 +984,92 @@ SUB_PAGE_GROUPS: list[tuple[str, tuple[str, ...]]] = [
          "/iso", "/trust")),
     ("news",
         ("/news", "/press", "/press-releases", "/media", "/blog/news")),
+    # V7.31 — additional concepts surfaced primarily for target-mode
+    # sub-page discovery. Additive only; self-mode picks them up too
+    # since misses are silent and per-concept first-hit-wins caps spend.
+    ("team",
+        ("/team", "/leadership", "/people", "/about/team", "/management",
+         "/our-team")),
+    ("careers",
+        ("/careers", "/jobs", "/join", "/join-us", "/work-with-us",
+         "/careers/all")),
+    ("pricing",
+        ("/pricing", "/plans", "/pricing-plans", "/buy", "/subscribe")),
+    ("investors",
+        ("/investors", "/investor-relations", "/ir", "/financials",
+         "/annual-report", "/shareholders")),
+    ("research",
+        # Sector-overlap: /clinical-trials hits pharma, /publications +
+        # /papers hits academic-adjacent SaaS, /insights hits analyst-y
+        # vendors. Cheap to try; misses are silent.
+        ("/research", "/labs", "/insights", "/publications",
+         "/clinical-trials", "/papers", "/science", "/r-and-d")),
+    ("blog",
+        ("/blog", "/articles", "/posts", "/insights/blog",
+         "/newsroom/blog")),
 ]
+
+
+def discover_subpages(
+    base_url: str,
+    client: BrightDataClient,
+    *,
+    subject: SourceSubject = SourceSubject.TARGET,
+    cap_chars: int = 8000,
+    skip_urls: set[str] | None = None,
+    groups: list[tuple[str, tuple[str, ...]]] | None = None,
+    on_discover=None,
+    competitor_name: str = "",
+) -> list[SourceItem]:
+    """For each concept in `groups` (default SUB_PAGE_GROUPS), walk
+    synonym paths under `base_url`'s site root in order. The first path
+    that scrapes successfully + clears `is_low_quality` wins the concept;
+    remaining synonyms in that group are skipped.
+
+    Returns a list of newly-discovered SourceItem objects, tagged with
+    `subject` (default TARGET so target-mode bundles cite cleanly).
+    Misses are silent — 404s on attempted concept paths are routine.
+
+    `skip_urls` lets the caller pass a shared set of URLs already in the
+    bundle so a concept whose URL was supplied explicitly by the user
+    doesn't re-trigger a scrape. The set is mutated as new URLs land.
+    `on_discover` fires once per concept HIT for SSE/log streaming.
+    """
+    out: list[SourceItem] = []
+    root = _site_root(base_url)
+    skip = skip_urls if skip_urls is not None else set()
+    for concept_name, paths in (groups or SUB_PAGE_GROUPS):
+        for path in paths:
+            url = root + path
+            if url in skip:
+                # Same URL already in bundle — concept covered; stop walking.
+                break
+            try:
+                text = html_to_text(client.unlock(url))[:cap_chars]
+            except Exception:
+                continue
+            bad, _ = is_low_quality(text)
+            if bad:
+                continue
+            out.append(SourceItem(
+                source_type=SourceType.SITE,
+                url=url,
+                text=text,
+                subject=subject,
+                competitor_name=competitor_name,
+            ))
+            skip.add(url)
+            if on_discover is not None:
+                try:
+                    on_discover({
+                        "url": url,
+                        "concept": concept_name,
+                        "subject": subject.value,
+                    })
+                except Exception:
+                    pass
+            break  # concept satisfied — move to next concept
+    return out
 
 
 def _site_root(url: str) -> str:
@@ -1085,22 +1199,22 @@ def build_self_bundle(
         return True
 
     def _expand(base_url: str, subject: SourceSubject) -> None:
-        """For each concept group try synonym paths in order; first that
-        clears the quality gate wins the concept."""
-        root = _site_root(base_url)
-        for concept_name, paths in SUB_PAGE_GROUPS:
-            for path in paths:
-                if _try_silent(root + path, subject):
-                    if on_discover is not None:
-                        try:
-                            on_discover({
-                                "url": root + path,
-                                "concept": concept_name,
-                                "subject": subject.value,
-                            })
-                        except Exception:
-                            pass
-                    break  # concept satisfied — move to next concept
+        """Delegate to the module-level `discover_subpages` helper.
+
+        V7.31 — extracted so target-mode `build_bundle` can reuse the
+        same concept-group walk. Local `_try_silent` no longer used by
+        sub-page discovery (kept around in case other call sites depend
+        on the per-URL silent-scrape primitive).
+        """
+        skip = {s.url for s in sources}
+        sources.extend(discover_subpages(
+            base_url=base_url,
+            client=client,
+            subject=subject,
+            cap_chars=cap_chars,
+            skip_urls=skip,
+            on_discover=on_discover,
+        ))
 
     for url, stype in self_urls or []:
         _scrape(url, stype, SourceSubject.SELF)
