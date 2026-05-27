@@ -508,7 +508,34 @@ def api_run():
 
                     industry = (data.get("industry") or "").strip()
                     region   = (data.get("region")   or "").strip()
+                    stage    = (data.get("stage")    or "").strip()
                     serp_queries = default_external_queries(target, industry=industry, region=region)
+
+                    # V7.36 — when industry hint present, ALSO fire an
+                    # LLM-generated industry-specific query bank so any
+                    # industry beyond the hardcoded _industry_template_for()
+                    # set gets tailored coverage. Cached per
+                    # (target,industry,region,stage) so reruns skip the LLM.
+                    if industry:
+                        try:
+                            from agents.query_generator import generate_queries_cached
+                            llm_queries = generate_queries_cached(
+                                target=target, industry=industry,
+                                region=region, stage=stage,
+                            )
+                            if llm_queries:
+                                serp_queries = list(serp_queries) + llm_queries
+                                q.put({
+                                    "phase": "serp", "status": "llm_queries_added",
+                                    "count": len(llm_queries),
+                                    "industry": industry,
+                                })
+                        except Exception as exc:
+                            q.put({
+                                "phase": "serp", "status": "llm_queries_error",
+                                "error": f"{type(exc).__name__}: {exc}",
+                            })
+
                     external = discover_external_sources(
                         target=target,
                         client=client,
@@ -520,7 +547,7 @@ def api_run():
                     q.put({
                         "phase": "serp", "status": "summary",
                         "discovered": len(external),
-                        "industry": industry, "region": region,
+                        "industry": industry, "region": region, "stage": stage,
                         "queries": [q for q, _ in serp_queries],
                     })
 
