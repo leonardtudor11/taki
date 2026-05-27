@@ -708,16 +708,191 @@ def default_external_queries(
     return base + rendered
 
 
+# ─── V7.30 — JS-rendered SPA chrome detection + Wikipedia/Wayback fallback ─
+#
+# Pfizer.com, Notion.so, and other SPAs return a thin shell to the Web
+# Unlocker — navigation links and a "you need to enable JavaScript" stub
+# — instead of body content. The shell passes is_low_quality (>150 chars,
+# no Cloudflare phrases) but starves every downstream agent because the
+# real product/news/about copy never lands in the bundle.
+#
+# Detection: trim known chrome boilerplate ("skip to main content",
+# "toggle navigation", etc.), then mark as chrome if the surviving text
+# is < _JS_CHROME_MAX_CHARS OR matches a hard JS-required phrase.
+#
+# Recovery: per chromed target URL, pull supplementary sources that don't
+# need a JS runtime — the en.wikipedia.org entry for the target name and
+# a Wayback Machine snapshot of the chromed URL. Both go through the
+# existing Web Unlocker zone so spend tracking + retry still apply.
+# Tagged SourceType.SITE / OTHER so existing tier-classifier handling
+# works unchanged; the host (wikipedia.org / web.archive.org) makes
+# provenance obvious in citations.
+
+_JS_CHROME_MAX_CHARS = 1500
+
+# Hard tells — these phrases appearing in the first 600 chars are nearly
+# always JS-app shells. Tested against lowercased text.
+_JS_CHROME_PATTERNS = (
+    "you need to enable javascript to run this app",
+    "this site requires javascript",
+    "this website requires javascript",
+    "javascript is required to view this site",
+    "please enable javascript to continue",
+    "sorry, this site requires javascript",
+    "we're sorry but",  # vue-app default error shell ("we're sorry but X doesn't work properly without JavaScript enabled")
+)
+
+# Chrome / boilerplate phrases that pad the text without carrying signal —
+# trimmed before the length test so a SPA shell whose REAL content is just
+# nav + footer doesn't sneak past the threshold.
+_CHROME_BOILERPLATE_RE = re.compile(
+    r"(?i)\b("
+    r"skip to (?:main )?content|"
+    r"toggle navigation|toggle menu|"
+    r"open(?: main)? menu|close(?: main)? menu|"
+    r"main navigation|primary navigation|"
+    r"back to top|jump to (?:main )?content|"
+    r"loading\.{0,3}"
+    r")\b"
+)
+
+
+def trim_chrome_boilerplate(text: str) -> str:
+    """Strip common SPA-shell phrases that pad a JS-rendered response.
+
+    Pure function — used by `looks_like_js_chrome` to get a fair length
+    estimate before deciding whether the page is a chrome shell.
+    """
+    if not isinstance(text, str):
+        return ""
+    out = _CHROME_BOILERPLATE_RE.sub(" ", text)
+    return re.sub(r"\s+", " ", out).strip()
+
+
+def looks_like_js_chrome(text: str) -> tuple[bool, str]:
+    """Return (is_chrome?, reason).
+
+    Designed to run AFTER `is_low_quality` passes — catches the next layer
+    of broken-scrape responses where the text is long enough to look real
+    but is actually navigation + a 'enable JavaScript' stub.
+
+    Returns (False, "") on real content. Reason string is human-readable
+    and surfaced via the on_chrome callback so the dashboard can show
+    'falling back to Wikipedia/Wayback for <url>'.
+    """
+    if not isinstance(text, str):
+        return False, ""
+    head = text[:600].lower()
+    for pat in _JS_CHROME_PATTERNS:
+        if pat in head:
+            return True, f"js-required phrase: '{pat}'"
+    trimmed = trim_chrome_boilerplate(text)
+    if len(trimmed) < _JS_CHROME_MAX_CHARS:
+        return True, f"only {len(trimmed)} chars after trimming chrome (likely SPA shell)"
+    return False, ""
+
+
+def _wikipedia_url(target: str) -> str:
+    """Canonical en.wikipedia URL for a target name. Spaces → underscores;
+    non-ASCII percent-encoded. Returns the article URL even if the article
+    does not exist — Wikipedia's not-found page is short and gets filtered
+    by `is_low_quality` downstream."""
+    slug = re.sub(r"\s+", "_", target.strip())
+    slug = urllib.parse.quote(slug, safe="_")
+    return f"https://en.wikipedia.org/wiki/{slug}"
+
+
+def _wayback_url(url: str, year: str = "2025") -> str:
+    """Wayback Machine wildcard URL. A partial timestamp redirects to the
+    closest snapshot in that range — one request, no CDX lookup needed.
+    `id_` suffix would strip the Wayback toolbar but breaks the wildcard
+    form, so we accept a small amount of toolbar HTML in the scraped text
+    (html_to_text discards it cleanly)."""
+    return f"https://web.archive.org/web/{year}/{url}"
+
+
+def fetch_js_chrome_fallbacks(
+    target: str,
+    chrome_url: str,
+    client: BrightDataClient,
+    cap_chars: int = 8000,
+    on_event=None,
+) -> list[SourceItem]:
+    """Pull supplementary sources for a JS-blocked target URL.
+
+    Tries en.wikipedia.org/{target} + web.archive.org snapshot of the
+    chromed URL. Each attempt that scrapes + clears `is_low_quality` is
+    appended to the result list. Failures (404, low-quality, network)
+    are skipped silently — callers either get 0, 1, or 2 fallback items.
+
+    `on_event` fires once per attempt with
+        {url, status: 'ok'|'low_quality'|'error', reason?: str}
+    so the dashboard can show fallback progress in real time.
+    """
+    out: list[SourceItem] = []
+    candidates = [
+        ("wikipedia", _wikipedia_url(target)),
+        ("wayback",   _wayback_url(chrome_url)),
+    ]
+    for kind, fb_url in candidates:
+        try:
+            raw = client.unlock(fb_url)
+        except Exception as exc:
+            if on_event is not None:
+                try:
+                    on_event({
+                        "url": fb_url, "kind": kind, "status": "error",
+                        "reason": f"{type(exc).__name__}: {exc}",
+                    })
+                except Exception:
+                    pass
+            continue
+        text = html_to_text(raw)[:cap_chars]
+        bad, why = is_low_quality(text)
+        if bad:
+            if on_event is not None:
+                try:
+                    on_event({
+                        "url": fb_url, "kind": kind,
+                        "status": "low_quality", "reason": why,
+                    })
+                except Exception:
+                    pass
+            continue
+        out.append(SourceItem(
+            source_type=SourceType.SITE,
+            url=fb_url,
+            text=text,
+        ))
+        if on_event is not None:
+            try:
+                on_event({"url": fb_url, "kind": kind, "status": "ok"})
+            except Exception:
+                pass
+    return out
+
+
 def build_bundle(
     target: str,
     client: BrightDataClient,
     urls: list[tuple[str, SourceType]] | None = None,
     cap_chars: int = 8000,
+    *,
+    chrome_fallback: bool = True,
+    on_chrome=None,
 ) -> SharedBundle:
     """Scrape once into a SharedBundle.
 
     Optional SERP discovery pass (only if a SERP zone is configured), then each
     explicitly-provided URL via Unlocker. Path A demos run with URLs only.
+
+    V7.30 — when `chrome_fallback` is true (default), any user URL whose
+    scraped text matches `looks_like_js_chrome` triggers a one-shot
+    Wikipedia + Wayback enrichment pass. The fallback fires AT MOST ONCE
+    per bundle (target is shared across user URLs) to cap spend. The
+    thin original is kept in the bundle alongside the fallbacks — agents
+    still see whatever brand copy did land, but now have real content to
+    cite.
     """
     sources: list[SourceItem] = []
     if client.serp_zone:
@@ -730,14 +905,29 @@ def build_bundle(
                 )[:cap_chars],
             )
         )
+    first_chromed: str | None = None
     for url, stype in urls or []:
+        text = html_to_text(client.unlock(url))[:cap_chars]
         sources.append(
-            SourceItem(
-                source_type=stype,
-                url=url,
-                text=html_to_text(client.unlock(url))[:cap_chars],
-            )
+            SourceItem(source_type=stype, url=url, text=text)
         )
+        if chrome_fallback and first_chromed is None:
+            is_chrome, reason = looks_like_js_chrome(text)
+            if is_chrome:
+                first_chromed = url
+                if on_chrome is not None:
+                    try:
+                        on_chrome({"url": url, "reason": reason})
+                    except Exception:
+                        pass
+    if chrome_fallback and first_chromed is not None:
+        sources.extend(fetch_js_chrome_fallbacks(
+            target=target,
+            chrome_url=first_chromed,
+            client=client,
+            cap_chars=cap_chars,
+            on_event=on_chrome,
+        ))
     return SharedBundle(target=target, sources=sources)
 
 

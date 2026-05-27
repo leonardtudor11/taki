@@ -524,7 +524,16 @@ def api_run():
                         "queries": [q for q, _ in serp_queries],
                     })
 
-                    bundle = build_bundle(target, client, user_urls + external)
+                    # V7.30 — surface JS-chrome fallback events on the SSE
+                    # stream so the dashboard can show 'falling back to
+                    # Wikipedia/Wayback for <chromed URL>' in real time.
+                    def _emit_chrome(ev: dict) -> None:
+                        q.put({"phase": "chrome_fallback", **ev})
+
+                    bundle = build_bundle(
+                        target, client, user_urls + external,
+                        on_chrome=_emit_chrome,
+                    )
                     q.put({
                         "phase": "fetch", "status": "done",
                         "sources": len(bundle.sources),
