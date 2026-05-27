@@ -670,3 +670,49 @@ def fake_expert_quotes_llm(_prompt: str) -> str:
             },
         ],
     })
+
+
+# ─── Cross-pollinate (V7.35) ─────────────────────────────────────────────
+
+def fake_cross_pollinate_llm(_prompt: str) -> str:
+    """Canned LLM cross-pollinate output for the Northwind fixture.
+
+    Returns 2 personalized handoffs + 1 personalized synergy that
+    reference Northwind-specific facts (the $49→$79 pricing move, the
+    enterprise SKU launch) — distinct from the deterministic templates
+    so tests can assert the LLM path won.
+
+    URLs picked from the Northwind sample bundle so the refs filter in
+    cross_pollinate_llm.analyze() preserves them.
+    """
+    return json.dumps({
+        "handoffs": [
+            {
+                "from_dept": "finance",
+                "to_dept": "gtm",
+                "message": "Northwind raised Pro from $49 to $79/seat alongside the enterprise SKU — outbound sequencing should lead with the new enterprise bundle, not the legacy Pro plan.",
+                "refs": ["https://northwind.example/pricing"],
+            },
+            {
+                "from_dept": "security",
+                "to_dept": "gtm",
+                "message": "Northwind's SOC2 Type II + new enterprise compliance bundle is the talking point that opens enterprise doors — pair every outbound sequence with the compliance evidence.",
+                "refs": ["https://northwind.example/security"],
+            },
+        ],
+        "synergies": [
+            {
+                "text": "Northwind's $49→$79 Pro price hike LANDING alongside a new enterprise compliance bundle = explicit market-segmentation play, not opportunistic pricing — GTM should reframe outbound around the enterprise tier rather than discount the Pro plan.",
+                "contributing_depts": ["finance", "security"],
+                "citations": [
+                    {"url": "https://northwind.example/pricing", "snippet": "Pro tier $79", "source_type": "pricing"},
+                    {"url": "https://northwind.example/security", "snippet": "SOC2", "source_type": "site"},
+                ],
+            },
+        ],
+    })
+
+
+def fake_cross_pollinate_llm_empty(_prompt: str) -> str:
+    """Empty-shape response — triggers the templated fallback branch."""
+    return json.dumps({"handoffs": [], "synergies": []})

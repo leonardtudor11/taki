@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, Callable, TypedDict
 
+from agents import cross_pollinate_llm as cross_pollinate_llm_agent  # V7.35
 from agents import expert_quotes as expert_quotes_agent  # V7.34
 from agents import finance as finance_agent
 from agents import gtm as gtm_agent
@@ -263,6 +264,7 @@ def build_graph(
     profile_llm: LLMFn | None = None,            # V7.28
     sector_llm: LLMFn | None = None,             # V7.29
     expert_quotes_llm: LLMFn | None = None,      # V7.34
+    cross_pollinate_llm: LLMFn | None = None,    # V7.35
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -346,80 +348,126 @@ def build_graph(
         })
         return {**updates, "dropped": dropped, "events": [start, done]}
 
-    def cross_node(state: CascadeState) -> dict:
-        ab, ms, rp = state["account_brief"], state["market_signal"], state["risk_profile"]
-        synergies: list[SynergySignal] = []
-        handoffs: list[HandoffMessage] = []
-        evs: list[dict] = []
-
-        if ms.pricing_trend:
-            h = HandoffMessage(
-                from_dept="finance",
-                to_dept="gtm",
+    def _templated_cross_pollinate(state: CascadeState) -> tuple[list[HandoffMessage], list[SynergySignal]]:
+        """Deterministic V7.0 cross-pollinate. Now the fallback when the
+        V7.35 LLM path returns empty (or fails). Identical behaviour to
+        the pre-V7.35 implementation — kept so the cascade always has at
+        least the boilerplate cross-talk."""
+        ab = state.get("account_brief")
+        ms = state.get("market_signal")
+        rp = state.get("risk_profile")
+        hs: list[HandoffMessage] = []
+        ss: list[SynergySignal] = []
+        if ms and ms.pricing_trend:
+            hs.append(HandoffMessage(
+                from_dept="finance", to_dept="gtm",
                 message="Pricing change detected — adjust outreach timing/messaging.",
                 refs=_urls_of(ms.pricing_trend),
-            )
-            handoffs.append(h)
-            evs.append(_emit(on_event, {
-                "t": _now_iso(), "phase": "handoff",
-                "from": h.from_dept, "to": h.to_dept, "message": h.message,
-            }))
-        if rp.reputational_signals:
-            h = HandoffMessage(
-                from_dept="security",
-                to_dept="gtm",
+            ))
+        if rp and rp.reputational_signals:
+            hs.append(HandoffMessage(
+                from_dept="security", to_dept="gtm",
                 message="Reputational signal — frame responsibly, do not weaponize.",
                 refs=_urls_of(rp.reputational_signals),
-            )
-            handoffs.append(h)
-            evs.append(_emit(on_event, {
-                "t": _now_iso(), "phase": "handoff",
-                "from": h.from_dept, "to": h.to_dept, "message": h.message,
-            }))
-        if ab.hiring_signals:
-            h = HandoffMessage(
-                from_dept="gtm",
-                to_dept="security",
+            ))
+        if ab and ab.hiring_signals:
+            hs.append(HandoffMessage(
+                from_dept="gtm", to_dept="security",
                 message="Hiring expansion — new attack surface / vendors to monitor.",
                 refs=_urls_of(ab.hiring_signals),
-            )
-            handoffs.append(h)
-            evs.append(_emit(on_event, {
-                "t": _now_iso(), "phase": "handoff",
-                "from": h.from_dept, "to": h.to_dept, "message": h.message,
-            }))
-
-        if ms.pricing_trend and rp.reputational_signals:
-            s = SynergySignal(
-                text=(
-                    "Pricing increase coincides with support/reputation complaints "
-                    "— churn risk; time GTM outreach around retention, not upsell."
-                ),
+            ))
+        if ms and rp and ms.pricing_trend and rp.reputational_signals:
+            ss.append(SynergySignal(
+                text=("Pricing increase coincides with support/reputation complaints "
+                      "— churn risk; time GTM outreach around retention, not upsell."),
                 contributing_depts=["finance", "security"],
                 citations=_citations_of(ms.pricing_trend, rp.reputational_signals),
-            )
-            synergies.append(s)
-            evs.append(_emit(on_event, {
-                "t": _now_iso(), "phase": "synergy",
-                "depts": s.contributing_depts, "text": s.text,
-            }))
-        if ab.hiring_signals and (ms.expansion_contraction or ab.buying_signals):
-            s = SynergySignal(
-                text=(
-                    "Hiring plus funding/expansion signals a growth account — "
-                    "prioritize and resource the outreach."
-                ),
+            ))
+        if ab and ms and ab.hiring_signals and (ms.expansion_contraction or ab.buying_signals):
+            ss.append(SynergySignal(
+                text=("Hiring plus funding/expansion signals a growth account — "
+                      "prioritize and resource the outreach."),
                 contributing_depts=["gtm", "finance"],
                 citations=_citations_of(
                     ab.hiring_signals, ms.expansion_contraction or ab.buying_signals
                 ),
+            ))
+        return hs, ss
+
+    def cross_node(state: CascadeState) -> dict:
+        """V7.35 — LLM-driven cross-pollination w/ templated fallback.
+
+        Reads all 4 dept signals + business profile + sector signal,
+        calls the cross_pollinate_llm agent to produce per-company
+        handoffs + synergies. If the LLM returns 0 of EACH (parse fail,
+        empty response, etc.), falls back to the deterministic
+        templated cross_pollinate so the cascade never ends up with
+        an empty cross-talk layer.
+
+        Emits one start + one done event for the dashboard SSE stream,
+        plus per-handoff and per-synergy events (same as the V7.0
+        templated version) so the cytoscape arc animation still fires
+        in the same sequence.
+        """
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "cross_pollinate", "status": "start",
+        })
+
+        ab = state.get("account_brief")
+        ms = state.get("market_signal")
+        mk = state.get("marketing_signal")
+        rp = state.get("risk_profile")
+        profile = state.get("business_profile") or business_profile
+        sector = state.get("sector")
+        sector_signal = state.get("sector_signal")
+
+        handoffs: list[HandoffMessage] = []
+        synergies: list[SynergySignal] = []
+        source = "fallback"
+        try:
+            llm_handoffs, llm_synergies = cross_pollinate_llm_agent.analyze(
+                account_brief=ab,
+                market_signal=ms,
+                marketing_signal=mk,
+                risk_profile=rp,
+                business_profile=profile,
+                sector=sector,
+                sector_signal=sector_signal,
+                target=state["bundle"].target,
+                llm=cross_pollinate_llm,
             )
-            synergies.append(s)
+            if llm_handoffs or llm_synergies:
+                handoffs, synergies = llm_handoffs, llm_synergies
+                source = "llm"
+        except Exception as exc:
+            _emit(on_event, {
+                "t": _now_iso(), "phase": "cross_pollinate", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            # fall through to templated fallback
+
+        if not handoffs and not synergies:
+            handoffs, synergies = _templated_cross_pollinate(state)
+            source = "fallback"
+
+        # Emit per-edge events so the cytoscape arc animation still drives
+        # the same way it always did (frontend listens for these).
+        evs = [start]
+        for h in handoffs:
+            evs.append(_emit(on_event, {
+                "t": _now_iso(), "phase": "handoff",
+                "from": h.from_dept, "to": h.to_dept, "message": h.message,
+            }))
+        for s in synergies:
             evs.append(_emit(on_event, {
                 "t": _now_iso(), "phase": "synergy",
                 "depts": s.contributing_depts, "text": s.text,
             }))
-
+        evs.append(_emit(on_event, {
+            "t": _now_iso(), "phase": "cross_pollinate", "status": "done",
+            "source": source,
+            "handoffs": len(handoffs), "synergies": len(synergies),
+        }))
         return {"synergies": synergies, "handoffs": handoffs, "events": evs}
 
     def profile_extract_node(state: CascadeState) -> dict:
@@ -851,6 +899,7 @@ def run(
     profile_llm: LLMFn | None = None,            # V7.28
     sector_llm: LLMFn | None = None,             # V7.29
     expert_quotes_llm: LLMFn | None = None,      # V7.34
+    cross_pollinate_llm: LLMFn | None = None,    # V7.35
     event_path: Path | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -886,6 +935,7 @@ def run(
             profile_llm=profile_llm,                # V7.28
             sector_llm=sector_llm,                  # V7.29
             expert_quotes_llm=expert_quotes_llm,    # V7.34
+            cross_pollinate_llm=cross_pollinate_llm,  # V7.35
             on_event=on_event,
             mode=mode,
             business_profile=business_profile,
