@@ -81,3 +81,72 @@ def test_too_short_snippet_rejected_even_if_substring():
     kept, dropped = filter_claims([claim], b)
     assert len(kept) == 0
     assert dropped == ["they hire."]
+
+
+# ─── V7.21 — citation-level pruning ──────────────────────────────────────
+
+def test_prune_drops_hallucinated_sibling_citation():
+    """A claim w/ 1 verified + 1 hallucinated citation should survive but
+    the rendered claim must carry only the verified citation. Previously
+    the bad sibling rode along on the good one's coattails."""
+    b = sample_bundle()
+    claim = Claim(
+        text="Northwind raised Pro to $79 and was acquired.",
+        citations=[
+            Citation(
+                url="https://northwind.example/pricing",
+                snippet="raised its Pro plan from $49 to $79",  # verified
+                source_type=SourceType.PRICING,
+            ),
+            Citation(
+                url="https://made-up.example",
+                snippet="acquired by Globex next week",  # hallucinated
+                source_type=SourceType.NEWS,
+            ),
+        ],
+    )
+    kept, dropped = filter_claims([claim], b)
+    assert len(kept) == 1
+    assert len(kept[0].citations) == 1
+    assert kept[0].citations[0].url == "https://northwind.example/pricing"
+    assert not dropped
+
+
+def test_prune_is_noop_when_all_cites_grounded():
+    """If every citation is verified, the original claim instance is returned
+    unchanged — no needless model_copy churn."""
+    b = sample_bundle()
+    claim = _grounded_claim()
+    kept, _ = filter_claims([claim], b)
+    assert len(kept) == 1
+    # all original cites preserved
+    assert len(kept[0].citations) == len(claim.citations)
+
+
+def test_prune_keeps_claim_when_only_one_of_three_verified():
+    """Claim survives with ≥1 grounded cite. Sibling junk gets stripped."""
+    b = sample_bundle()
+    claim = Claim(
+        text="multi-cite claim",
+        citations=[
+            Citation(
+                url="https://made-up.example/1",
+                snippet="lorem ipsum dolor sit amet consectetur",
+                source_type=SourceType.NEWS,
+            ),
+            Citation(
+                url="https://northwind.example/pricing",
+                snippet="raised its Pro plan from $49 to $79",  # the only good one
+                source_type=SourceType.PRICING,
+            ),
+            Citation(
+                url="https://made-up.example/2",
+                snippet="another fabrication that doesn't appear anywhere",
+                source_type=SourceType.NEWS,
+            ),
+        ],
+    )
+    kept, _ = filter_claims([claim], b)
+    assert len(kept) == 1
+    assert len(kept[0].citations) == 1
+    assert "Pro plan" in kept[0].citations[0].snippet

@@ -203,11 +203,6 @@
             "url": "https://supabase.com/pricing",
             "snippet": "Predictable pricing, designed to scale Start building for free, collaborate with your team, then scale to millions of users",
             "source_type": "pricing"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "Free $ 0 / month\nPro Most Popular For production applications with the power to scale. Get Started From $ 25 / month\nTeam Add features such as SSO, control over backups, and industry certifications. Get Started From $ 599 / month\nEnterprise For large-scale applications running Internet scale workloads. Contact Us Custom",
-            "source_type": "pricing"
           }
         ],
         "confidence": 0.85
@@ -218,11 +213,6 @@
           {
             "url": "https://supabase.com/pricing",
             "snippet": "Paid Plans come with $10 /month in compute credits to cover one Micro instance or offset the cost of any other instance.",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "The Pro Plan has a spend cap enabled by default to keep costs under control. If you want to scale beyond the plan's included quota, simply switch off the spend cap to pay for additional resources.",
             "source_type": "pricing"
           }
         ],
@@ -409,7 +399,7 @@
           },
           {
             "url": "https://supabase.com/customers",
-            "snippet": "Quilia Saves 75% in Development Time with Supabase’s Data API and RLS Features",
+            "snippet": "Quilia Saves 75% in Development Time with Supabase\u2019s Data API and RLS Features",
             "source_type": "site"
           },
           {
@@ -444,11 +434,6 @@
           {
             "url": "https://supabase.com",
             "snippet": "Supabase | The Postgres Development Platform.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "Every project is a full Postgres database , the world's most trusted relational database.",
             "source_type": "site"
           }
         ],
@@ -535,12 +520,7 @@
         "citations": [
           {
             "url": "https://supabase.com",
-            "snippet": "Supabase is the best product experience I've had in years. Not just tech - taste. From docs to latency to the URL structure that makes you think \"oh, that's obvious\"",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com",
-            "snippet": "It’s fun, feels lightweight, and really quick to spin up user auth and a few tables. Almost too easy! Highly recommend.",
+            "snippet": "It\u2019s fun, feels lightweight, and really quick to spin up user auth and a few tables. Almost too easy! Highly recommend.",
             "source_type": "site"
           }
         ],
@@ -585,11 +565,6 @@
         "text": "The company maintains an active technical blog and a presence across multiple social media platforms, including Twitter, YouTube, and TikTok.",
         "citations": [
           {
-            "url": "https://supabase.com/blog",
-            "snippet": "Supabase blog",
-            "source_type": "news"
-          },
-          {
             "url": "https://supabase.com/customers",
             "snippet": "Twitter GitHub Discord Youtube TikTok Instagram",
             "source_type": "site"
@@ -624,11 +599,6 @@
           {
             "url": "https://supabase.com/careers",
             "snippet": "Platform Evangelist - AWS",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Field & Events Marketing Manager AMER",
             "source_type": "jobs"
           }
         ],
@@ -729,11 +699,6 @@
             "url": "https://supabase.com/",
             "snippet": "Integrate your favorite ML-models to store, index and search vector embeddings . OpenAI logo OpenAI Hugging Face logo Hugging Face",
             "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/blog",
-            "snippet": "We're Transferring the Stripe Sync Engine to Stripe",
-            "source_type": "news"
           }
         ],
         "confidence": 0.85
@@ -765,7 +730,7 @@
   },
   "synergy_signals": [
     {
-      "text": "Hiring plus funding/expansion signals a growth account — prioritize and resource the outreach.",
+      "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach.",
       "contributing_depts": [
         "gtm",
         "finance"
@@ -788,7 +753,7 @@
     {
       "from_dept": "finance",
       "to_dept": "gtm",
-      "message": "Pricing change detected — adjust outreach timing/messaging.",
+      "message": "Pricing change detected \u2014 adjust outreach timing/messaging.",
       "refs": [
         "https://supabase.com/pricing",
         "https://supabase.com/pricing",
@@ -803,7 +768,7 @@
     {
       "from_dept": "gtm",
       "to_dept": "security",
-      "message": "Hiring expansion — new attack surface / vendors to monitor.",
+      "message": "Hiring expansion \u2014 new attack surface / vendors to monitor.",
       "refs": [
         "https://supabase.com/careers",
         "https://supabase.com/careers",
@@ -834,11 +799,11 @@
     ],
     "passed": false
   },
-  "executive_summary": "Supabase's aggressive move upmarket, coupled with a nascent GTM team and tiered security model, creates an immediate opening to position our platform as essential for de-risking their enterprise growth. — act this quarter.",
+  "executive_summary": "Supabase's aggressive move upmarket, coupled with a nascent GTM team and tiered security model, creates an immediate opening to position our platform as essential for de-risking their enterprise growth. \u2014 act this quarter.",
   "strategic_plan": {
     "target": "Supabase",
     "headline": "Supabase's aggressive move upmarket, coupled with a nascent GTM team and tiered security model, creates an immediate opening to position our platform as essential for de-risking their enterprise growth.",
-    "narrative": "Supabase, an open-source developer platform, is rapidly commercializing its massive community of 500k+ developers by launching a formal enterprise sales motion. They are moving upmarket with new pricing tiers, acquiring companies like Hydra to accelerate their roadmap, and explicitly targeting competitors' customers with claims of better cost and performance. This transition from a product-led growth (PLG) company to a hybrid model with a dedicated sales force represents a critical inflection point.\n\nThe urgency to engage is driven by their active, real-time build-out of a global go-to-market function. Current job openings for Enterprise AEs, Solutions Architects, a 'GTM Engineer,' and partner managers signal they are constructing the sales engine and its supporting operational and technical stack right now. Engaging them during this foundational phase provides a unique opportunity to become an embedded part of their growth infrastructure, rather than attempting to displace an established solution later.\nThe primary risk for Supabase—and opportunity for us—lies in the dissonance between their enterprise ambitions and their current offering's maturity. Significant security and compliance gaps exist in their lower tiers, such as HIPAA as a paid add-on, severely limited audit logs on the free plan, and lack of automatic backups. As their new sales team targets larger, more discerning customers, these gaps will become significant friction points in their sales cycle. Furthermore, their reliance on third-party integrations and an open-source model expands their supply chain risk, a key concern for the enterprise clients they now seek.",
+    "narrative": "Supabase, an open-source developer platform, is rapidly commercializing its massive community of 500k+ developers by launching a formal enterprise sales motion. They are moving upmarket with new pricing tiers, acquiring companies like Hydra to accelerate their roadmap, and explicitly targeting competitors' customers with claims of better cost and performance. This transition from a product-led growth (PLG) company to a hybrid model with a dedicated sales force represents a critical inflection point.\n\nThe urgency to engage is driven by their active, real-time build-out of a global go-to-market function. Current job openings for Enterprise AEs, Solutions Architects, a 'GTM Engineer,' and partner managers signal they are constructing the sales engine and its supporting operational and technical stack right now. Engaging them during this foundational phase provides a unique opportunity to become an embedded part of their growth infrastructure, rather than attempting to displace an established solution later.\nThe primary risk for Supabase\u2014and opportunity for us\u2014lies in the dissonance between their enterprise ambitions and their current offering's maturity. Significant security and compliance gaps exist in their lower tiers, such as HIPAA as a paid add-on, severely limited audit logs on the free plan, and lack of automatic backups. As their new sales team targets larger, more discerning customers, these gaps will become significant friction points in their sales cycle. Furthermore, their reliance on third-party integrations and an open-source model expands their supply chain risk, a key concern for the enterprise clients they now seek.",
     "icp_fit": "high",
     "icp_rationale": "Supabase is a fast-growing tech company moving into the enterprise segment and actively hiring a global GTM team, indicating a need for scalable sales, compliance, and security solutions.",
     "deal_size_estimate": "$75k-$250k ARR",
@@ -854,18 +819,7 @@
           "gtm"
         ],
         "rationale": "Supabase is building its GTM function from the ground up and will need tooling to support scalable growth; engaging the roles responsible for building these systems is the most direct path to embedding our solution.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Supabase is significantly expanding its go-to-market function by hiring for numerous sales and customer-facing roles globally, including Enterprise Account Executives, Solutions Architects, and regional sales leads for APAC and LATAM.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "The company is investing in revenue operations by hiring a \"GTM Engineer\", indicating a focus on building scalable systems and processes to support its sales and marketing growth.",
-            "source_type": "site"
-          }
-        ]
+        "citations": []
       },
       {
         "text": "Security and GTM teams to co-develop a 'Compliance Upsell' motion, highlighting how our platform helps bridge the security gaps (e.g., limited logs, add-on HIPAA) between Supabase's lower tiers and the expectations of their new enterprise targets.",
@@ -876,18 +830,7 @@
           "security"
         ],
         "rationale": "Supabase's own pricing model creates a security and compliance gap that their new enterprise sales team will need to solve for larger customers. We can be the solution that enables them to sell upmarket effectively.",
-        "citations": [
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "HIPAA compliance is not included by default and is only available as a paid add-on for the 'Team' plan, posing a risk for healthcare applications built on lower tiers.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/pricing",
-            "snippet": "The free tier offers only one hour of authentication audit logs, severely limiting the ability to investigate security incidents.",
-            "source_type": "site"
-          }
-        ]
+        "citations": []
       },
       {
         "text": "GTM to create a targeted campaign for Supabase's sales team, showcasing how we help them win more AI-focused customers by addressing the underlying third-party and supply chain risks inherent in their AI integrations.",
@@ -898,18 +841,7 @@
           "security"
         ],
         "rationale": "Supabase is successfully attracting AI companies, which are highly sensitive to security and third-party risk. We can position our solution as a sales accelerant for them in this key growth market.",
-        "citations": [
-          {
-            "url": "https://supabase.com/customers",
-            "snippet": "The platform is gaining strong traction within the AI development space, with customers like Berri AI, Humata, and Markprompt using it for AI-powered applications.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://supabase.com/",
-            "snippet": "Supabase has deep integrations with and dependencies on external services like OpenAI, Hugging Face, and Stripe, exposing it to potential risks from those third parties.",
-            "source_type": "site"
-          }
-        ]
+        "citations": []
       },
       {
         "text": "GTM leadership to engage Supabase's new partner-focused hires to explore a joint strategy targeting the AWS ecosystem, positioning our platform as a value-add for their cloud marketplace and co-sell motions.",
@@ -919,13 +851,7 @@
           "gtm"
         ],
         "rationale": "They are explicitly hiring to build out their partner ecosystem, particularly around AWS. This provides a formal channel to establish a strategic alliance early in their partner program's development.",
-        "citations": [
-          {
-            "url": "https://supabase.com/careers",
-            "snippet": "Supabase is building out its partnership capabilities with open roles for a \"Platform Evangelist - AWS\" and an \"Associate Partner Development Manager,\" signaling a strategic push to grow through its partner ecosystem.",
-            "source_type": "site"
-          }
-        ]
+        "citations": []
       }
     ],
     "open_questions": [

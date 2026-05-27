@@ -23,28 +23,59 @@ def _norm(text: str) -> str:
 MIN_SNIPPET_LEN = 15
 
 
+def _cite_is_grounded(cite, haystacks: list[str]) -> bool:
+    """One citation is grounded iff its snippet (whitespace-normalised) appears
+    verbatim in some source's text. Very-short snippets (< MIN_SNIPPET_LEN
+    after normalisation) never ground — too easy to false-positive on common
+    bigrams like 'to the'."""
+    snippet = _norm(cite.snippet)
+    if len(snippet) < MIN_SNIPPET_LEN:
+        return False
+    return any(snippet in h for h in haystacks)
+
+
 def is_grounded(claim: Claim, haystacks: list[str]) -> bool:
+    """A claim is grounded iff ≥1 of its citations is grounded."""
     if not claim.citations:
         return False
-    for cite in claim.citations:
-        snippet = _norm(cite.snippet)
-        if len(snippet) < MIN_SNIPPET_LEN:
-            continue
-        if any(snippet in h for h in haystacks):
-            return True
-    return False
+    return any(_cite_is_grounded(c, haystacks) for c in claim.citations)
+
+
+def prune_citations(claim: Claim, haystacks: list[str]) -> Claim:
+    """V7.21 — return a new Claim whose citations include only the verified ones.
+
+    The claim-level `is_grounded` predicate saves a claim if ≥1 citation
+    snippet matches the bundle, but sibling unverified citations were
+    previously kept and rendered as if they were evidence. This was a real
+    hallucination vector: a true citation could carry a fabricated sibling
+    along for the ride. After this pass, every rendered citation has been
+    individually verified against the bundle.
+
+    No-op (returns the original claim) when no citations were dropped.
+    """
+    if not claim.citations:
+        return claim
+    kept = [c for c in claim.citations if _cite_is_grounded(c, haystacks)]
+    if len(kept) == len(claim.citations):
+        return claim
+    return claim.model_copy(update={"citations": kept})
 
 
 def filter_claims(
     claims: list[Claim], bundle: SharedBundle
 ) -> tuple[list[Claim], list[str]]:
-    """Return (grounded_claims, dropped_claim_texts)."""
+    """Return (grounded_claims, dropped_claim_texts).
+
+    A claim survives if ≥1 citation snippet appears verbatim in the bundle.
+    Survivors have their unverified citations pruned (V7.21) so the
+    rendered brief carries only verified evidence per claim.
+    """
     haystacks = [_norm(t) for t in bundle.texts()]
     kept: list[Claim] = []
     dropped: list[str] = []
     for claim in claims:
         if is_grounded(claim, haystacks):
-            kept.append(claim)
+            kept.append(prune_citations(claim, haystacks))
         else:
             dropped.append(claim.text)
     return kept, dropped
