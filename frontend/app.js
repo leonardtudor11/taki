@@ -177,10 +177,19 @@ function _renderPlanStat(label, value, rationale, modifier) {
 }
 
 function _renderPlay(play, idx) {
-  const li = el("li", { class: `plan-play plan-play-p${play.priority || 3}` });
+  const priority = play.priority || 3;
+  // V7.18 — collapsible: P1 plays start expanded (highest priority = always
+  // visible), P2+ start collapsed so the user can scan headlines then drill.
+  const initialExpanded = priority === 1;
+  const li = el("li", {
+    class: `plan-play plan-play-p${priority}`,
+    role: "button",
+    tabindex: "0",
+    "aria-expanded": initialExpanded ? "true" : "false",
+  });
 
   const head = el("div", { class: "play-head" });
-  head.appendChild(el("span", { class: "play-priority" }, `P${play.priority || 3}`));
+  head.appendChild(el("span", { class: "play-priority" }, `P${priority}`));
   if (play.timeframe) head.appendChild(el("span", { class: "play-timeframe" }, String(play.timeframe)));
   (play.owners || []).forEach((o) => {
     const k = String(o).toLowerCase();
@@ -204,6 +213,20 @@ function _renderPlay(play, idx) {
     ));
   });
   if (cites.childNodes.length) li.appendChild(cites);
+
+  // V7.18 — click anywhere on the card toggles expanded state, except when
+  // clicking a citation link or its inner span (don't trap the outbound nav).
+  li.addEventListener("click", (e) => {
+    if (e.target.closest("a")) return;
+    const exp = li.getAttribute("aria-expanded") === "true";
+    li.setAttribute("aria-expanded", exp ? "false" : "true");
+  });
+  li.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      li.click();
+    }
+  });
 
   return li;
 }

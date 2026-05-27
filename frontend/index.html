@@ -455,10 +455,32 @@
     counter-increment: play;
     border: 1px solid var(--rule);
     border-left: 3px solid var(--paper-dim);
-    padding: 12px 14px 14px;
+    padding: 12px 14px 14px 14px;
     margin: 0 0 10px;
     background: rgba(255,255,255,0.01);
     position: relative;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  .plan-play:hover { background: rgba(255,255,255,0.025); }
+  .plan-play:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+  /* V7.18 — collapsible: hide rationale + cites when collapsed.
+     P1 starts expanded, P2+ collapsed (set by app.js via aria-expanded). */
+  .plan-play[aria-expanded="false"] .play-rationale,
+  .plan-play[aria-expanded="false"] .cites { display: none; }
+  /* chevron toggle indicator (top-right) — rotates on expand */
+  .plan-play::after {
+    content: '▾';
+    position: absolute;
+    right: 14px; top: 12px;
+    font-size: 11px;
+    color: var(--paper-dim);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  .plan-play[aria-expanded="true"]::after { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .plan-play, .plan-play::after { transition: none; }
   }
   .plan-play-p1 { border-left-color: var(--bad); }
   .plan-play-p2 { border-left-color: var(--security); }
@@ -1201,7 +1223,7 @@
      Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
 <script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="cascade-flow.js?v=7.17"></script>
-<script src="app.js?v=7.17"></script>
+<script src="cascade-flow.js?v=7.18"></script>
+<script src="app.js?v=7.18"></script>
 </body>
 </html>
