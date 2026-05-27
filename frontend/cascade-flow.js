@@ -816,6 +816,26 @@ function _handleLiveEvent(ev, cy, tip) {
         setTip(tip, `⚠ contradictions failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
       }
       break;
+    case 'porter':
+      // V7.24 — parallel framework agent; no pip
+      if (ev.status === 'start') {
+        setTip(tip, "⌬ Porter's Five Forces · scoring competitive pressure…", true);
+      } else if (ev.status === 'done') {
+        setTip(tip, `⌬ Porter · rivalry=${ev.rivalry}/5 · new=${ev.new_entrants}/5 · sup=${ev.supplier_power}/5 · buy=${ev.buyer_power}/5 · sub=${ev.substitutes}/5`, true);
+      } else if (ev.status === 'error') {
+        setTip(tip, `⚠ Porter failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
+      }
+      break;
+    case 'swot':
+      // V7.24 — parallel framework agent; no pip
+      if (ev.status === 'start') {
+        setTip(tip, '◰ SWOT · classifying strengths/weaknesses/opportunities/threats…', true);
+      } else if (ev.status === 'done') {
+        setTip(tip, `◰ SWOT · ${ev.s||0}S / ${ev.w||0}W / ${ev.o||0}O / ${ev.t_||0}T`, true);
+      } else if (ev.status === 'error') {
+        setTip(tip, `⚠ SWOT failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
+      }
+      break;
     case 'strategy':
       if (ev.status === 'start') {
         setTip(tip, '★ strategy · Chief of Staff synthesizing the plan…', true);

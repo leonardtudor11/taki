@@ -405,6 +405,86 @@ class StrategicPlan(_AutoListBase):
         return FitTier.MEDIUM
 
 
+class Force(_AutoListBase):
+    """V7.24 — one of Porter's Five Forces, scored against the bundle."""
+
+    name: str = ""                                  # 'industry rivalry', 'new entrants', etc.
+    intensity: int = Field(default=3, ge=1, le=5)   # 1=very low pressure, 5=very high
+    assessment: str = ""                            # 2-3 sentence analytical narrative
+    citations: list[Citation] = Field(default_factory=list)
+
+    @field_validator("intensity", mode="before")
+    @classmethod
+    def _coerce_intensity(cls, v):
+        if isinstance(v, int):
+            return max(1, min(5, v))
+        if isinstance(v, str):
+            s = v.strip().lower()
+            words = {
+                "very low": 1, "low": 2, "moderate": 3, "medium": 3, "med": 3,
+                "high": 4, "very high": 5, "extreme": 5,
+            }
+            if s in words:
+                return words[s]
+            try:
+                return max(1, min(5, int(float(s))))
+            except ValueError:
+                return 3
+        return 3
+
+
+class FiveForces(_AutoListBase):
+    """V7.24 — Porter's Five Forces analysis. Snapshot of the competitive
+    pressures the target faces, scored 1-5 on each force.
+
+    Each Force.assessment must be grounded in bundle text (verbatim citation
+    snippets, same rule as dept claims). The radar/pentagon view in the
+    frontend reads `intensity` per force; the cards underneath surface the
+    `assessment` text + citations.
+    """
+
+    rivalry:        Force = Field(default_factory=lambda: Force(name="industry rivalry"))
+    new_entrants:   Force = Field(default_factory=lambda: Force(name="threat of new entrants"))
+    supplier_power: Force = Field(default_factory=lambda: Force(name="supplier power"))
+    buyer_power:    Force = Field(default_factory=lambda: Force(name="buyer power"))
+    substitutes:    Force = Field(default_factory=lambda: Force(name="threat of substitutes"))
+
+
+class SwotItem(_AutoListBase):
+    """V7.24 — one cell of the SWOT 2×2."""
+
+    text: str = ""
+    citations: list[Citation] = Field(default_factory=list)
+    impact: int = Field(default=2, ge=1, le=3)      # 1=minor, 3=material
+
+    @field_validator("impact", mode="before")
+    @classmethod
+    def _coerce_impact(cls, v):
+        if isinstance(v, int):
+            return max(1, min(3, v))
+        if isinstance(v, str):
+            s = v.strip().lower()
+            words = {"minor": 1, "low": 1, "moderate": 2, "medium": 2, "med": 2, "major": 3, "high": 3, "material": 3}
+            if s in words:
+                return words[s]
+            try:
+                return max(1, min(3, int(float(s))))
+            except ValueError:
+                return 2
+        return 2
+
+
+class Swot(_AutoListBase):
+    """V7.24 — classic SWOT 2×2: internal (strengths/weaknesses) vs external
+    (opportunities/threats). Each cell is a small list of citation-grounded
+    SwotItem entries so the reader can verify the claim."""
+
+    strengths:     list[SwotItem] = Field(default_factory=list)
+    weaknesses:    list[SwotItem] = Field(default_factory=list)
+    opportunities: list[SwotItem] = Field(default_factory=list)
+    threats:       list[SwotItem] = Field(default_factory=list)
+
+
 class Contradiction(_AutoListBase):
     """V7.23 — two grounded claims that disagree on the same axis.
 
@@ -456,6 +536,8 @@ class CascadeBrief(_AutoListBase):
     synergy_signals: list[SynergySignal] = Field(default_factory=list)
     handoffs: list[HandoffMessage] = Field(default_factory=list)
     contradictions: list[Contradiction] = Field(default_factory=list)
+    five_forces: Optional[FiveForces] = None
+    swot: Optional[Swot] = None
     guardrail_report: GuardrailReport = Field(default_factory=GuardrailReport)
     executive_summary: str = ""
     strategic_plan: Optional[StrategicPlan] = None

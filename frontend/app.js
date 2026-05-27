@@ -453,6 +453,163 @@ function _openSynergyDrawer(synergy, brief) {
   drawer.focus({ preventScroll: true });
 }
 
+// V7.24 — Porter's Five Forces section: ECharts radar chart at top,
+// 5 cards underneath with each force's assessment + citations.
+const _FORCE_ORDER = [
+  { key: "rivalry",        label: "Industry rivalry" },
+  { key: "new_entrants",   label: "New entrants" },
+  { key: "supplier_power", label: "Supplier power" },
+  { key: "buyer_power",    label: "Buyer power" },
+  { key: "substitutes",    label: "Substitutes" },
+];
+
+function renderFiveForces(forces) {
+  if (!forces) return null;
+  // skip section entirely if every force is blank
+  const haveContent = _FORCE_ORDER.some((f) => {
+    const force = forces[f.key];
+    return force && (force.assessment || (force.citations || []).length || force.intensity);
+  });
+  if (!haveContent) return null;
+
+  const wrap = el("div", { class: "porter-section" });
+  wrap.appendChild(el("div", { class: "section-title" }, "Porter's Five Forces · competitive pressure 1–5"));
+
+  // radar chart (top)
+  const chartEl = el("div", { class: "porter-radar", id: "porter-radar" });
+  wrap.appendChild(chartEl);
+
+  // cards (bottom)
+  const grid = el("div", { class: "porter-cards" });
+  _FORCE_ORDER.forEach((f) => {
+    const force = forces[f.key];
+    if (!force) return;
+    const inten = Math.max(1, Math.min(5, force.intensity || 3));
+    const card = el("div", { class: `porter-card porter-card-i${inten}` });
+    const head = el("div", { class: "porter-card-head" });
+    head.appendChild(el("span", { class: "porter-card-label" }, f.label));
+    head.appendChild(el("span", { class: "porter-card-intensity" }, `${inten}/5`));
+    card.appendChild(head);
+    // intensity meter
+    const meter = el("div", { class: "porter-card-meter" });
+    const fill  = el("div", { class: "porter-card-meter-fill" });
+    fill.style.width = `${inten * 20}%`;
+    meter.appendChild(fill);
+    card.appendChild(meter);
+    if (force.assessment) {
+      card.appendChild(el("div", { class: "porter-card-text" }, String(force.assessment)));
+    }
+    if ((force.citations || []).length) {
+      const cites = el("div", { class: "cites" });
+      force.citations.forEach((c) => {
+        cites.appendChild(el(
+          "a",
+          { class: "cite", href: safeUrl(c.url), target: "_blank", rel: "noopener noreferrer" },
+          `§ ${c.source_type || "src"}`,
+        ));
+      });
+      card.appendChild(cites);
+    }
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  // init ECharts radar after DOM insertion
+  requestAnimationFrame(() => {
+    if (typeof echarts === "undefined") return;
+    let inst;
+    try { inst = echarts.init(chartEl, null, { renderer: "canvas" }); }
+    catch (_e) { return; }
+    const indicators = _FORCE_ORDER.map((f) => ({ name: f.label, max: 5 }));
+    const values = _FORCE_ORDER.map((f) => (forces[f.key] && forces[f.key].intensity) || 0);
+    inst.setOption({
+      backgroundColor: "transparent",
+      tooltip: {
+        backgroundColor: "rgba(13,14,16,0.92)",
+        borderColor: "#2a2620",
+        textStyle: { color: "#f1ede4", fontFamily: "JetBrains Mono", fontSize: 11 },
+      },
+      radar: {
+        indicator: indicators,
+        center: ["50%", "55%"],
+        radius: "62%",
+        shape: "polygon",
+        splitNumber: 5,
+        axisName: {
+          color: "#f1ede4",
+          fontFamily: "JetBrains Mono",
+          fontSize: 10,
+          padding: [3, 3],
+        },
+        splitArea: { areaStyle: { color: ["rgba(255,255,255,0.018)", "rgba(255,255,255,0.005)"] } },
+        splitLine: { lineStyle: { color: "#2a2620" } },
+        axisLine: { lineStyle: { color: "#2a2620" } },
+      },
+      series: [{
+        type: "radar",
+        name: "intensity",
+        symbol: "circle",
+        symbolSize: 6,
+        areaStyle: { color: "rgba(232,74,58,0.22)" },
+        lineStyle: { color: "#e84a3a", width: 2 },
+        itemStyle: { color: "#e84a3a" },
+        data: [{ value: values, name: "1–5 force intensity" }],
+      }],
+    });
+    window.addEventListener("resize", () => inst.resize());
+  });
+  return wrap;
+}
+
+// V7.24 — SWOT 2×2 grid
+const _SWOT_QUADRANTS = [
+  { key: "strengths",     label: "Strengths",     cls: "swot-s" },
+  { key: "weaknesses",    label: "Weaknesses",    cls: "swot-w" },
+  { key: "opportunities", label: "Opportunities", cls: "swot-o" },
+  { key: "threats",       label: "Threats",       cls: "swot-t" },
+];
+
+function renderSwot(swot) {
+  if (!swot) return null;
+  const total = _SWOT_QUADRANTS.reduce(
+    (n, q) => n + ((swot[q.key] || []).length), 0,
+  );
+  if (!total) return null;
+
+  const wrap = el("div", { class: "swot-section" });
+  wrap.appendChild(el("div", { class: "section-title" }, "SWOT · 2×2 strategic landscape"));
+  const grid = el("div", { class: "swot-grid" });
+  _SWOT_QUADRANTS.forEach((q) => {
+    const quad = el("div", { class: `swot-quad ${q.cls}` });
+    quad.appendChild(el("div", { class: "swot-quad-head" }, q.label));
+    const items = swot[q.key] || [];
+    if (!items.length) {
+      quad.appendChild(el("div", { class: "swot-empty" }, "—"));
+    } else {
+      items.forEach((it) => {
+        const imp = Math.max(1, Math.min(3, it.impact || 2));
+        const itemEl = el("div", { class: `swot-item swot-item-i${imp}` });
+        itemEl.appendChild(el("div", { class: "swot-item-text" }, String(it.text || "")));
+        if ((it.citations || []).length) {
+          const cites = el("div", { class: "cites" });
+          it.citations.forEach((c) => {
+            cites.appendChild(el(
+              "a",
+              { class: "cite", href: safeUrl(c.url), target: "_blank", rel: "noopener noreferrer" },
+              `§ ${c.source_type || "src"}`,
+            ));
+          });
+          itemEl.appendChild(cites);
+        }
+        quad.appendChild(itemEl);
+      });
+    }
+    grid.appendChild(quad);
+  });
+  wrap.appendChild(grid);
+  return wrap;
+}
+
 // V7.23 — Contradictions section: opposing-source claim pairs surfaced by
 // the contradictions agent. Each card is a side-by-side compare w/ severity
 // styling + citations under each side.
@@ -748,6 +905,12 @@ function render(brief) {
   // V7.23 — Contradictions sit after synergies (both are cross-source layers)
   const contras = renderContradictions(brief.contradictions);
   if (contras) app.appendChild(contras);
+
+  // V7.24 — Strategic-framework section: Porter's 5 Forces + SWOT side-by-side
+  const porter = renderFiveForces(brief.five_forces);
+  if (porter) app.appendChild(porter);
+  const swot = renderSwot(brief.swot);
+  if (swot) app.appendChild(swot);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });

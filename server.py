@@ -235,8 +235,10 @@ def api_run():
                         fake_finance_llm,
                         fake_gtm_llm_with_hallucination,
                         fake_marketing_llm,
+                        fake_porter_llm,
                         fake_security_llm,
                         fake_strategy_llm,
+                        fake_swot_llm,
                     )
                     from fixtures.sample import sample_bundle
 
@@ -252,6 +254,8 @@ def api_run():
                         security_llm=fake_security_llm,
                         strategy_llm=fake_strategy_llm,
                         contradictions_llm=fake_contradictions_llm,
+                        porter_llm=fake_porter_llm,
+                        swot_llm=fake_swot_llm,
                         on_event=emit,
                     )
                 elif mode == "self":

@@ -828,6 +828,130 @@
     .synergy:hover { border-left-width: 2px; padding-left: 16px; }
   }
 
+  /* ───────── Porter's 5 Forces + SWOT (V7.24) ───────── */
+  .porter-section { margin-bottom: 36px; }
+  .porter-radar {
+    width: 100%;
+    height: 320px;
+    border: 1px solid var(--rule);
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.012), transparent 70%);
+    margin-bottom: 16px;
+  }
+  .porter-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .porter-card {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--paper-dim);
+    padding: 12px 14px 14px;
+    background: rgba(255,255,255,0.01);
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  .porter-card:hover {
+    background: rgba(255,255,255,0.022);
+    transform: translateY(-2px);
+  }
+  .porter-card-i1 { border-left-color: var(--ok); }
+  .porter-card-i2 { border-left-color: var(--gtm); }
+  .porter-card-i3 { border-left-color: var(--security); }
+  .porter-card-i4 { border-left-color: var(--shu); }
+  .porter-card-i5 { border-left-color: var(--bad); }
+  .porter-card-head {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 6px;
+  }
+  .porter-card-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--paper);
+  }
+  .porter-card-intensity {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
+  .porter-card-meter {
+    height: 3px;
+    background: var(--rule);
+    margin: 0 0 10px;
+    position: relative;
+  }
+  .porter-card-meter-fill {
+    height: 100%;
+    background: var(--paper-dim);
+    transition: width 0.6s cubic-bezier(.4,.0,.2,1) 0.1s;
+  }
+  .porter-card-i1 .porter-card-meter-fill { background: var(--ok); }
+  .porter-card-i2 .porter-card-meter-fill { background: var(--gtm); }
+  .porter-card-i3 .porter-card-meter-fill { background: var(--security); }
+  .porter-card-i4 .porter-card-meter-fill { background: var(--shu); }
+  .porter-card-i5 .porter-card-meter-fill { background: var(--bad); }
+  .porter-card-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--paper);
+    margin-bottom: 8px;
+  }
+  .porter-card .cites { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .swot-section { margin-bottom: 36px; }
+  .swot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .swot-quad {
+    border: 1px solid var(--rule);
+    padding: 14px 16px 16px;
+    background: rgba(255,255,255,0.01);
+    min-height: 160px;
+  }
+  .swot-s { border-top: 3px solid var(--ok); }
+  .swot-w { border-top: 3px solid var(--bad); }
+  .swot-o { border-top: 3px solid var(--gtm); }
+  .swot-t { border-top: 3px solid var(--security); }
+  .swot-quad-head {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--paper);
+    margin-bottom: 10px;
+  }
+  .swot-s .swot-quad-head { color: var(--ok); }
+  .swot-w .swot-quad-head { color: var(--bad); }
+  .swot-o .swot-quad-head { color: var(--gtm); }
+  .swot-t .swot-quad-head { color: var(--security); }
+  .swot-item {
+    border-left: 2px solid var(--rule);
+    padding: 6px 0 6px 10px;
+    margin-bottom: 10px;
+  }
+  .swot-item-i1 { border-left-color: var(--rule); }
+  .swot-item-i2 { border-left-color: var(--paper-dim); }
+  .swot-item-i3 { border-left-color: var(--shu); }
+  .swot-item-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--paper);
+    margin-bottom: 6px;
+  }
+  .swot-item .cites { display: flex; flex-wrap: wrap; gap: 6px; }
+  .swot-empty {
+    font-size: 12px;
+    color: var(--paper-dim);
+    font-style: italic;
+  }
+  @media (max-width: 640px) {
+    .swot-grid { grid-template-columns: 1fr; }
+    .porter-radar { height: 260px; }
+  }
+
   /* ───────── contradictions (V7.23) ───────── */
   .contradictions-grid {
     display: grid;
@@ -1500,7 +1624,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.23"></script>
-<script src="app.js?v=7.23"></script>
+<script src="cascade-flow.js?v=7.24"></script>
+<script src="app.js?v=7.24"></script>
 </body>
 </html>

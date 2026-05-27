@@ -425,6 +425,126 @@ def fake_strategy_llm(_prompt: str) -> str:
     })
 
 
+# ─── Porter's Five Forces (V7.24) ─────────────────────────────────────────
+
+def fake_porter_llm(_prompt: str) -> str:
+    """Canned FiveForces aligned w/ the Northwind sample bundle. All
+    citation snippets are copied verbatim from fixtures.sample.sample_bundle."""
+    return json.dumps({
+        "rivalry": {
+            "name": "industry rivalry",
+            "intensity": 4,
+            "assessment": "Northwind is fighting an established analytics incumbent with a public comparison page; the new $250/seat enterprise tier is a head-on bid for the same procurement-led deals competitors anchor on.",
+            "citations": [{
+                "url": "https://northwind.example/blog/why-us-vs-tableau",
+                "snippet": "outperform Tableau on time-to-first-insight by 3x",
+                "source_type": "site",
+            }],
+        },
+        "new_entrants": {
+            "name": "threat of new entrants",
+            "intensity": 2,
+            "assessment": "Procurement-grade requirements (SSO, SCIM, SOC 2, ISO) raise the floor for new entrants; Northwind cleared SOC 2 Type II and has ISO 27001 filed, locking in a meaningful barrier.",
+            "citations": [{
+                "url": "https://news.example/northwind-soc2",
+                "snippet": "SOC 2 Type II cleared, ISO 27001 filed",
+                "source_type": "news",
+            }],
+        },
+        "supplier_power": {
+            "name": "supplier power",
+            "intensity": 3,
+            "assessment": "Northwind's subprocessor stack (AWS, Stripe, Twilio, Snowflake) gives moderate concentration risk — each vendor outage cascades, and Snowflake pricing pressure flows directly through their COGS.",
+            "citations": [{
+                "url": "https://northwind.example/trust/subprocessors",
+                "snippet": "AWS (us-east-1, eu-west-1), Stripe, Twilio, Snowflake",
+                "source_type": "site",
+            }],
+        },
+        "buyer_power": {
+            "name": "buyer power",
+            "intensity": 3,
+            "assessment": "Enterprise customers with seats-based pricing have moderate power — the new $79 Pro and $250 enterprise tiers signal Northwind is testing the ceiling; public reviews flagging billing surprises show pushback is starting.",
+            "citations": [{
+                "url": "https://reviews.example/northwind",
+                "snippet": "billing surprises and a slow first onboarding",
+                "source_type": "review",
+            }],
+        },
+        "substitutes": {
+            "name": "threat of substitutes",
+            "intensity": 3,
+            "assessment": "Tableau remains the obvious substitute and Northwind acknowledges it head-on in their own marketing comparison; commoditisation of dashboards via free/open-source tools is a slower-moving but real pressure.",
+            "citations": [{
+                "url": "https://northwind.example/blog/why-us-vs-tableau",
+                "snippet": "outperform Tableau on time-to-first-insight by 3x",
+                "source_type": "site",
+            }],
+        },
+    })
+
+
+# ─── SWOT (V7.24) ─────────────────────────────────────────────────────────
+
+def fake_swot_llm(_prompt: str) -> str:
+    """Canned SWOT aligned w/ the Northwind sample bundle."""
+    return json.dumps({
+        "strengths": [
+            {
+                "text": "Funded growth runway from a fresh Series B with a clear EU mandate.",
+                "impact": 3,
+                "citations": [{
+                    "url": "https://news.example/northwind-series-b",
+                    "snippet": "closed a $40M Series B led by Acme Ventures",
+                    "source_type": "news",
+                }],
+            },
+            {
+                "text": "Procurement-ready security posture: SOC 2 Type II cleared and ISO 27001 in progress.",
+                "impact": 3,
+                "citations": [{
+                    "url": "https://news.example/northwind-soc2",
+                    "snippet": "SOC 2 Type II cleared, ISO 27001 filed",
+                    "source_type": "news",
+                }],
+            },
+        ],
+        "weaknesses": [
+            {
+                "text": "Public reviews flag billing surprises and slow first-month onboarding — friction at the procurement-to-go-live handoff.",
+                "impact": 2,
+                "citations": [{
+                    "url": "https://reviews.example/northwind",
+                    "snippet": "billing surprises and a slow first onboarding",
+                    "source_type": "review",
+                }],
+            },
+        ],
+        "opportunities": [
+            {
+                "text": "Enterprise SKU with SSO/SCIM/99.9% SLA opens up a procurement-led upper tier the existing Pro plan couldn't address.",
+                "impact": 3,
+                "citations": [{
+                    "url": "https://northwind.example/pricing",
+                    "snippet": "Enterprise tier adds SSO, SCIM, and a 99.9% SLA at $250 per seat",
+                    "source_type": "pricing",
+                }],
+            },
+        ],
+        "threats": [
+            {
+                "text": "Tableau remains a direct head-to-head; the public comparison page concedes that buyers actively evaluate both.",
+                "impact": 2,
+                "citations": [{
+                    "url": "https://northwind.example/blog/why-us-vs-tableau",
+                    "snippet": "outperform Tableau on time-to-first-insight by 3x",
+                    "source_type": "site",
+                }],
+            },
+        ],
+    })
+
+
 # ─── Contradictions (V7.23) ───────────────────────────────────────────────
 
 def fake_contradictions_llm(_prompt: str) -> str:

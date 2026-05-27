@@ -37,8 +37,10 @@ from agents import finance as finance_agent
 from agents import gtm as gtm_agent
 from agents import contradictions as contradictions_agent
 from agents import marketing as marketing_agent
+from agents import porter as porter_agent
 from agents import security as security_agent
 from agents import strategy as strategy_agent
+from agents import swot as swot_agent
 from agents.schemas import (
     AccountBrief,
     BusinessProfile,
@@ -47,6 +49,7 @@ from agents.schemas import (
     Citation,
     Claim,
     Contradiction,
+    FiveForces,
     GuardrailReport,
     HandoffMessage,
     MarketSignal,
@@ -54,6 +57,7 @@ from agents.schemas import (
     RiskProfile,
     SharedBundle,
     StrategicPlan,
+    Swot,
     SynergySignal,
 )
 from guardrails import grounding, leak, pii
@@ -104,6 +108,8 @@ class CascadeState(TypedDict, total=False):
     handoffs: list[HandoffMessage]
     strategic_plan: StrategicPlan
     contradictions: list[Contradiction]
+    five_forces: FiveForces
+    swot: Swot
     events: Annotated[list[dict], operator.add]
     brief: CascadeBrief
     # V7 — self-mode inputs (closure-bound at build_graph; not in invoke state
@@ -188,6 +194,8 @@ def build_graph(
     strategy_llm: LLMFn | None = None,
     marketing_llm: LLMFn | None = None,
     contradictions_llm: LLMFn | None = None,
+    porter_llm: LLMFn | None = None,
+    swot_llm: LLMFn | None = None,
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -400,6 +408,57 @@ def build_graph(
             })
             return {"events": [start, err]}
 
+    def porter_node(state: CascadeState) -> dict:
+        """V7.24 — Porter's Five Forces against the clean bundle."""
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "porter", "status": "start",
+        })
+        try:
+            five = porter_agent.analyze(
+                target=state["bundle"].target,
+                bundle=state.get("clean", state["bundle"]),
+                llm=porter_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "porter", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {"five_forces": FiveForces(), "events": [start, err]}
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "porter", "status": "done",
+            "rivalry": five.rivalry.intensity,
+            "new_entrants": five.new_entrants.intensity,
+            "supplier_power": five.supplier_power.intensity,
+            "buyer_power": five.buyer_power.intensity,
+            "substitutes": five.substitutes.intensity,
+        })
+        return {"five_forces": five, "events": [start, done]}
+
+    def swot_node(state: CascadeState) -> dict:
+        """V7.24 — SWOT against the clean bundle."""
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "swot", "status": "start",
+        })
+        try:
+            sw = swot_agent.analyze(
+                target=state["bundle"].target,
+                bundle=state.get("clean", state["bundle"]),
+                llm=swot_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "swot", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {"swot": Swot(), "events": [start, err]}
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "swot", "status": "done",
+            "s": len(sw.strengths), "w": len(sw.weaknesses),
+            "o": len(sw.opportunities), "t_": len(sw.threats),
+        })
+        return {"swot": sw, "events": [start, done]}
+
     def contradictions_node(state: CascadeState) -> dict:
         """V7.23 — surface mutually-inconsistent claim pairs across depts.
 
@@ -463,6 +522,8 @@ def build_graph(
             synergy_signals=synergies,
             handoffs=state.get("handoffs", []),
             contradictions=state.get("contradictions", []),
+            five_forces=state.get("five_forces"),
+            swot=state.get("swot"),
             guardrail_report=report,
             executive_summary=exec_summary,
             strategic_plan=plan,
@@ -497,6 +558,8 @@ def build_graph(
     g.add_node("cross_pollinate", cross_node)
     g.add_node("strategy", strategy_node)
     g.add_node("contradictions_pass", contradictions_node)  # node name must differ from state key
+    g.add_node("porter_pass", porter_node)                  # V7.24
+    g.add_node("swot_pass", swot_node)                      # V7.24
     g.add_node("assemble", assemble_node)
 
     g.add_edge(START, "pii_redact")
@@ -512,13 +575,20 @@ def build_graph(
     g.add_edge("marketing", "grounding")
     g.add_edge("security", "grounding")
     g.add_edge("grounding", "cross_pollinate")
-    # parallel branch: strategy synthesizes the plan;
-    # contradictions_pass surfaces opposing-source claim pairs (V7.23).
+    # parallel branch after cross_pollinate:
+    #   strategy            — synthesize the plan
+    #   contradictions_pass — opposing-source claim pairs (V7.23)
+    #   porter_pass         — Porter's 5 Forces analysis (V7.24)
+    #   swot_pass           — SWOT 2x2 (V7.24)
     g.add_edge("cross_pollinate", "strategy")
     g.add_edge("cross_pollinate", "contradictions_pass")
-    # both join into assemble
+    g.add_edge("cross_pollinate", "porter_pass")
+    g.add_edge("cross_pollinate", "swot_pass")
+    # all four join into assemble
     g.add_edge("strategy", "assemble")
     g.add_edge("contradictions_pass", "assemble")
+    g.add_edge("porter_pass", "assemble")
+    g.add_edge("swot_pass", "assemble")
     g.add_edge("assemble", END)
 
     return g.compile()
