@@ -40,6 +40,8 @@ def test_client_requires_key(monkeypatch):
 
 from services.brightdata import (
     _clean_serp_url,
+    academic_queries,
+    analyst_queries,
     default_external_queries,
     discover_external_sources,
     parse_serp_results,
@@ -106,18 +108,89 @@ def test_parse_serp_results_respects_max_urls():
 
 
 def test_default_external_queries_base_layer_always_present():
-    """Even with no industry, base layer (filings/news/scholar) fires.
+    """Even with no industry, base + academic + analyst layers fire.
 
-    V7.28 — fallback layer expanded from 4 to 12 queries so a target with
-    an unknown industry still pulls reviews, hiring signals, legal/M&A,
-    leadership coverage, and compliance posture. 3 base + 12 fallback = 15.
+    V7.33 layering: base(2) + academic(2 always + 0 sector) +
+    analyst(4 always + 0 region) + fallback(12 generic) = 20 queries
+    when industry is unknown and region is empty.
     """
     qs = default_external_queries("Supabase")
-    assert len(qs) == 15
-    base_q = [q for q,_ in qs[:3]]
+    assert len(qs) == 20
+    base_q = [q for q,_ in qs[:2]]
     assert any("filetype:pdf" in q and "annual report" in q for q in base_q)
     assert any("Financial Times" in q for q in base_q)
-    assert any("scholar.google.com" in q for q in base_q)
+    # Academic layer (V7.33) — Scholar + Semantic Scholar always present.
+    all_q = " ".join(q for q,_ in qs)
+    assert "scholar.google.com" in all_q
+    assert "semanticscholar.org" in all_q
+    # Analyst layer (V7.33) — Gartner / HN-Reddit / LinkedIn / podcast.
+    assert "Gartner" in all_q
+    assert "Hacker News" in all_q
+    assert "linkedin.com/pulse" in all_q
+    assert "podcast" in all_q
+
+
+# ─── V7.33 — academic + analyst overlay helpers ──────────────────────────
+
+
+def test_academic_queries_always_include_scholar_and_semanticscholar():
+    qs = academic_queries("Acme")
+    all_q = " ".join(q for q,_ in qs)
+    assert "scholar.google.com" in all_q
+    assert "after:2024-01-01" in all_q   # date-tightened
+    assert "semanticscholar.org" in all_q
+
+
+def test_academic_queries_pharma_overlay_adds_pubmed_and_biorxiv():
+    qs = academic_queries("Pfizer", industry="pharmaceuticals")
+    all_q = " ".join(q for q,_ in qs)
+    assert "pmc.ncbi.nlm.nih.gov" in all_q
+    assert "pubmed.ncbi.nlm.nih.gov" in all_q
+    assert "biorxiv.org" in all_q or "medrxiv.org" in all_q
+
+
+def test_academic_queries_saas_overlay_adds_arxiv():
+    qs = academic_queries("Supabase", industry="backend-as-a-service SaaS")
+    all_q = " ".join(q for q,_ in qs)
+    assert "arxiv.org" in all_q
+
+
+def test_academic_queries_finance_overlay_adds_ssrn():
+    qs = academic_queries("Stripe", industry="fintech payments")
+    all_q = " ".join(q for q,_ in qs)
+    assert "ssrn.com" in all_q
+
+
+def test_academic_queries_energy_overlay_adds_iea_irena():
+    qs = academic_queries("Orchid SRL", industry="wind energy")
+    all_q = " ".join(q for q,_ in qs)
+    assert "iea.org" in all_q
+    assert "irena.org" in all_q
+
+
+def test_academic_queries_unknown_industry_only_base():
+    qs = academic_queries("Anything", industry="zigzag widgets")
+    # Just Scholar + Semantic Scholar — no sector overlays.
+    assert len(qs) == 2
+
+
+def test_analyst_queries_always_includes_four_strata():
+    qs = analyst_queries("Acme")
+    all_q = " ".join(q for q,_ in qs)
+    assert "Gartner" in all_q and "Forrester" in all_q and "IDC" in all_q
+    assert "Hacker News" in all_q and "Reddit" in all_q
+    assert "linkedin.com/pulse" in all_q
+    assert "podcast" in all_q and "conference keynote" in all_q
+
+
+def test_analyst_queries_region_overlay_when_region_supplied():
+    qs = analyst_queries("Orchid SRL", region="Eastern Europe")
+    all_q = " ".join(q for q,_ in qs)
+    assert "Eastern Europe" in all_q
+    # Without region, no regional overlay.
+    qs2 = analyst_queries("Acme")
+    all_q2 = " ".join(q for q,_ in qs2)
+    assert "Eastern Europe" not in all_q2
 
 
 def test_default_external_queries_industry_wind_energy():

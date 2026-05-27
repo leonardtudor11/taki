@@ -642,22 +642,110 @@ def _industry_template_for(industry: str) -> list[tuple[str, SourceType]]:
     return []
 
 
+def academic_queries(
+    target: str,
+    industry: str | None = None,
+) -> list[tuple[str, SourceType]]:
+    """V7.33 — academic / scholarly SERP overlay (gap #5 from RESUME).
+
+    Always: Google Scholar (date-tightened 2024+) and Semantic Scholar.
+    Industry-overlay: PubMed Central / PubMed / biorxiv for life-sci,
+    arXiv for CS/ML/AI/SaaS, SSRN for finance/legal/business, IEA/IRENA
+    research portals for energy. Substring match on industry tokens.
+
+    Cheap (one Web Unlocker SERP request per query) and free in dollar
+    terms; the value is letting the dept agents cite T2 peer-reviewed
+    sources where they exist, rather than relying entirely on news +
+    self-published marketing copy.
+    """
+    out: list[tuple[str, SourceType]] = [
+        # Always — Google Scholar tightened to recent work
+        (f'"{target}" site:scholar.google.com after:2024-01-01', SourceType.OTHER),
+        # Semantic Scholar — surfaces tens of millions of papers, free
+        (f'"{target}" site:semanticscholar.org',                 SourceType.OTHER),
+    ]
+    industry_low = (industry or "").lower()
+    if any(k in industry_low for k in (
+        "health", "pharma", "bio", "medical", "life science", "biotech", "clinical",
+    )):
+        out.append((f'"{target}" site:pmc.ncbi.nlm.nih.gov',                 SourceType.OTHER))
+        out.append((f'"{target}" site:pubmed.ncbi.nlm.nih.gov',              SourceType.OTHER))
+        out.append((f'"{target}" site:medrxiv.org OR site:biorxiv.org',      SourceType.OTHER))
+    if any(k in industry_low for k in (
+        "saas", "software", "tech", "cloud", "ai", "ml", "developer", "platform",
+        "backend-as-a-service", "baas", "infrastructure", "devtools",
+    )):
+        out.append((f'"{target}" site:arxiv.org',                            SourceType.OTHER))
+    if any(k in industry_low for k in (
+        "finance", "fintech", "legal", "business", "consulting", "banking",
+        "insurance", "investment",
+    )):
+        out.append((f'"{target}" site:ssrn.com',                             SourceType.OTHER))
+    if any(k in industry_low for k in (
+        "energy", "renewable", "wind", "solar", "climate", "sustainability",
+        "grid", "power",
+    )):
+        out.append((f'"{target}" site:iea.org OR site:irena.org research',   SourceType.OTHER))
+    return out
+
+
+def analyst_queries(
+    target: str,
+    industry: str | None = None,
+    region: str | None = None,
+) -> list[tuple[str, SourceType]]:
+    """V7.33 — expert / analyst commentary SERP overlay (gap #6 from RESUME).
+
+    Surfaces three under-represented strata:
+      • top-tier industry analyst houses (Gartner / Forrester / IDC / CB Insights)
+      • technical-community discussion (Hacker News / Reddit)
+      • longform analyst takes on LinkedIn pulse + podcast / conference audio
+
+    These complement default_external_queries' base news layer with
+    expert voices — analyst quotes carry weight in B2B decision-making
+    that even FT/Reuters coverage doesn't replicate.
+    """
+    region_token = (region or "").strip()
+    base = [
+        (f'"{target}" Gartner OR Forrester OR IDC OR "CB Insights"',  SourceType.NEWS),
+        (f'"{target}" "Hacker News" OR Reddit discussion',            SourceType.REVIEW),
+        (f'"{target}" site:linkedin.com/pulse analyst OR opinion',    SourceType.OTHER),
+        (f'"{target}" podcast interview OR conference keynote',       SourceType.OTHER),
+    ]
+    if region_token:
+        # Regional analyst overlay — picks up local-language coverage
+        # (e.g. Romanian wind-energy gets ZF / Profit.ro coverage).
+        base.append((
+            f'"{target}" {region_token} analyst OR expert commentary',
+            SourceType.NEWS,
+        ))
+    return base
+
+
 def default_external_queries(
     target: str,
     industry: str | None = None,
     region: str | None = None,
 ) -> list[tuple[str, SourceType]]:
-    """Base + industry-aware + region-aware SERP query set (V7.26).
+    """Base + academic + analyst + industry-aware + region-aware SERP set.
 
-    Base queries always run — they hit filings, news of record, academic.
-    Industry queries layer on if `industry` matches a known template
-    (substring match — 'wind energy' / 'wind turbines' both hit 'wind').
-    Region tokens (Romania / EU / US / etc.) get expanded into synonym
-    lists so a Romanian wind-energy firm picks up both 'Romania' AND
+    Layered (V7.33):
+      1. base       — filings, newspaper of record (always, 2 queries)
+      2. academic   — Scholar/SemSch + life-sci/CS/finance/energy overlays
+                      (always 2 + sector-dependent 0-3, total 2-5)
+      3. analyst    — Gartner/Forrester + HN/Reddit + LinkedIn + podcasts
+                      (always 4 + optional region overlay, total 4-5)
+      4. industry   — per-sector deep queries via _industry_template_for
+                      OR the V7.28 12-query generic fallback when no
+                      industry template matches
+
+    Region tokens (Romania / EU / US / etc.) expand into synonym lists
+    so a Romanian wind-energy firm picks up both 'Romania' AND
     'Eastern Europe' coverage.
 
-    When no industry / region is supplied, falls back to the canonical
-    review/competitor/outage/funding template that's domain-agnostic.
+    Total per cascade: ~14-24 SERP requests (was 15 pre-V7.33). Each
+    ~$0.001 via Bright Data Web Unlocker — overhead is ~$0.01/cascade
+    for materially richer coverage.
     """
     region_token = _REGION_EXPAND.get((region or "").lower().strip(), region or "")
 
@@ -666,9 +754,11 @@ def default_external_queries(
         (f'"{target}" filetype:pdf annual report OR 10-K OR prospectus',  SourceType.NEWS),
         # T3 — newspaper of record
         (f'"{target}" "Financial Times" OR Reuters OR Bloomberg',         SourceType.NEWS),
-        # T2 — academic / scholar
-        (f'"{target}" site:scholar.google.com OR site:arxiv.org OR study', SourceType.OTHER),
     ]
+    # V7.33 — academic layer replaces the old single 'scholar' base query
+    # with Scholar (date-tightened) + Semantic Scholar + sector overlays.
+    academic = academic_queries(target, industry)
+    analyst  = analyst_queries(target, industry, region_token)
 
     industry_layer = _industry_template_for(industry or "")
     # fill {target} + {region} placeholders
@@ -705,7 +795,7 @@ def default_external_queries(
             (f'"{target}" earnings call OR investor day',         SourceType.NEWS),
         ]
 
-    return base + rendered
+    return base + academic + analyst + rendered
 
 
 # ─── V7.30 — JS-rendered SPA chrome detection + Wikipedia/Wayback fallback ─
