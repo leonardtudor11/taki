@@ -582,6 +582,45 @@ def api_run():
 
                 final = graph.invoke({"bundle": bundle, "events": []})
                 brief = final["brief"]
+
+                # V7.38 — post-cascade competitor enrichment. We need a
+                # BrightDataClient (already in scope for live/self modes;
+                # absent for demo mode). profile.competitor_names is
+                # populated by profile_extract DURING the cascade so it's
+                # only available now (post-graph). One LLM call + one
+                # SERP + one Unlock per competitor, capped at 3.
+                try:
+                    bd_client = locals().get("client")
+                    if (bd_client is not None
+                            and brief.business_profile
+                            and brief.business_profile.competitor_names):
+                        from agents import competitor_summary
+                        def _emit_competitor(ev: dict) -> None:
+                            q.put({"phase": "competitor_summary", **ev})
+                        q.put({
+                            "phase": "competitor_summary", "status": "start",
+                            "count": min(len(brief.business_profile.competitor_names),
+                                         competitor_summary.MAX_COMPETITORS),
+                        })
+                        summaries = competitor_summary.build_summaries(
+                            target_name=brief.target,
+                            target_profile=brief.business_profile,
+                            competitor_names=brief.business_profile.competitor_names,
+                            client=bd_client,
+                            on_event=_emit_competitor,
+                        )
+                        if summaries:
+                            brief = brief.model_copy(update={"competitor_summaries": summaries})
+                        q.put({
+                            "phase": "competitor_summary", "status": "done",
+                            "produced": len(summaries),
+                        })
+                except Exception as exc:
+                    q.put({
+                        "phase": "competitor_summary", "status": "error",
+                        "error": f"{type(exc).__name__}: {exc}",
+                    })
+
                 cache.save_bundle(bundle)
                 cache.save_brief(brief)
                 FRONTEND_BRIEF.write_text(brief.model_dump_json(indent=2))

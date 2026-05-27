@@ -478,6 +478,77 @@ function _tierTitle(t) {
 }
 
 
+// V7.38 — Competitor mini-summary panel. Side-by-side table of
+// per-competitor positioning / pricing / stage / relevance built
+// post-cascade by agents/competitor_summary.py. Skipped when empty so
+// old briefs render unchanged.
+function renderCompetitorSummaries(brief) {
+  const list = (brief && Array.isArray(brief.competitor_summaries)) ? brief.competitor_summaries : [];
+  if (!list.length) return null;
+
+  const wrap = el("section", {
+    class: "competitors-panel",
+    role: "region",
+    "aria-label": "Competitor snapshots",
+  });
+  wrap.appendChild(el("div", { class: "competitors-eyebrow" }, "Competitive surface"));
+  wrap.appendChild(el("h2", { class: "competitors-title" }, "Named competitors"));
+  wrap.appendChild(el("div", { class: "competitors-subtitle" },
+    `Each card built from one live homepage scrape + one LLM extraction. Why-relevant ties back to ${brief.target || "the target"}.`));
+
+  const grid = el("div", { class: "competitors-grid" });
+  for (const c of list) {
+    if (!c || !c.name) continue;
+    const card = el("article", { class: "competitor-card" });
+    // Header: name + (optional) external link
+    const head = el("div", { class: "competitor-head" });
+    head.appendChild(el("h3", { class: "competitor-name" }, String(c.name)));
+    if (c.url) {
+      const href = safeUrl(c.url);
+      if (href !== "#") {
+        const a = el("a", {
+          class: "competitor-link", href, target: "_blank", rel: "noopener noreferrer",
+          title: c.url,
+        }, "↗");
+        head.appendChild(a);
+      }
+    }
+    card.appendChild(head);
+
+    // Stage chip (top-right-ish via flow)
+    if (c.stage_hint) {
+      card.appendChild(el("span", { class: "competitor-stage" }, String(c.stage_hint)));
+    }
+
+    // Positioning (1-sentence, the headline)
+    if (c.positioning) {
+      const p = el("p", { class: "competitor-positioning" }, String(c.positioning));
+      card.appendChild(p);
+    }
+
+    // Pricing hint
+    if (c.pricing_hint) {
+      const row = el("div", { class: "competitor-row" });
+      row.appendChild(el("span", { class: "competitor-row-label" }, "Pricing"));
+      row.appendChild(el("span", { class: "competitor-row-value" }, String(c.pricing_hint)));
+      card.appendChild(row);
+    }
+
+    // Why-relevant (ties to TARGET — the killer field)
+    if (c.why_relevant) {
+      const why = el("div", { class: "competitor-why" });
+      why.appendChild(el("span", { class: "competitor-why-label" }, "Why it matters"));
+      why.appendChild(el("p", { class: "competitor-why-text" }, String(c.why_relevant)));
+      card.appendChild(why);
+    }
+    grid.appendChild(card);
+  }
+  if (!grid.childNodes.length) return null;
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+
 // V7.34 — Expert quotes panel. Renders verbatim attributed quotes
 // (analysts, regulators, journalists, named executives) above the
 // departments section. Skipped when brief.expert_quotes is empty so
@@ -1471,6 +1542,12 @@ function render(brief) {
   // judges scanning the brief hit the human voices before the dept grid.
   const quotesPanel = renderExpertQuotes(brief);
   if (quotesPanel) app.appendChild(quotesPanel);
+
+  // V7.38 — Competitor snapshots sit after expert quotes; together they
+  // form the "competitive + external voice" layer between the strategic
+  // plan and the dept signal grid.
+  const competitorsPanel = renderCompetitorSummaries(brief);
+  if (competitorsPanel) app.appendChild(competitorsPanel);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });

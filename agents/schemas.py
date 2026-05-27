@@ -818,6 +818,26 @@ class GenericSignal(_AutoListBase):
 SectorSignal = Union[PharmaSignal, SaasSignal, EnergySignal, GenericSignal]
 
 
+class CompetitorSummary(_AutoListBase):
+    """V7.38 — lightweight per-competitor mini-summary.
+
+    Built by agents/competitor_summary.py after the cascade completes:
+    for each name in business_profile.competitor_names (capped at 3),
+    SERP for the primary URL, scrape the homepage, and run ONE LLM call
+    to extract a 4-field snapshot. Lighter than the full gap #3
+    competitive cascade (cost cap ~$0.15/cascade vs $0.30) but enough
+    to fill a side-by-side comparison panel in the dashboard.
+    """
+
+    name: str
+    url: str = ""
+    positioning: str = ""    # 1-sentence positioning statement
+    pricing_hint: str = ""   # e.g. "$99/seat/mo and up" or "enterprise sales-led"
+    stage_hint: str = ""     # e.g. "growth" / "scale" / "early-revenue"
+    why_relevant: str = ""   # 1-sentence relevance to the target
+    citation: str = ""       # primary URL the summary was built from
+
+
 class BundleStats(_AutoListBase):
     """V7.37 — per-cascade bundle quality snapshot.
 
@@ -894,3 +914,5 @@ class CascadeBrief(_AutoListBase):
     expert_quotes: list[ExpertQuote] = Field(default_factory=list)
     # V7.37 — bundle quality snapshot (counts by tier / subject / type).
     bundle_stats: Optional[BundleStats] = None
+    # V7.38 — per-competitor mini-summaries built post-cascade.
+    competitor_summaries: list[CompetitorSummary] = Field(default_factory=list)
