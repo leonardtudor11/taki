@@ -1,54 +1,39 @@
 {
   "target": "Notion",
   "mode": "target",
-  "business_profile": null,
-  "generated_at": "2026-05-27T16:25:21.097779Z",
+  "business_profile": {
+    "name": "Notion",
+    "url": "https://www.notion.so",
+    "industry": "AI-powered workspace and knowledge management platform",
+    "stage": "growth",
+    "goal": "Integrate and market new AI-powered automation agents to expand its enterprise workspace offerings.",
+    "customer_segment": "Individuals and teams across various company sizes, from personal use and startups to large enterprises (including 98% of the Forbes Cloud 100).",
+    "competitor_urls": [],
+    "competitor_names": []
+  },
+  "generated_at": "2026-05-27T18:00:40.830918Z",
   "account_brief": {
     "target": "Notion",
     "buying_signals": [
       {
-        "text": "Notion is heavily focused on the enterprise market, offering a dedicated plan with features like SCIM provisioning, advanced security, audit logs, and dedicated customer success managers.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Enterprise\nCustom pricing\nFor organizations to operate with scalability, control, and security.",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Access the Notion SCIM API to provision and manage users and groups.",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Our team of Customer Success Managers are experts to help you get the most out of Notion.",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The company is making a significant push into AI with the launch of \"Notion Agents\" to automate tasks, alongside features like AI Meeting Notes and Enterprise Search, creating new product lines to sell and support.",
+        "text": "Notion is actively building out its partner ecosystem, indicated by its promotion of a consultant program and hiring for a \"Partner Strategy & Operations Lead.\"",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "Meet the night shift. Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
+            "snippet": "Partner programs",
             "source_type": "site"
-          },
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Custom Agents\nAI agents handle repetitive tasks autonomously, so your team doesn’t have to.",
-            "source_type": "pricing"
           }
         ],
-        "confidence": 1.0
-      },
+        "confidence": 0.85
+      }
+    ],
+    "competitor_moves": [
       {
-        "text": "Notion's go-to-market strategy involves a tool consolidation play, positioning itself as a single platform that can replace numerous other applications like project management, team wikis, and CRMs.",
+        "text": "Notion is positioning itself as a consolidated, cost-effective platform to compete against a fragmented stack of individual tools for project management, wikis, and AI assistants.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
+            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof. Calculate savings below.",
             "source_type": "site"
           },
           {
@@ -57,132 +42,197 @@
             "source_type": "site"
           }
         ],
-        "confidence": 1.0
+        "confidence": 0.85
       },
       {
-        "text": "Notion has achieved significant market penetration, with over 100 million users and adoption by 62% of the Fortune 100, indicating a large, complex customer base that requires sophisticated management and upselling strategies.",
+        "text": "Notion is aggressively moving upmarket by offering an Enterprise plan with features specifically for large organizations, including SCIM, advanced security, audit logs, and dedicated customer success managers.",
         "citations": [
           {
-            "url": "https://www.notion.so",
-            "snippet": "Over 100M users worldwide\n#1 knowledge base 3 years running (G2)\n#1 AI enterprise search (G2)\n#1 rated AI writing (G2)\n62% of Fortune 100",
-            "source_type": "site"
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Enterprise Custom pricing For organizations to operate with scalability, control, and security.",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Access the Notion SCIM API to provision and manage users and groups. User provisioning (SCIM)",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Our team of Customer Success Managers are experts to help you get the most out of Notion. Customer success manager",
+            "source_type": "pricing"
           }
         ],
-        "confidence": 1.0
+        "confidence": 0.85
       }
     ],
-    "competitor_moves": [],
     "hiring_signals": [
       {
-        "text": "Notion is significantly scaling its Go-to-Market (GTM) and Revenue functions, with open roles for a Head of GTM Operations, GTM Recruiters, and numerous Account Executives.",
+        "text": "Notion is significantly expanding its Go-To-Market (GTM) organization, with active hiring for sales, customer success, and marketing roles across North America, EMEA, and APAC.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "Head of GTM Operations\nSan Francisco, California",
+            "snippet": "GTM Recruiter, AMER San Francisco, California",
             "source_type": "jobs"
           },
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "GTM Recruiter, AMER\nSan Francisco, California",
+            "snippet": "Head of Customer Success, APAC Tokyo, Japan",
             "source_type": "jobs"
           },
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "Account Executive, Commercial\nSan Francisco, California",
+            "snippet": "Marketing Specialist, Growth and Demand, EMEA Dublin, Ireland",
             "source_type": "jobs"
           }
         ],
-        "confidence": 1.0
+        "confidence": 0.85
       },
       {
-        "text": "The company is expanding internationally, building out its Customer Success and Sales teams in APAC and EMEA with leadership roles like 'Head of Customer Success, APAC' and 'Head of Customer Success, EMEA'.",
+        "text": "The company is making a major investment in AI development, with numerous open roles for AI engineers and product managers focused on applications, workflows, and governance.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "Head of Customer Success, APAC\nTokyo, Japan",
+            "snippet": "Software Engineer, AI Workflows San Francisco, California; New York, New York",
             "source_type": "jobs"
           },
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "Head of Customer Success, EMEA\nDublin, Ireland",
+            "snippet": "AI Applications Engineer San Francisco, California",
             "source_type": "jobs"
           },
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "Marketing Specialist, Growth and Demand, EMEA\nDublin, Ireland",
+            "snippet": "Product Manager, AI Governance and Admin Experience New York, New York; San Francisco, California",
             "source_type": "jobs"
           }
         ],
-        "confidence": 1.0
+        "confidence": 0.85
+      },
+      {
+        "text": "Notion is building a more sophisticated revenue engine by hiring for key strategic roles like \"Head of GTM Operations\" and \"Customer Success Strategy & Operations Manager.\"",
+        "citations": [
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Head of GTM Operations San Francisco, California",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "There is a strong focus on capturing the enterprise market segment, demonstrated by hiring for roles like \"Enterprise Product Marketing, GTM\" and \"Enterprise Customer Success Manager.\"",
+        "citations": [
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Enterprise Product Marketing, GTM San Francisco, California; New York, New York",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Enterprise Customer Success Manager, Japan Tokyo, Japan",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Enterprise Technical Premium Support Specialist San Francisco, California; New York, New York",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.85
       }
     ],
-    "outreach_angle": "Noticing your rapid global expansion and GTM hiring to support new AI products, I have an idea on how to streamline revenue operations to ensure your new teams can ramp effectively and hit the ground running.",
-    "generated_at": "2026-05-27T16:24:14.849393Z"
+    "outreach_angle": "Given Notion's significant GTM expansion and push into the enterprise AI market, I'm reaching out to share how we help high-growth companies effectively scale their revenue and partnership operations.",
+    "generated_at": "2026-05-27T17:58:46.872761Z"
   },
   "market_signal": {
     "target": "Notion",
     "pricing_trend": [
       {
-        "text": "The company is introducing usage-based pricing for its new AI features, with Notion Agents being free to try and then costing $10 per 1,000 monthly credits.",
+        "text": "Notion utilizes a tiered subscription model with Free, Plus ($10/member/month), Business ($20/member/month), and custom-priced Enterprise plans, offering up to a 20% discount for annual payments.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Plus $10 per member / month For small teams and professionals to work together.",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Business Recommended $20 per member / month For growing businesses to streamline teamwork.",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Enterprise Custom pricing For organizations to operate with scalability, control, and security.",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Save up to 20% with yearly",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.95
+      },
+      {
+        "text": "The company is introducing a usage-based credit system for new advanced features, such as Custom Agents, which will be priced at $10 per 1,000 credits after an initial free trial.",
         "citations": [
           {
             "url": "https://www.notion.so/pricing",
             "snippet": "Custom Agents AI agents handle repetitive tasks autonomously, so your team doesn’t have to. Free to try, then $10 per 1,000 monthly Notion credits.",
             "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "Notion positions itself as a cost-saving platform by consolidating multiple tools, providing a calculator for potential customers to estimate savings against specific competitors like AI Search, Chatbots, and Project Management tools.",
-        "citations": [
+          },
           {
-            "url": "https://www.notion.so",
-            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof. Calculate savings below. See pricing plans → AI Search $35/user AI Chatbot $20/user AI Meeting Notes $18/user AI Writing Assistant $20/user AI Email App $30/user AI Research $40/user Calendar Scheduling $15/user Team Wiki $10/user Project Management Tool $24/user Basic CRM $20/user Site Builder $20/user Forms $15/user",
-            "source_type": "site"
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Workers Beta Extend Notion with custom code to build agent tools, sync external data, and trigger Notion workflows from anywhere. Free to try now. Starts using credits on August 11.",
+            "source_type": "pricing"
           }
         ],
-        "confidence": 0.85
+        "confidence": 0.9
       }
     ],
     "expansion_contraction": [
       {
-        "text": "Notion is undergoing a period of rapid global expansion, stating it is 'growing faster than ever' with offices in San Francisco, New York, Dublin, Hyderabad, Tokyo, Seoul, and Sydney.",
+        "text": "Notion is undergoing significant global expansion, with established offices in North America, Europe, and APAC, and is actively hiring for new positions in locations including Amsterdam, Dubai, Madrid, and Paris.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
             "snippet": "Today, we’re growing faster than ever across offices in San Francisco, New York, Dublin, Hyderabad, Tokyo, Seoul and Sydney 🇺🇸 🇮🇪 🇮🇳 🇯🇵 🇰🇷 🇦🇺",
             "source_type": "jobs"
-          }
-        ],
-        "confidence": 0.85
-      },
-      {
-        "text": "The company is actively hiring for a wide range of roles across multiple international locations including Amsterdam, Brazil (Remote), London, Madrid, Munich, Paris, Singapore, and Stockholm, indicating a significant push for global market presence.",
-        "citations": [
+          },
           {
             "url": "https://www.notion.so/careers",
             "snippet": "Filter by Location All locations Amsterdam, Netherlands Brazil (Remote) Denver, Colorado Dubai Dublin, Ireland Hyderabad, India London, United Kingdom Madrid, Spain Munich, Germany New York, New York Paris, France Remote San Francisco, California Seoul, South Korea Singapore Spain Stockholm, Sweden Sydney, Australia Tokyo, Japan",
             "source_type": "jobs"
           }
         ],
-        "confidence": 0.85
+        "confidence": 0.95
       },
       {
-        "text": "Hiring efforts show a strong focus on expanding AI capabilities, with open roles such as 'AI Applications Engineer', 'Engineering Manager, Mobile AI', and 'Software Engineer, AI Workflows'.",
+        "text": "Notion reports substantial market penetration with over 100 million users, adoption by 62% of the Fortune 100, and usage by over half of YC companies.",
         "citations": [
           {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Engineering\nAI Applications Engineer San Francisco, California\nData Engineer, Go-To-Market San Francisco, California\nData Engineer, People Analytics San Francisco, California\nEngineering Manager, Context (Agentic Search) San Francisco, California\nEngineering Manager, Mobile AI New York, New York\nModel Behavior Engineer New York, New York; San Francisco, California\nSoftware Engineer, AI Capture San Francisco, California\nSoftware Engineer, AI Workflows San Francisco, California; New York, New York",
-            "source_type": "jobs"
+            "url": "https://www.notion.so",
+            "snippet": "Over 100M users worldwide",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "62% of Fortune 100",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Over 50% of YC companies",
+            "source_type": "site"
           }
         ],
-        "confidence": 0.85
+        "confidence": 0.95
       }
     ],
     "web_traffic_proxy": [
       {
-        "text": "Notion claims a massive user base, with over 100 million users worldwide.",
+        "text": "Notion's platform engagement is indicated by its large user base of over 100 million users worldwide.",
         "citations": [
           {
             "url": "https://www.notion.so",
@@ -190,10 +240,10 @@
             "source_type": "site"
           }
         ],
-        "confidence": 0.85
+        "confidence": 0.9
       },
       {
-        "text": "Notion has a large and active community, with over 1.4 million members.",
+        "text": "The company fosters a large and active community, with over 1.4 million members, which serves as a proxy for brand loyalty and organic user engagement.",
         "citations": [
           {
             "url": "https://www.notion.so",
@@ -202,39 +252,75 @@
           }
         ],
         "confidence": 0.85
-      },
-      {
-        "text": "The company has received multiple #1 rankings from G2 for its Knowledge Base, AI Enterprise Search, and AI Writing capabilities, suggesting strong market validation and user satisfaction.",
-        "citations": [
-          {
-            "url": "https://www.notion.so",
-            "snippet": "#1 knowledge base 3 years running (G2)\n#1 AI enterprise search (G2)\n#1 rated AI writing (G2)",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 0.85
       }
     ],
     "vendor_health_flags": [
       {
-        "text": "Customer testimonials suggest strong product-market fit, with one user from OpenAI stating, 'Notion has been the most powerful and impactful way to streamline our workflow.'",
+        "text": "Notion demonstrates strong market health and enterprise-level trust, being used by 98% of the Forbes Cloud 100 and 62% of the Fortune 100.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "“Notion has been the most powerful and impactful way to streamline our workflow.”",
+            "snippet": "Trusted by 98% of the Forbes Cloud 100",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "62% of Fortune 100",
             "source_type": "site"
           }
         ],
-        "confidence": 0.85
+        "confidence": 0.95
+      },
+      {
+        "text": "The company has received multiple #1 rankings from G2 for its Knowledge Base, AI Enterprise Search, and AI Writing tools, indicating high customer satisfaction and product leadership.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "#1 knowledge base 3 years running (G2)",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "#1 AI enterprise search (G2)",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "#1 rated AI writing (G2)",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.95
+      },
+      {
+        "text": "Heavy investment in product innovation, particularly in AI with the development of Notion Agents, and extensive hiring for AI-focused engineering roles signals a strong commitment to future growth and competitiveness.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Product Manager, AI Governance and Admin Experience",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Engineering Manager, Mobile AI",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.9
       }
     ],
-    "generated_at": "2026-05-27T16:24:20.588399Z"
+    "generated_at": "2026-05-27T17:58:53.373250Z"
   },
   "marketing_signal": {
     "target": "Notion",
     "value_proposition": [
       {
-        "text": "Notion provides an AI-powered workspace that automates tasks and enhances productivity around the clock.",
+        "text": "Notion positions itself as a unified, AI-powered workspace that centralizes all work, from documents and projects to knowledge bases, enabling automation and reducing the need for multiple tools.",
         "citations": [
           {
             "url": "https://www.notion.so",
@@ -243,30 +329,35 @@
           },
           {
             "url": "https://www.notion.so",
-            "snippet": "Meet the night shift. Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
+            "snippet": "Bring all your work together.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "More productivity. Fewer tools.",
             "source_type": "site"
           }
         ],
         "confidence": 1.0
       },
       {
-        "text": "It serves as a unified platform that consolidates various work tools, aiming to increase productivity and reduce software costs.",
+        "text": "A key value proposition is autonomous automation through 'Notion Agents' that can handle repetitive tasks, answer questions, and manage workflows 24/7.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
+            "snippet": "Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
             "source_type": "site"
           },
           {
             "url": "https://www.notion.so/pricing",
-            "snippet": "One tool to run your company.",
+            "snippet": "Custom Agents AI agents handle repetitive tasks autonomously, so your team doesn’t have to.",
             "source_type": "pricing"
           }
         ],
         "confidence": 1.0
       },
       {
-        "text": "The core value is a highly customizable and flexible platform that users can shape to their specific needs, like a set of building blocks.",
+        "text": "The platform is presented as a highly flexible and customizable 'toolbox' that users can mold to their specific needs, likening it to Lego blocks.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
@@ -275,14 +366,14 @@
           },
           {
             "url": "https://www.notion.so/careers",
-            "snippet": "Our mission is to make that a ubiquitous reality.",
+            "snippet": "This is the type of tool we want to build together at Notion — one that gives you the software you can mold and shape like clay to solve your problems your way.",
             "source_type": "jobs"
           }
         ],
-        "confidence": 1.0
+        "confidence": 0.95
       },
       {
-        "text": "Notion provides a central source of truth for teams and AI agents through its knowledge base and documentation features.",
+        "text": "Notion serves as a single source of truth for teams by providing a centralized knowledge base and enterprise search capabilities across all connected applications.",
         "citations": [
           {
             "url": "https://www.notion.so",
@@ -291,98 +382,32 @@
           },
           {
             "url": "https://www.notion.so",
-            "snippet": "Docs Simple and powerful.",
+            "snippet": "Enterprise Search One search for everything.",
             "source_type": "site"
-          }
-        ],
-        "confidence": 0.9
-      }
-    ],
-    "positioning": [
-      {
-        "text": "Notion positions itself as a single, consolidated platform that replaces a multitude of single-purpose applications.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "There’s power in a single platform where you can do all your work out of. Notion is that single place.",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://www.notion.so",
-            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "The platform is heavily framed as an 'AI-native' workspace, suggesting a competitive advantage over tools with bolted-on AI.",
-        "citations": [
-          {
-            "url": "https://www.notion.so",
-            "snippet": "The AI workspace that works for you.",
-            "source_type": "site"
-          },
-          {
-            "url": "https://www.notion.so",
-            "snippet": "“Using the most AI‑native tools like Notion is an important competitive advantage for us.”",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "They position the product as a flexible 'toolbox' or 'Lego set' that empowers users to build their own solutions, contrasting with more rigid software.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "We sometimes compare it to a set of Legos (if Legos were designed by The New York Times).",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "one that gives you the software you can mold and shape like clay to solve your problems your way.",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Notion targets a wide market spectrum, from individual users on a free plan to large organizations requiring enterprise-grade security and support.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Free $0 per member / month For individuals to organize personal projects and life.",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Enterprise Custom pricing For organizations to operate with scalability, control, and security.",
-            "source_type": "pricing"
           }
         ],
         "confidence": 1.0
       }
     ],
-    "brand_voice": [
+    "positioning": [
       {
-        "text": "The brand voice is aspirational and benefit-focused, using short, punchy phrases.",
+        "text": "Notion positions itself as the single, consolidated platform that can replace a fragmented stack of specialized tools, offering a cost-saving benefit.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "Meet the night shift.",
+            "snippet": "There’s power in a single platform where you can do all your work. Notion is that single place.",
             "source_type": "site"
           },
           {
             "url": "https://www.notion.so",
-            "snippet": "Less tracking. More progress.",
+            "snippet": "Calculate savings below.",
             "source_type": "site"
           }
         ],
-        "confidence": 0.9
+        "confidence": 1.0
       },
       {
-        "text": "The tone is confident and authoritative, leveraging social proof and industry rankings.",
+        "text": "The company frames itself as a market leader, leveraging extensive social proof including adoption by top-tier companies and #1 rankings from G2.",
         "citations": [
           {
             "url": "https://www.notion.so",
@@ -393,175 +418,232 @@
             "url": "https://www.notion.so",
             "snippet": "#1 knowledge base 3 years running (G2)",
             "source_type": "site"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Notion's persona is creative, intellectual, and sophisticated, comparing its product to 'Legos designed by The New York Times'.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "We sometimes compare it to a set of Legos (if Legos were designed by The New York Times).",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "we’ve brought together a diverse team of individuals passionate about computing, history, art, alternative programming languages, music, skateboarding, and craft.",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 0.9
-      },
-      {
-        "text": "The language is empowering and user-centric, focusing on what the tool enables the user to do.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "gives you the software you can mold and shape like clay to solve your problems your way.",
-            "source_type": "jobs"
           },
           {
             "url": "https://www.notion.so",
-            "snippet": "The AI workspace that works for you.",
+            "snippet": "62% of Fortune 100",
             "source_type": "site"
           }
         ],
         "confidence": 1.0
-      }
-    ],
-    "content_gaps": [
-      {
-        "text": "The provided materials lack detailed, quantitative ROI or Total Cost of Ownership (TCO) reports often required for enterprise sales cycles, instead offering a simplified savings calculator.",
-        "citations": [
-          {
-            "url": "https://www.notion.so",
-            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof. Calculate savings below.",
-            "source_type": "site"
-          }
-        ],
-        "confidence": 0.8
       },
       {
-        "text": "There are no direct competitive comparison pages (e.g., Notion vs. a specific competitor), a common content type for SaaS companies. They position against tool categories rather than named rivals.",
+        "text": "Notion is positioned as an 'AI-native' tool, suggesting that using it provides companies with a significant competitive advantage.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "AI Search $35/user AI Chatbot $20/user AI Meeting Notes $18/user AI Writing Assistant $20/user AI Email App $30/user AI Research $40/user Calendar Scheduling $15/user Team Wiki $10/user Project Management Tool $24/user Basic CRM $20/user Site Builder $20/user Forms $15/user",
+            "snippet": "“Using the most AI‑native tools like Notion is an important competitive advantage for us.”",
             "source_type": "site"
           }
         ],
         "confidence": 0.9
       }
     ],
+    "brand_voice": [
+      {
+        "text": "The brand voice is aspirational and visionary, connecting the product to a grander mission of empowering people and improving the world.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "If every person and business can tailor software to their problems, the world will be better at solving its problems. Our mission is to make that a ubiquitous reality.",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Early computing pioneers envisioned a future where machines on our desks could amplify our imagination, extend our intellect, and help us model information in ways never before seen.",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "text": "Notion's voice is confident and authoritative, using data and accolades to assert market leadership and build trust.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Trusted by teams that ship.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "#1 AI enterprise search (G2)",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "The language is simple, direct, and benefit-focused, using concise phrases to communicate value.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Docs Simple and powerful.",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Projects Less tracking. More progress.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.95
+      }
+    ],
+    "content_gaps": [],
     "channel_signals": [
       {
-        "text": "Notion heavily invests in a Product-Led Growth (PLG) motion, with a prominent 'Get Notion free' call-to-action and a free tier designed for individual adoption.",
+        "text": "A significant focus is placed on a direct, enterprise sales motion, indicated by distinct 'Enterprise' offerings, 'Request a demo' CTAs, and extensive hiring for Sales and Customer Success roles.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Enterprise Custom pricing For organizations to operate with scalability, control, and security. Contact Sales",
+            "source_type": "pricing"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Account Executive, Commercial",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "text": "The company actively cultivates a developer ecosystem and community as a strategic channel, evidenced by top-level navigation for developers and highlighting community size.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "Get Notion free",
+            "snippet": "Learn Developers Academy Product tours Help Developers",
             "source_type": "site"
           },
           {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Free $0 per member / month For individuals to organize personal projects and life.",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "They operate a sophisticated top-down GTM motion, evidenced by hiring for roles like 'Enterprise Product Marketing, GTM', 'Field Marketing Manager', and numerous Account Executive and Customer Success positions.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Enterprise Product Marketing, GTM San Francisco, California; New York, New York",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Field Marketing Manager San Francisco, California; New York, New York",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Content marketing is a core channel, supported by a blog, webinars, customer stories, templates, and hiring for a 'Customer Content Marketing Lead'.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Customer Content Marketing Lead New York, New York; San Francisco, California",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 1.0
-      },
-      {
-        "text": "Notion is investing significantly in global expansion, with marketing, sales, and support roles available across APAC, EMEA, and the Americas.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Filter by Location All locations Amsterdam, Netherlands Brazil (Remote) Denver, Colorado Dubai Dublin, Ireland Hyderabad, India London, United Kingdom Madrid, Spain Munich, Germany New York, New York Paris, France Remote San Francisco, California Seoul, South Korea Singapore Spain Stockholm, Sweden Sydney, Australia Tokyo, Japan",
-            "source_type": "jobs"
-          },
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Marketing Specialist, Growth and Demand, EMEA Dublin, Ireland",
-            "source_type": "jobs"
+            "url": "https://www.notion.so",
+            "snippet": "1.4M+ community members",
+            "source_type": "site"
           }
         ],
         "confidence": 1.0
       }
     ],
-    "generated_at": "2026-05-27T16:24:28.020817Z"
+    "generated_at": "2026-05-27T17:58:58.724102Z"
   },
   "risk_profile": {
     "target": "Notion",
     "exposure_indicators": [
       {
-        "text": "Autonomous AI agents are designed to access and process data from a wide range of connected applications and the web, posing a significant risk of data exfiltration or unintended actions.",
+        "text": "AI agents are designed to autonomously access, capture, and process internal company knowledge from various sources, creating a potential risk of data misuse or leakage if misconfigured.",
         "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Does work for you. Completes complex, multi-step tasks using context from Notion, your connected apps, and the web. Notion Agent",
-            "source_type": "pricing"
-          },
           {
             "url": "https://www.notion.so",
             "snippet": "Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
             "source_type": "site"
-          }
-        ],
-        "confidence": 0.95
-      },
-      {
-        "text": "For customers not on the Enterprise plan, user data processed by Notion AI may be retained by its third-party Large Language Model (LLM) providers, creating a potential data exposure.",
-        "citations": [
+          },
           {
             "url": "https://www.notion.so/pricing",
-            "snippet": "When using Notion AI, our LLM providers utilize zero data retention for Enterprise plan workspaces",
+            "snippet": "Completes complex, multi-step tasks using context from Notion, your connected apps, and the web. Notion Agent",
             "source_type": "pricing"
           }
         ],
-        "confidence": 0.9
+        "confidence": 0.85
       },
       {
-        "text": "Introduction of beta features that allow users to run custom code presents a significant security risk, potentially leading to vulnerabilities or execution of malicious code.",
+        "text": "The platform centralizes a company's documents, knowledge bases, and project data, creating a single, high-value target for threat actors.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "One hub for work and AI keeps everyone informed and work flowing.",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The service includes a feature to publish internal pages to the public web, which introduces a risk of accidental sensitive data exposure by employees.",
         "citations": [
           {
             "url": "https://www.notion.so/pricing",
-            "snippet": "Workers Beta Extend Notion with custom code to build agent tools, sync external data, and trigger Notion workflows from anywhere.",
+            "snippet": "Publish a Notion page to the web",
             "source_type": "pricing"
           }
         ],
-        "confidence": 0.8
+        "confidence": 0.85
+      },
+      {
+        "text": "Lower-tier plans lack advanced security controls for preventing data exfiltration, such as restricting external sharing and disabling guest access, which are reserved for Enterprise customers.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Unlock extra permission controls to prevent certain people from sharing pages externally, disable guests, and set workspace-level rules.",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The platform explicitly supports the storage of sensitive information, such as strategic plans and employee performance reviews, increasing the impact of a potential data breach.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Create teamspaces that can’t be seen or discovered by anyone except those you add. Great for sensitive information like company planning or performance reviews.",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.85
       }
     ],
     "reputational_signals": [
       {
-        "text": "The company is undergoing a period of rapid international growth, which can strain internal security and compliance controls.",
+        "text": "Notion is used by a majority of high-profile companies, including Fortune 100 and Forbes Cloud 100 members, making it a high-visibility target for cyberattacks.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Trusted by 98% of the Forbes Cloud 100",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so",
+            "snippet": "62% of Fortune 100",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "With over 100 million users worldwide, the platform's large user base increases its attack surface and the potential brand damage from a large-scale security incident.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Over 100M users worldwide",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The company is actively hiring for roles related to AI governance, indicating that associated controls and policies are likely still under development and may not be fully mature.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "Product Manager, AI Governance and Admin Experience",
+            "source_type": "jobs"
+          }
+        ],
+        "confidence": 0.85
+      }
+    ],
+    "regulatory_signals": [
+      {
+        "text": "Automated user lifecycle management via SCIM is restricted to the Enterprise plan, which may create access control and compliance challenges for organizations not on that tier.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Access the Notion SCIM API to provision and manage users and groups. User provisioning (SCIM)",
+            "source_type": "pricing"
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "text": "The company's global office presence in North America, Europe, and APAC implies it is subject to multiple international data privacy and security regulations.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
@@ -569,52 +651,12 @@
             "source_type": "jobs"
           }
         ],
-        "confidence": 0.7
-      },
-      {
-        "text": "Notion is actively hiring for AI Governance roles, which suggests that its governance frameworks for artificial intelligence features may be immature or still under development.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "Product Manager, AI Governance and Admin Experience New York, New York; San Francisco, California",
-            "source_type": "jobs"
-          }
-        ],
-        "confidence": 0.75
-      }
-    ],
-    "regulatory_signals": [
-      {
-        "text": "Core security and compliance features, such as audit logs, advanced security controls, and SCIM user provisioning, are restricted to the highest-cost Enterprise plan, potentially leaving customers on lower tiers without necessary controls to meet their own compliance obligations.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Access a detailed log of security and safety-related activity for your workspace account to identify potential security issues, investigate suspicious behavior, or troubleshoot access. Audit log",
-            "source_type": "pricing"
-          },
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Access the Notion SCIM API to provision and manage users and groups. User provisioning (SCIM)",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.95
-      },
-      {
-        "text": "Lack of data retention guarantees for non-Enterprise plan customers using AI features could create compliance risks under regulations like GDPR.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "When using Notion AI, our LLM providers utilize zero data retention for Enterprise plan workspaces Zero data retention with LLM providers",
-            "source_type": "pricing"
-          }
-        ],
-        "confidence": 0.9
+        "confidence": 0.85
       }
     ],
     "third_party_risk": [
       {
-        "text": "Notion's AI features rely on external LLM providers, introducing a dependency on the security and data handling practices of these sub-processors.",
+        "text": "Notion states that third-party LLM providers have a zero data retention policy for Enterprise plan customers, which implies that customer data from non-Enterprise plans may be retained by these providers.",
         "citations": [
           {
             "url": "https://www.notion.so/pricing",
@@ -622,10 +664,21 @@
             "source_type": "pricing"
           }
         ],
-        "confidence": 0.95
+        "confidence": 0.85
+      },
+      {
+        "text": "The platform's functionality relies on connections to external applications, which introduces risk inherited from the security posture of those third-party services.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Connections Connect your apps",
+            "source_type": "site"
+          }
+        ],
+        "confidence": 0.85
       }
     ],
-    "generated_at": "2026-05-27T16:24:22.162485Z"
+    "generated_at": "2026-05-27T17:58:59.701372Z"
   },
   "synergy_signals": [
     {
@@ -637,13 +690,13 @@
       "citations": [
         {
           "url": "https://www.notion.so/pricing",
-          "snippet": "Custom Agents AI agents handle repetitive tasks autonomously, so your team doesn’t have to. Free to try, then $10 per 1,000 monthly Notion credits.",
+          "snippet": "Plus $10 per member / month For small teams and professionals to work together.",
           "source_type": "pricing"
         },
         {
-          "url": "https://www.notion.so/careers",
-          "snippet": "Today, we’re growing faster than ever across offices in San Francisco, New York, Dublin, Hyderabad, Tokyo, Seoul and Sydney 🇺🇸 🇮🇪 🇮🇳 🇯🇵 🇰🇷 🇦🇺",
-          "source_type": "jobs"
+          "url": "https://www.notion.so",
+          "snippet": "Trusted by 98% of the Forbes Cloud 100",
+          "source_type": "site"
         }
       ]
     },
@@ -656,7 +709,7 @@
       "citations": [
         {
           "url": "https://www.notion.so/careers",
-          "snippet": "Head of GTM Operations\nSan Francisco, California",
+          "snippet": "GTM Recruiter, AMER San Francisco, California",
           "source_type": "jobs"
         },
         {
@@ -674,7 +727,11 @@
       "message": "Pricing change detected — adjust outreach timing/messaging.",
       "refs": [
         "https://www.notion.so/pricing",
-        "https://www.notion.so"
+        "https://www.notion.so/pricing",
+        "https://www.notion.so/pricing",
+        "https://www.notion.so/pricing",
+        "https://www.notion.so/pricing",
+        "https://www.notion.so/pricing"
       ]
     },
     {
@@ -682,7 +739,9 @@
       "to_dept": "gtm",
       "message": "Reputational signal — frame responsibly, do not weaponize.",
       "refs": [
-        "https://www.notion.so/careers",
+        "https://www.notion.so",
+        "https://www.notion.so",
+        "https://www.notion.so",
         "https://www.notion.so/careers"
       ]
     },
@@ -696,84 +755,73 @@
         "https://www.notion.so/careers",
         "https://www.notion.so/careers",
         "https://www.notion.so/careers",
+        "https://www.notion.so/careers",
+        "https://www.notion.so/careers",
+        "https://www.notion.so/careers",
+        "https://www.notion.so/careers",
         "https://www.notion.so/careers"
       ]
     }
   ],
   "contradictions": [
     {
-      "axis": "GTM Strategy",
-      "claim_a": "Notion heavily invests in a Product-Led Growth (PLG) motion, with a prominent 'Get Notion free' call-to-action and a free tier designed for individual adoption.",
+      "axis": "Platform Strategy",
+      "claim_a": "Notion positions itself as the single, consolidated platform that can replace a fragmented stack of specialized tools, offering a cost-saving benefit.",
       "citations_a": [
         {
           "url": "https://www.notion.so",
-          "snippet": "Get Notion free",
+          "snippet": "There’s power in a single platform where you can do all your work. Notion is that single place.",
           "source_type": "site"
         },
         {
-          "url": "https://www.notion.so/pricing",
-          "snippet": "Free $0 per member / month For individuals to organize personal projects and life.",
-          "source_type": "pricing"
+          "url": "https://www.notion.so",
+          "snippet": "Calculate savings below.",
+          "source_type": "site"
         }
       ],
-      "claim_b": "They operate a sophisticated top-down GTM motion, evidenced by hiring for roles like 'Enterprise Product Marketing, GTM', 'Field Marketing Manager', and numerous Account Executive and Customer Success positions.",
+      "claim_b": "Notion serves as a single source of truth for teams by providing a centralized knowledge base and enterprise search capabilities across all connected applications.",
       "citations_b": [
         {
-          "url": "https://www.notion.so/careers",
-          "snippet": "Enterprise Product Marketing, GTM San Francisco, California; New York, New York",
-          "source_type": "jobs"
+          "url": "https://www.notion.so",
+          "snippet": "Knowledge Base One source of truth for teams and agents.",
+          "source_type": "site"
         },
         {
-          "url": "https://www.notion.so/careers",
-          "snippet": "Field Marketing Manager San Francisco, California; New York, New York",
-          "source_type": "jobs"
+          "url": "https://www.notion.so",
+          "snippet": "Enterprise Search One search for everything.",
+          "source_type": "site"
         }
       ],
       "severity": 2,
-      "summary": "One claim suggests Notion's growth is driven by a bottom-up, product-led strategy, while another indicates it operates a traditional top-down, enterprise sales motion."
+      "summary": "One claim states Notion's strategy is to replace a fragmented stack of tools, while another presents its function as a centralizer that searches across existing connected applications."
     }
   ],
   "five_forces": {
     "rivalry": {
       "name": "industry rivalry",
-      "intensity": 4,
-      "assessment": "The industry is highly competitive, with Notion positioning itself as an all-in-one platform against numerous specialized tools. It explicitly frames its AI capabilities as a key differentiator and highlights its #1 G2 rankings, indicating intense rivalry for market leadership. The company's value proposition is built on displacing a wide range of existing software categories.",
+      "intensity": 5,
+      "assessment": "Rivalry is very high, as Notion directly competes with a wide array of specialized tools by positioning itself as an all-in-one replacement. The company explicitly lists the cost of rival product categories like project management, wikis, and CRMs to argue for consolidation onto its platform. This framing highlights a saturated and highly competitive market for productivity and workspace software.",
       "citations": [
         {
           "url": "https://www.notion.so",
-          "snippet": "Using the most AI‑native tools like Notion is an important competitive advantage for us.",
-          "source_type": "site"
-        },
-        {
-          "url": "https://www.notion.so",
-          "snippet": "#1 knowledge base 3 years running (G2) #1 AI enterprise search (G2) #1 rated AI writing (G2)",
-          "source_type": "site"
-        },
-        {
-          "url": "https://www.notion.so",
-          "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
+          "snippet": "AI Search $35/user AI Chatbot $20/user AI Meeting Notes $18/user AI Writing Assistant $20/user AI Email App $30/user AI Research $40/user Calendar Scheduling $15/user Team Wiki $10/user Project Management Tool $24/user Basic CRM $20/user Site Builder $20/user Forms $15/user",
           "source_type": "site"
         }
       ]
     },
     "new_entrants": {
       "name": "threat of new entrants",
-      "intensity": 3,
-      "assessment": "The threat of new entrants is moderate, as creating a comparable AI-integrated, enterprise-ready platform requires significant technical expertise. The extensive list of specialized job openings in AI and infrastructure highlights the high barriers to creating a competitive product at scale. However, a generous free plan lowers the bar for attracting individual users, creating an opening for new players to gain a foothold.",
+      "intensity": 2,
+      "assessment": "The threat of new entrants is low due to Notion's significant scale, established brand, and the high switching costs for its embedded enterprise customers. Notion's platform boasts over 100 million users and deep penetration in large companies, supported by complex features like advanced security and compliance. A new player would face substantial barriers in replicating this feature set, ecosystem, and level of trust.",
       "citations": [
         {
-          "url": "https://www.notion.so/careers",
-          "snippet": "Software Engineer, AI Workflows San Francisco, California; New York, New York",
-          "source_type": "jobs"
-        },
-        {
-          "url": "https://www.notion.so/careers",
-          "snippet": "Model Behavior Engineer New York, New York; San Francisco, California",
-          "source_type": "jobs"
+          "url": "https://www.notion.so",
+          "snippet": "Over 100M users worldwide #1 knowledge base 3 years running (G2) #1 AI enterprise search (G2) #1 rated AI writing (G2) 62% of Fortune 100",
+          "source_type": "site"
         },
         {
           "url": "https://www.notion.so/pricing",
-          "snippet": "Free $0 per member / month For individuals to organize personal projects and life.",
+          "snippet": "Access the Notion SCIM API to provision and manage users and groups. User provisioning (SCIM)",
           "source_type": "pricing"
         }
       ]
@@ -781,33 +829,23 @@
     "supplier_power": {
       "name": "supplier power",
       "intensity": 3,
-      "assessment": "Supplier power is moderate, influenced by Notion's reliance on specialized technology providers and highly skilled labor. The enterprise plan explicitly mentions reliance on third-party LLM providers for its AI functionality. The company's growth also depends on attracting and retaining talent for niche roles like AI Applications Engineer, giving these skilled professionals bargaining power.",
+      "assessment": "Supplier power is moderate, primarily stemming from Notion's reliance on Large Language Model (LLM) providers for its core AI functionality. While Notion is a major customer, the underlying AI technology is controlled by a few key suppliers, giving them influence over Notion's capabilities and cost structure. This dependency is explicitly confirmed in the enterprise plan details regarding data retention policies.",
       "citations": [
         {
           "url": "https://www.notion.so/pricing",
           "snippet": "When using Notion AI, our LLM providers utilize zero data retention for Enterprise plan workspaces",
           "source_type": "pricing"
-        },
-        {
-          "url": "https://www.notion.so/careers",
-          "snippet": "AI Applications Engineer San Francisco, California",
-          "source_type": "jobs"
         }
       ]
     },
     "buyer_power": {
       "name": "buyer power",
       "intensity": 4,
-      "assessment": "Buyer power is high, primarily because customers have access to a comprehensive free tier and a wide array of alternative specialized tools. The free plan allows individuals to use the product extensively without payment, reducing switching costs for non-paying users. Buyers can also choose to assemble their own toolkit from the very substitutes Notion aims to replace, such as dedicated project management or wiki software.",
+      "assessment": "Buyer power is high, driven by a generous free plan that attracts a large user base with very low switching costs. The availability of a '$0 per member / month' plan for individuals means users can easily adopt or abandon the platform. While switching costs increase for larger teams on paid plans, the highly competitive market and low entry price point give significant power to buyers.",
       "citations": [
         {
           "url": "https://www.notion.so/pricing",
           "snippet": "Free $0 per member / month For individuals to organize personal projects and life.",
-          "source_type": "pricing"
-        },
-        {
-          "url": "https://www.notion.so/pricing",
-          "snippet": "Teams who want to try collaborating in Notion can use the Free Plan with up to certain number of blocks before upgrading.",
           "source_type": "pricing"
         }
       ]
@@ -815,16 +853,16 @@
     "substitutes": {
       "name": "threat of substitutes",
       "intensity": 5,
-      "assessment": "The threat from substitutes is very high, forming the core of Notion's market positioning as a consolidation platform. The company's own website features a savings calculator that itemizes substitutes like `Team Wiki`, `Project Management Tool`, and various AI assistants. This explicitly acknowledges that customers can and do use a collection of disparate, best-of-breed tools to perform the functions that Notion combines.",
+      "assessment": "The threat of substitutes is very high, as customers can choose to assemble a suite of best-in-class point solutions rather than adopt Notion's integrated platform. Notion's own marketing acknowledges this by listing the tool categories it seeks to replace, such as dedicated project management, wiki, and CRM software. The wide availability and specialization of these alternative tools create a strong and persistent substitute threat.",
       "citations": [
         {
           "url": "https://www.notion.so",
-          "snippet": "Calculate savings below. See pricing plans → AI Search $35/user AI Chatbot $20/user AI Meeting Notes $18/user AI Writing Assistant $20/user AI Email App $30/user AI Research $40/user Calendar Scheduling $15/user Team Wiki $10/user Project Management Tool $24/user",
+          "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
           "source_type": "site"
         },
         {
           "url": "https://www.notion.so",
-          "snippet": "There’s power in a single platform where you can do all your work.",
+          "snippet": "Project Management Tool $24/user",
           "source_type": "site"
         }
       ]
@@ -833,40 +871,40 @@
   "swot": {
     "strengths": [
       {
-        "text": "Notion has achieved significant market penetration and brand recognition, with a user base exceeding 100 million globally. The platform is trusted by a majority of the Fortune 100 and Forbes Cloud 100 companies.",
+        "text": "Notion has strong market penetration and brand recognition, with over 100 million users worldwide. The platform is used by 62% of the Fortune 100 and over half of all YC companies.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "Over 100M users worldwide #1 knowledge base 3 years running (G2) #1 AI enterprise search (G2) #1 rated AI writing (G2) 62% of Fortune 100",
+            "snippet": "Over 100M users worldwide #1 knowledge base 3 years running (G2) #1 AI enterprise search (G2) #1 rated AI writing (G2) 62% of Fortune 100 Over 50% of YC companies 1.4M+ community members",
             "source_type": "site"
           }
         ],
         "impact": 3
       },
       {
-        "text": "The platform is positioned as a unified, all-in-one workspace that consolidates docs, project management, knowledge bases, and AI tools. This strategy addresses customer desire to reduce tool sprawl and increase efficiency.",
+        "text": "The platform's core value is its all-in-one nature, consolidating documents, knowledge bases, and project management to reduce reliance on multiple tools. This integrated approach is central to its marketing and product strategy.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
+            "snippet": "There’s power in a single platform where you can do all your work. Notion is that single place.",
             "source_type": "site"
           }
         ],
         "impact": 3
       },
       {
-        "text": "Notion has deeply integrated advanced AI capabilities, including autonomous 'Agents' that can automate multi-step tasks. This positions the product as a leader in the emerging AI-native productivity software category.",
+        "text": "Notion is positioned as a leading \"AI workspace,\" with advanced features like autonomous agents designed to automate tasks. These capabilities have earned it #1 ratings from G2 for AI enterprise search and writing.",
         "citations": [
           {
             "url": "https://www.notion.so",
-            "snippet": "Meet the night shift. Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
+            "snippet": "Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
             "source_type": "site"
           }
         ],
         "impact": 3
       },
       {
-        "text": "The core product is highly flexible and customizable, allowing users to create tailored solutions for their specific needs. The company compares its product to a 'toolbox of software building blocks'.",
+        "text": "The product offers a high degree of customizability, described as a \"toolbox of software building blocks\" that users can shape to their needs. This flexibility allows it to function as anything from a simple document editor to a complex relational database.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
@@ -879,33 +917,33 @@
     ],
     "weaknesses": [
       {
-        "text": "The product's high degree of flexibility can also result in significant complexity. New users may face a steep learning curve, as the platform can be as complex as a relational database.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/careers",
-            "snippet": "It can be as simple as a blank piece of paper, making writing feel light and delightful. It can be as complex as a relational database that stores huge amounts of data.",
-            "source_type": "jobs"
-          }
-        ],
-        "impact": 2
-      },
-      {
-        "text": "The Free plan has significant limitations for team collaboration, capping the number of content blocks. This may act as a barrier for teams wanting to trial the product extensively before committing to a paid plan.",
+        "text": "Advanced features, particularly for AI and automation, come at an additional cost. Custom Agents are billed on a consumption basis, creating a variable cost on top of the base subscription price.",
         "citations": [
           {
             "url": "https://www.notion.so/pricing",
-            "snippet": "Teams who want to try collaborating in Notion can use the Free Plan with up to certain number of blocks before upgrading.",
+            "snippet": "Custom Agents AI agents handle repetitive tasks autonomously, so your team doesn’t have to. Free to try, then $10 per 1,000 monthly Notion credits.",
             "source_type": "pricing"
           }
         ],
         "impact": 2
       },
       {
-        "text": "Advanced AI features, such as Custom Agents, are not included in standard subscription tiers and are instead billed based on usage. This credit-based pricing adds complexity and may deter adoption for cost-sensitive customers.",
+        "text": "Key business and security features like SAML SSO, private teamspaces, and user provisioning are gated behind the most expensive Business and Enterprise plans. AI capabilities are only offered as a limited trial on the Free and Plus tiers.",
         "citations": [
           {
             "url": "https://www.notion.so/pricing",
-            "snippet": "Custom Agents AI agents handle repetitive tasks autonomously, so your team doesn’t have to. Free to try, then $10 per 1,000 monthly Notion credits.",
+            "snippet": "Notion AI Core (chat, generate, autofill, translate) Limited Trial",
+            "source_type": "pricing"
+          }
+        ],
+        "impact": 2
+      },
+      {
+        "text": "The platform's offline capabilities are limited, as only recently accessed and favorited pages are automatically downloaded for use without an internet connection. This may not be sufficient for users who require full access to their entire workspace while offline.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Offline Choose pages to download for offline use. Recents and Favorites auto-download for offline use.",
             "source_type": "pricing"
           }
         ],
@@ -914,18 +952,7 @@
     ],
     "opportunities": [
       {
-        "text": "There is a significant opportunity for expansion into the enterprise market by offering features tailored to large organizations. Notion is pursuing this with advanced security, user provisioning, and dedicated customer success management.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "For organizations to operate with scalability, control, and security.",
-            "source_type": "pricing"
-          }
-        ],
-        "impact": 3
-      },
-      {
-        "text": "The growing market demand for AI-powered productivity and workflow automation presents a major growth vector. Notion is well-positioned to capitalize on this trend by marketing its ability to eliminate hours of manual work.",
+        "text": "The growing market demand for AI-driven workflow automation presents a major opportunity. Notion's investment in customizable Agents is well-positioned to capture customers looking to eliminate manual, repetitive work.",
         "citations": [
           {
             "url": "https://www.notion.so",
@@ -936,7 +963,18 @@
         "impact": 3
       },
       {
-        "text": "Further international expansion represents a key opportunity for user growth. The company is actively hiring for roles in Asia-Pacific and European offices to serve non-US markets.",
+        "text": "There is a significant opportunity to expand further into the enterprise market by selling to large organizations. Notion is targeting this segment with an Enterprise plan that offers dedicated customer support, advanced security, and user management features.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Our team of Customer Success Managers are experts to help you get the most out of Notion.",
+            "source_type": "pricing"
+          }
+        ],
+        "impact": 3
+      },
+      {
+        "text": "Notion is pursuing international growth, with hiring and established offices in key APAC and EMEA markets like Tokyo, Seoul, Dublin, and Sydney. This expansion allows the company to tap into new regional user bases and revenue streams.",
         "citations": [
           {
             "url": "https://www.notion.so/careers",
@@ -945,43 +983,38 @@
           }
         ],
         "impact": 2
-      },
-      {
-        "text": "Businesses are increasingly looking to consolidate their software stack to reduce costs and complexity. Notion's positioning as a single platform for all work directly appeals to this trend.",
-        "citations": [
-          {
-            "url": "https://www.notion.so",
-            "snippet": "There’s power in a single platform where you can do all your work. Notion is that single place.",
-            "source_type": "site"
-          }
-        ],
-        "impact": 2
       }
     ],
     "threats": [
       {
-        "text": "Notion faces intense competition from established technology giants like Google and Microsoft, as well as specialized tools for project management, wikis, and AI assistants. These players have extensive resources and existing enterprise relationships.",
-        "citations": [],
-        "impact": 3
-      },
-      {
-        "text": "As a repository for critical company knowledge and data, Notion is a prime target for cybersecurity attacks. Any significant data breach could severely damage its brand and customer trust.",
-        "citations": [
-          {
-            "url": "https://www.notion.so/pricing",
-            "snippet": "Access a detailed log of security and safety-related activity for your workspace account to identify potential security issues, investigate suspicious behavior, or troubleshoot access.",
-            "source_type": "pricing"
-          }
-        ],
-        "impact": 3
-      },
-      {
-        "text": "The rapid pace of innovation in artificial intelligence could allow new competitors to emerge quickly with superior technology. Notion's reliance on external LLM providers could also pose a strategic risk.",
+        "text": "As Notion increasingly targets enterprise customers and handles sensitive information with AI, it faces greater market scrutiny over data security and privacy. The company highlights \"zero data retention\" as a key selling point for its Enterprise plan, indicating this is a critical customer concern.",
         "citations": [
           {
             "url": "https://www.notion.so/pricing",
             "snippet": "When using Notion AI, our LLM providers utilize zero data retention for Enterprise plan workspaces",
             "source_type": "pricing"
+          }
+        ],
+        "impact": 3
+      },
+      {
+        "text": "Notion's all-in-one model competes against a landscape of specialized, best-of-breed tools for project management, wikis, and AI functions. Customers may prefer to assemble a stack of individual tools rather than committing to a single platform.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "AI Search $35/user AI Chatbot $20/user AI Meeting Notes $18/user AI Writing Assistant $20/user AI Email App $30/user AI Research $40/user Calendar Scheduling $15/user Team Wiki $10/user Project Management Tool $24/user",
+            "source_type": "site"
+          }
+        ],
+        "impact": 2
+      },
+      {
+        "text": "The platform's high degree of flexibility and \"blank slate\" nature can be overwhelming for some users, creating a barrier to adoption. The product's complexity can range from a simple document to a full relational database, which may deter teams seeking more structured, out-of-the-box solutions.",
+        "citations": [
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "It can be as simple as a blank piece of paper, making writing feel light and delightful. It can be as complex as a relational database that stores huge amounts of data.",
+            "source_type": "jobs"
           }
         ],
         "impact": 2
@@ -993,47 +1026,42 @@
       "name": "political",
       "pressure": 1,
       "direction": "neutral",
-      "assessment": "No specific signal in the bundle for this factor.",
+      "assessment": "No specific signal in the bundle for this factor. Notion's global presence across North America, Europe, and APAC suggests it operates within multiple political and regulatory jurisdictions, but no specific political pressures are mentioned.",
       "citations": []
     },
     "economic": {
       "name": "economic",
-      "pressure": 4,
+      "pressure": 3,
       "direction": "tailwind",
-      "assessment": "Notion's freemium model targets a wide market, from individuals to large enterprises. Its value proposition as a consolidation platform, replacing multiple single-purpose apps, is a significant tailwind as companies seek to reduce costs and increase productivity.",
+      "assessment": "Notion's pricing model, which includes a free tier and scales up to enterprise, allows it to capture a wide range of customers. It positions itself as a cost-saving tool by consolidating the functions of multiple other applications, which is an attractive value proposition for businesses looking to reduce software spend.",
       "citations": [
         {
           "url": "https://www.notion.so",
-          "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof.",
+          "snippet": "More productivity. Fewer tools. Bring all your tools and teams under one roof. Calculate savings below.",
           "source_type": "site"
         },
         {
           "url": "https://www.notion.so/pricing",
-          "snippet": "Business Recommended $20 per member / month For growing businesses to streamline teamwork.",
+          "snippet": "One tool to run your company.",
           "source_type": "pricing"
-        },
-        {
-          "url": "https://www.notion.so",
-          "snippet": "Trusted by 98% of the Forbes Cloud 100",
-          "source_type": "site"
         }
       ]
     },
     "social": {
       "name": "social",
-      "pressure": 3,
+      "pressure": 4,
       "direction": "tailwind",
-      "assessment": "Notion benefits from the social shift towards customizable, flexible, and distributed work environments. Its mission to let users tailor software to their own problems, combined with a large global user base and community, creates strong network effects and aligns with modern work culture.",
+      "assessment": "Notion benefits from strong social trends towards flexible, remote work and the blending of personal and professional organization, positioning its product for both 'work' and 'life'. The company has cultivated a large global user base and a significant community, which drives organic growth and adoption.",
       "citations": [
-        {
-          "url": "https://www.notion.so/careers",
-          "snippet": "If every person and business can tailor software to their problems, the world will be better at solving its problems. Our mission is to make that a ubiquitous reality.",
-          "source_type": "jobs"
-        },
         {
           "url": "https://www.notion.so",
           "snippet": "Over 100M users worldwide",
           "source_type": "site"
+        },
+        {
+          "url": "https://www.notion.so/pricing",
+          "snippet": "For work For life",
+          "source_type": "pricing"
         },
         {
           "url": "https://www.notion.so",
@@ -1046,7 +1074,7 @@
       "name": "technological",
       "pressure": 5,
       "direction": "tailwind",
-      "assessment": "Technology is the core driver for Notion, which is aggressively positioning itself as an AI-native workspace to capitalize on the biggest trend in enterprise software. The rapid integration of AI agents, AI-powered search, and automated workflows is a primary competitive advantage and is reflected in heavy hiring for specialized AI engineering roles.",
+      "assessment": "Technology, specifically Artificial Intelligence, is the central pillar of Notion's current strategy and product identity, positioning it as 'The AI workspace'. The company is aggressively integrating AI features like automated agents, meeting summaries, and enterprise search, viewing its AI-native approach as a key competitive advantage.",
       "citations": [
         {
           "url": "https://www.notion.so",
@@ -1055,12 +1083,12 @@
         },
         {
           "url": "https://www.notion.so",
-          "snippet": "Meet the night shift. Notion agents keep work moving 24/7. They capture knowledge, answer questions, and push projects forward—all while you sleep.",
+          "snippet": "Using the most AI‑native tools like Notion is an important competitive advantage for us.",
           "source_type": "site"
         },
         {
           "url": "https://www.notion.so/careers",
-          "snippet": "Engineering Manager, Mobile AI",
+          "snippet": "Software Engineer, AI Workflows",
           "source_type": "jobs"
         }
       ]
@@ -1068,8 +1096,8 @@
     "legal": {
       "name": "legal",
       "pressure": 4,
-      "direction": "headwind",
-      "assessment": "Notion faces significant legal and compliance headwinds as it expands into large enterprises and deploys AI, which brings heightened scrutiny over data privacy and security. The company is investing heavily to address these challenges with features like zero data retention for LLMs, audit logs, and advanced security controls, which are necessary but costly requirements for enterprise adoption.",
+      "direction": "neutral",
+      "assessment": "Notion faces significant legal and compliance pressures, particularly regarding data security and privacy for its enterprise clients. It addresses these headwinds by offering advanced features like zero data retention with LLM providers, audit logs, and SCIM provisioning, turning compliance into a competitive advantage for securing large organizational contracts.",
       "citations": [
         {
           "url": "https://www.notion.so/pricing",
@@ -1095,82 +1123,120 @@
     "pii_redactions": 0,
     "leak_flags": [],
     "ungrounded_dropped": [
-      "Notion is investing in the operational infrastructure to support its revenue teams, hiring for roles in Strategy & Operations for Customer Success, Marketing, and Partnerships.",
-      "Notion utilizes a multi-tiered subscription model with Free, Plus ($10/user/month), and Business ($20/user/month) plans, alongside a custom-priced Enterprise tier. A discount of up to 20% is offered for annual payments.",
-      "Notion is scaling its Go-To-Market and corporate functions to support growth, with open positions in Finance, Marketing, and Sales, including 'Corporate Strategic Finance', 'APAC Digital Marketing Manager', and numerous Account Executive roles.",
-      "The platform has achieved significant penetration in the enterprise and startup sectors, being used by 98% of the Forbes Cloud 100, 62% of the Fortune 100, and over 50% of YC companies.",
-      "Strong market adoption serves as a positive health indicator, with Notion being trusted by 98% of the Forbes Cloud 100 and having over 100 million users.",
-      "The company is heavily investing in AI with new features like 'Notion Agent' and 'Workers', but these are currently in Beta, indicating that their market adoption and revenue impact are still to be determined.",
-      "Notion is targeting the enterprise market with advanced security and compliance features such as SCIM provisioning, audit logs, and integrations with DLP & SIEM tools.",
-      "The platform's features encourage centralizing access to other critical business systems like Slack and GitHub, creating a high-value target and a single point of failure.",
-      "The service integrates with user email accounts, granting it access to potentially sensitive email content.",
-      "The product's ability to connect deeply with other business-critical tools like GitHub and Asana makes it a potential vector for supply chain attacks targeting its customers.",
-      "Beyond high-level team functions, there is a lack of deep, industry-specific solution content for verticals like healthcare, finance, or legal."
+      "The company's enterprise plan includes connectivity to SIEM and DLP tools, signaling a focus on and budget for enterprise-grade security and compliance solutions.",
+      "The company is hiring aggressively across multiple departments, with a particular focus on Engineering (especially AI), Customer Success, and Sales, indicating investment in product development and market growth.",
+      "Critical compliance features such as audit logs and integrations with SIEM and DLP tools are only available on the Enterprise plan, posing a compliance risk for organizations on lower-tier plans.",
+      "The brand positions itself with a broad target audience, from individuals and startups to large enterprises, with specific solutions and pricing tiers for each segment.",
+      "There is a lack of detailed content or specific use cases for revenue-generating teams; the positioning is broad rather than targeted at sales or RevOps functions.",
+      "While Notion mentions cost savings from tool consolidation, it lacks content on quantifiable business impact such as revenue growth, deal cycle reduction, or improved forecast accuracy, which are key metrics for a revenue intelligence audience.",
+      "The 'Connections' and 'Agents' features are powerful, but there is no clear narrative or prominent customer story demonstrating how they can be used to build a sophisticated revenue intelligence system (e.g., syncing CRM data for automated reporting).",
+      "Notion invests heavily in content marketing as a primary channel, offering a wide array of resources like templates, a blog, webinars, and customer stories to attract and educate users.",
+      "Employer branding is utilized as a marketing surface, with a detailed careers page that tells a compelling story about the company's mission and culture to attract talent."
     ],
     "passed": false
   },
-  "executive_summary": "Notion's aggressive enterprise and AI expansion is outpacing its security and compliance infrastructure, creating an urgent opening for risk management and operational efficiency solutions. — act this quarter.",
+  "executive_summary": "Notion's aggressive upmarket push with its Enterprise plan and new AI Agents exposes a critical security and compliance gap for its massive user base, creating an immediate opening to position our solution as the bridge for their new GTM organization. — act this quarter.",
   "strategic_plan": {
     "target": "Notion",
-    "headline": "Notion's aggressive enterprise and AI expansion is outpacing its security and compliance infrastructure, creating an urgent opening for risk management and operational efficiency solutions.",
-    "narrative": "Notion is executing a multi-front growth strategy: pushing aggressively upmarket into enterprise, expanding its global footprint across EMEA and APAC, and launching new AI-powered product lines. They are hiring extensively for senior GTM, Sales, and Customer Success roles to support this land-and-expand motion, which is centered on a tool consolidation value proposition.\n\nThe urgency to act is driven by the confluence of this rapid expansion and new product introductions. The company is actively hiring for foundational roles like 'Head of GTM Operations' and international leadership *now*, meaning key decisions about the supporting technology stack are imminent. The simultaneous launch of usage-based AI products creates immediate operational complexity and new revenue streams that require sophisticated oversight.\n\nThe primary risk is centered on this 'move fast' culture outpacing controls. Notion gates critical security and compliance features (like audit logs and SCIM) to its highest-priced Enterprise plan, creating risk for its vast mid-market customer base and potential regulatory exposure (e.g., GDPR). Their new AI features introduce significant third-party and data exfiltration risks, evidenced by their reactive hiring for 'AI Governance' roles, which signals that their control framework is still maturing.",
+    "headline": "Notion's aggressive upmarket push with its Enterprise plan and new AI Agents exposes a critical security and compliance gap for its massive user base, creating an immediate opening to position our solution as the bridge for their new GTM organization.",
+    "narrative": "Notion is rapidly transforming from a collaborative document tool into a consolidated enterprise workspace platform. This strategic shift is backed by massive investment in a global Go-To-Market organization, with key hires like 'Head of GTM Operations' and 'Enterprise Product Marketing, GTM', and the expansion of a partner ecosystem, signaled by hiring for a 'Partner Strategy & Operations Lead'. Their product strategy is to become the single, cost-effective source of truth for project management, wikis, and AI, directly challenging a fragmented stack of competitors.\n\nThe urgency to engage Notion is driven by the confluence of this massive GTM expansion and their new product monetization strategy. They are actively hiring sales and success teams across North America, EMEA (including new offices in Madrid and Paris), and APAC, while simultaneously introducing new usage-based pricing for features like 'Custom Agents'. This period of high-growth and operational scaling is precisely when organizations are most receptive to tools that can structure, accelerate, and de-risk their revenue engine before processes become entrenched.\n\nThe primary risk to Notion's enterprise ambition—and our primary opportunity—lies in the stark divide between their lower-tier plans and the security features reserved for their Enterprise tier. Critical controls like SCIM for user management, advanced data exfiltration prevention, and zero data retention policies from third-party LLM providers are gated. This leaves the majority of their 100 million users, including teams within 62% of the Fortune 100, operating with significant potential exposure to data leakage and regulatory non-compliance, a risk amplified by their hiring for 'AI governance' roles which indicates these controls are still maturing.",
     "icp_fit": "high",
-    "icp_rationale": "Notion is rapidly scaling its enterprise GTM motion and expanding internationally, creating significant operational complexity and a need for sophisticated management, which perfectly aligns with our ideal customer profile.",
-    "deal_size_estimate": "$250k-$500k ARR",
-    "deal_size_rationale": "The estimate is based on Notion's massive scale (100M+ users), deep enterprise penetration (62% of Fortune 100), and aggressive hiring for senior, international GTM leadership roles, which indicates a large, complex, and well-funded revenue organization.",
+    "icp_rationale": "Notion's freemium-to-enterprise tiered pricing model, combined with its massive product-led growth motion (100 million users), and stated goal of moving upmarket perfectly matches our ideal Enterprise SaaS / PLG customer profile.",
+    "deal_size_estimate": "$150k-$350k ARR",
+    "deal_size_rationale": "The estimate is based on the scale of Notion's global GTM expansion across North America, EMEA, and APAC, and their hiring of senior strategic roles like 'Head of GTM Operations', which indicates a significant budget to equip a large, growing revenue organization for an enterprise sales motion.",
     "urgency": "act this quarter",
-    "urgency_rationale": "Notion is hiring for key GTM leadership and expanding internationally now, creating an immediate window of opportunity to influence their new tooling stack before it is cemented.",
+    "urgency_rationale": "The urgency is driven by Notion's concurrent and massive GTM hiring spike across multiple continents, indicating they are scaling their revenue engine right now.",
     "recommended_plays": [
       {
-        "text": "Engage incoming GTM/RevOps leadership with a point-of-view on scaling a global sales organization compliantly, addressing the operational challenges of rapid product and international expansion.",
+        "text": "Engage the newly hired 'Head of GTM Operations' and 'Partner Strategy & Operations Lead' with a point-of-view on de-risking their global expansion into EMEA, specifically addressing the compliance and operational challenges of scaling in new locations like Madrid and Paris.",
         "priority": 1,
-        "timeframe": "this week",
+        "timeframe": "30 days",
         "owners": [
           "gtm"
         ],
-        "rationale": "Key leadership roles are open now; new leaders will be building their tech stack and processes, making early engagement critical to becoming part of their strategic plan.",
-        "citations": []
+        "rationale": "These new strategic leaders are tasked with building Notion's revenue engine; they will be highly receptive to solutions that help them scale effectively and manage risk during this critical expansion phase.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Partner programs",
+            "source_type": "site"
+          }
+        ]
       },
       {
-        "text": "Develop security-focused messaging for risk and compliance stakeholders that quantifies the data exfiltration and third-party risks of the new AI Agent capabilities.",
+        "text": "Develop targeted messaging for the 'Enterprise Product Marketing, GTM' team, framing how the security gaps on non-Enterprise plans—specifically the lack of SCIM and weaker third-party LLM data retention policies—create churn risk and a sales obstacle for the mid-market segment they are chasing.",
         "priority": 2,
         "timeframe": "30 days",
         "owners": [
           "gtm",
+          "marketing",
           "security"
         ],
-        "rationale": "Notion is betting heavily on AI but is also reactively hiring for AI Governance, indicating a gap between innovation and control that our solution can help bridge.",
-        "citations": []
+        "rationale": "This play connects a product and security gap directly to a GTM problem (customer acquisition friction), making it highly relevant to the product marketing team responsible for positioning and selling the value of the Enterprise plan.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Partner programs",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so/careers",
+            "snippet": "If every person and business can tailor software to their problems, the world will be better at solving its problems. Our mission is to make that a ubiquitous reality.",
+            "source_type": "jobs"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Access the Notion SCIM API to provision and manage users and groups. User provisioning (SCIM)",
+            "source_type": "pricing"
+          }
+        ]
       },
       {
-        "text": "Arm Sales and CS with a 'Compliance Gap' play targeting Notion's customer-facing teams, positioning our solution as a way for Notion to help its own mid-market customers meet security obligations not covered by lower-tier plans.",
+        "text": "Approach the 'Customer Success Strategy & Operations Manager' with a proposal to monitor adoption and identify expansion opportunities for the new usage-based 'Custom Agents' feature, positioning our solution as a way to manage the revenue complexity of this new credit-based system across their 100 million user base.",
         "priority": 3,
         "timeframe": "this quarter",
         "owners": [
           "gtm"
         ],
-        "rationale": "Notion gates critical compliance features, creating a pain point for their customers and a potential churn risk for Notion that our platform can help them mitigate.",
-        "citations": []
+        "rationale": "The introduction of a new, complex pricing model for a key AI product creates an immediate operational need for the CS Ops team to track usage, prove value, and drive revenue expansion, which our solution can directly address.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Partner programs",
+            "source_type": "site"
+          }
+        ]
       },
       {
-        "text": "Prepare a business case for Notion's finance and operations teams that mirrors their consolidation messaging, demonstrating how our platform replaces multiple point solutions while increasing control over their expanding global GTM organization.",
+        "text": "Equip the sales team to engage 'Enterprise Customer Success Managers' at Notion's existing customers (e.g., those among the 98% of the Forbes Cloud 100) by highlighting the data exposure risk from AI agents processing internal knowledge on lower-tier plans, positioning an upgrade to the Enterprise plan as a necessary risk mitigation.",
         "priority": 4,
         "timeframe": "this quarter",
         "owners": [
           "gtm",
-          "finance"
+          "security"
         ],
-        "rationale": "By aligning with Notion's own core go-to-market strategy of tool consolidation, we can resonate with their internal buyers and present a financially attractive and strategically consistent proposal.",
-        "citations": []
+        "rationale": "This leverages Notion's own success and high-profile customer base as a lever, creating a compelling event for those customers' CSMs to advocate for upgrades to protect their own organizations.",
+        "citations": [
+          {
+            "url": "https://www.notion.so",
+            "snippet": "Partner programs",
+            "source_type": "site"
+          },
+          {
+            "url": "https://www.notion.so/pricing",
+            "snippet": "Access the Notion SCIM API to provision and manage users and groups. User provisioning (SCIM)",
+            "source_type": "pricing"
+          }
+        ]
       }
     ],
     "open_questions": [
-      "Who is the executive sponsor for the GTM technology stack and budget?",
-      "What is the name of the incoming Head of GTM Operations?",
-      "Who is the decision-maker for the AI Governance initiative and what is their timeline?",
-      "Can we identify the new hires for Head of CS in APAC and EMEA?",
-      "What is their current tech stack for revenue intelligence and sales enablement?"
+      "Who is the named individual hired as the 'Head of GTM Operations'?",
+      "What is the current CRM and sales engagement tech stack for their expanding GTM teams?",
+      "What is the specific rollout timeline for the 'Custom Agents' feature beyond the initial trial?",
+      "Which specific compliance frameworks are being prioritized by the team hiring for 'AI governance' roles?",
+      "Can we identify the key decision-maker for GTM tooling procurement, reporting to the CRO?"
     ],
-    "generated_at": "2026-05-27T16:25:03.170796Z"
+    "generated_at": "2026-05-27T18:00:40.824724Z"
   }
 }
