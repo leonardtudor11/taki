@@ -113,7 +113,7 @@ class BrightDataClient:
 #   T2 — academic / peer-reviewed
 #   T3 — newspaper of record + top-tier analyst
 #   T4 — trade publication + recognized expert column
-#   T5 — community / aggregator (capped at ~25% of the bundle)
+#   T5 — community / aggregator (capped at ~30% of the bundle)
 #   T6 — review aggregator (capped together w/ T5)
 #   T0 — UNCLASSIFIED (treated as T4 fallback so we don't drop unknown
 #        but plausible domains entirely)
