@@ -142,15 +142,20 @@ TIER_WEIGHT = {
 # Suffixes match the END of the hostname (after `.`).
 _TIER_SUFFIXES = {
     T1_REGULATOR: (
+        # National + EU government / military domains
         ".gov", ".mil", ".gov.uk", ".gov.ie", ".gov.au", ".gov.ca",
-        ".europa.eu", ".eu", ".gov.eu",
+        ".europa.eu", ".gov.eu",                # NOT ".eu" — too broad (matches orchid.eu etc.)
+        # Intergovernmental + global statistic bodies
         "oecd.org", "imf.org", "worldbank.org", "iea.org", "irena.org",
-        "un.org", "who.int", "iso.org", "nist.gov", "noaa.gov", "ec.europa.eu",
-        "ecb.europa.eu", "eea.europa.eu", "epa.gov",
-        "sec.gov", "esma.europa.eu", "ec.europa.eu",
+        "un.org", "who.int", "iso.org", "nist.gov", "noaa.gov",
+        "ec.europa.eu", "ecb.europa.eu", "eea.europa.eu", "epa.gov",
+        "sec.gov", "esma.europa.eu",
         "eur-lex.europa.eu", "europarl.europa.eu",
         "ons.gov.uk", "bls.gov", "fred.stlouisfed.org", "stlouisfed.org",
         "bea.gov", "statistics.gov.uk", "eurostat.ec.europa.eu",
+        # National regulators / TSOs / system operators (energy-relevant)
+        "transelectrica.ro",                    # RO transmission grid
+        "ofgem.gov.uk", "ferc.gov", "rte-france.com",
     ),
     T2_ACADEMIC: (
         "scholar.google.com", "nature.com", "science.org", "sciencemag.org",
@@ -160,6 +165,13 @@ _TIER_SUFFIXES = {
         "cambridge.org", "oup.com", "mit.edu", "stanford.edu", "harvard.edu",
         "ac.uk", "edu.au", ".edu",
         "researchgate.net", "academia.edu",
+        # Policy research institutes + environmental NGOs (academic-grade)
+        "sei.org",       # Stockholm Environment Institute
+        "eeb.org",       # European Environmental Bureau
+        "wri.org",       # World Resources Institute
+        "iiasa.ac.at",   # International Institute for Applied Systems Analysis
+        "bruegel.org",   # EU policy think tank
+        "rff.org",       # Resources for the Future
     ),
     T3_NEWS: (
         "ft.com", "bloomberg.com", "reuters.com", "wsj.com", "nytimes.com",
@@ -182,6 +194,10 @@ _TIER_SUFFIXES = {
         "rechargenews.com", "energypost.eu", "pv-magazine.com",
         "windpowerengineering.com", "windustry.org", "windeurope.org",
         "iea-wind.org", "ewea.org", "globalwindenergycouncil.com",
+        "windenergyhamburg.com",                # industry exhibition
+        "energynomics.ro",                      # Romanian energy trade press
+        "energyworld.com",                      # global energy trade
+        "rechargenews.com", "energy-storage.news",
         # industry trades — finance/SaaS
         "saastr.com", "fintech.com", "fintechnews.org",
         # industry trades — health/biotech
