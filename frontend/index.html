@@ -828,6 +828,81 @@
     .synergy:hover { border-left-width: 2px; padding-left: 16px; }
   }
 
+  /* ───────── PESTLE macro-environment (V7.26) ───────── */
+  .pestle-section { margin-bottom: 36px; }
+  .pestle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .pestle-card {
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--paper-dim);
+    padding: 12px 14px 14px;
+    background: rgba(255,255,255,0.01);
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  .pestle-card:hover { background: rgba(255,255,255,0.022); transform: translateY(-2px); }
+  /* intensity-based top-border colour */
+  .pestle-p1 { border-top-color: var(--paper-dim); }
+  .pestle-p2 { border-top-color: var(--gtm); }
+  .pestle-p3 { border-top-color: var(--security); }
+  .pestle-p4 { border-top-color: var(--shu); }
+  .pestle-p5 { border-top-color: var(--bad); }
+  /* tailwind = green tinge, headwind = red tinge */
+  .pestle-dir-tailwind { background: rgba(136, 224, 168, 0.04); }
+  .pestle-dir-headwind { background: rgba(255, 115, 103, 0.05); }
+  .pestle-head {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 6px;
+    gap: 8px;
+  }
+  .pestle-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--paper);
+  }
+  .pestle-icon { font-size: 12px; }
+  .pestle-meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+    white-space: nowrap;
+  }
+  .pestle-dir-tailwind .pestle-meta { color: var(--ok); }
+  .pestle-dir-headwind .pestle-meta { color: var(--bad); }
+  .pestle-meter {
+    height: 3px;
+    background: var(--rule);
+    margin: 0 0 10px;
+    position: relative;
+  }
+  .pestle-meter-fill {
+    height: 100%;
+    background: var(--paper-dim);
+    transition: width 0.6s cubic-bezier(.4,.0,.2,1) 0.1s;
+  }
+  .pestle-p1 .pestle-meter-fill { background: var(--paper-dim); }
+  .pestle-p2 .pestle-meter-fill { background: var(--gtm); }
+  .pestle-p3 .pestle-meter-fill { background: var(--security); }
+  .pestle-p4 .pestle-meter-fill { background: var(--shu); }
+  .pestle-p5 .pestle-meter-fill { background: var(--bad); }
+  .pestle-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--paper);
+    margin-bottom: 8px;
+  }
+  .pestle-card .cites { display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (max-width: 760px) {
+    .pestle-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .pestle-grid { grid-template-columns: 1fr; }
+  }
+
   /* ───────── Gantt timeline for plays (V7.25) ───────── */
   .gantt-section { margin: 6px 0 30px; }
   .gantt-hint {
@@ -1707,7 +1782,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.25"></script>
-<script src="app.js?v=7.25"></script>
+<script src="cascade-flow.js?v=7.26"></script>
+<script src="app.js?v=7.26"></script>
 </body>
 </html>

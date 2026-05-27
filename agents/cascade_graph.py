@@ -37,6 +37,7 @@ from agents import finance as finance_agent
 from agents import gtm as gtm_agent
 from agents import contradictions as contradictions_agent
 from agents import marketing as marketing_agent
+from agents import pestle as pestle_agent
 from agents import porter as porter_agent
 from agents import security as security_agent
 from agents import strategy as strategy_agent
@@ -54,6 +55,7 @@ from agents.schemas import (
     HandoffMessage,
     MarketSignal,
     MarketingSignal,
+    Pestle,
     RiskProfile,
     SharedBundle,
     StrategicPlan,
@@ -110,6 +112,7 @@ class CascadeState(TypedDict, total=False):
     contradictions: list[Contradiction]
     five_forces: FiveForces
     swot: Swot
+    pestle: Pestle
     events: Annotated[list[dict], operator.add]
     brief: CascadeBrief
     # V7 — self-mode inputs (closure-bound at build_graph; not in invoke state
@@ -196,6 +199,7 @@ def build_graph(
     contradictions_llm: LLMFn | None = None,
     porter_llm: LLMFn | None = None,
     swot_llm: LLMFn | None = None,
+    pestle_llm: LLMFn | None = None,
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -435,6 +439,34 @@ def build_graph(
         })
         return {"five_forces": five, "events": [start, done]}
 
+    def pestle_node(state: CascadeState) -> dict:
+        """V7.26 — PESTLE macro-environment analysis against the clean bundle."""
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "pestle", "status": "start",
+        })
+        try:
+            p = pestle_agent.analyze(
+                target=state["bundle"].target,
+                bundle=state.get("clean", state["bundle"]),
+                llm=pestle_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "pestle", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {"pestle": Pestle(), "events": [start, err]}
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "pestle", "status": "done",
+            "political": p.political.pressure,
+            "economic": p.economic.pressure,
+            "social": p.social.pressure,
+            "technological": p.technological.pressure,
+            "legal": p.legal.pressure,
+            "environmental": p.environmental.pressure,
+        })
+        return {"pestle": p, "events": [start, done]}
+
     def swot_node(state: CascadeState) -> dict:
         """V7.24 — SWOT against the clean bundle."""
         start = _emit(on_event, {
@@ -524,6 +556,7 @@ def build_graph(
             contradictions=state.get("contradictions", []),
             five_forces=state.get("five_forces"),
             swot=state.get("swot"),
+            pestle=state.get("pestle"),
             guardrail_report=report,
             executive_summary=exec_summary,
             strategic_plan=plan,
@@ -560,6 +593,7 @@ def build_graph(
     g.add_node("contradictions_pass", contradictions_node)  # node name must differ from state key
     g.add_node("porter_pass", porter_node)                  # V7.24
     g.add_node("swot_pass", swot_node)                      # V7.24
+    g.add_node("pestle_pass", pestle_node)                  # V7.26
     g.add_node("assemble", assemble_node)
 
     g.add_edge(START, "pii_redact")
@@ -584,11 +618,13 @@ def build_graph(
     g.add_edge("cross_pollinate", "contradictions_pass")
     g.add_edge("cross_pollinate", "porter_pass")
     g.add_edge("cross_pollinate", "swot_pass")
-    # all four join into assemble
+    g.add_edge("cross_pollinate", "pestle_pass")  # V7.26
+    # all five join into assemble
     g.add_edge("strategy", "assemble")
     g.add_edge("contradictions_pass", "assemble")
     g.add_edge("porter_pass", "assemble")
     g.add_edge("swot_pass", "assemble")
+    g.add_edge("pestle_pass", "assemble")
     g.add_edge("assemble", END)
 
     return g.compile()

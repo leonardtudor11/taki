@@ -552,6 +552,79 @@ function renderPlanGantt(plan) {
   return wrap;
 }
 
+// V7.26 — PESTLE macro-environment section: 2×3 grid of factor cards
+// w/ direction arrow (tailwind ↑ / headwind ↓ / neutral →) + intensity meter.
+const _PESTLE_ORDER = [
+  { key: "political",     label: "Political",     icon: "⚖" },
+  { key: "economic",      label: "Economic",      icon: "💱" },
+  { key: "social",        label: "Social",        icon: "👥" },
+  { key: "technological", label: "Technological", icon: "⚙" },
+  { key: "legal",         label: "Legal",         icon: "§" },
+  { key: "environmental", label: "Environmental", icon: "🌿" },
+];
+
+const _DIR_ARROW = { tailwind: "↑", headwind: "↓", neutral: "→" };
+
+function renderPestle(pestle) {
+  if (!pestle) return null;
+  // Only render if at least one factor has substantive content
+  const haveContent = _PESTLE_ORDER.some((f) => {
+    const fa = pestle[f.key];
+    return fa && (fa.assessment || (fa.citations || []).length || fa.pressure > 1);
+  });
+  if (!haveContent) return null;
+
+  const wrap = el("div", { class: "pestle-section" });
+  wrap.appendChild(el(
+    "div",
+    { class: "section-title" },
+    "PESTLE · macro-environment 1–5 pressure · ↑ tailwind · ↓ headwind · → neutral",
+  ));
+
+  const grid = el("div", { class: "pestle-grid" });
+  _PESTLE_ORDER.forEach((f) => {
+    const fa = pestle[f.key];
+    if (!fa) return;
+    const pressure = Math.max(1, Math.min(5, fa.pressure || 1));
+    const direction = fa.direction || "neutral";
+    const card = el("div", {
+      class: `pestle-card pestle-p${pressure} pestle-dir-${direction}`,
+    });
+    const head = el("div", { class: "pestle-head" });
+    const lbl = el("div", { class: "pestle-label" });
+    lbl.appendChild(el("span", { class: "pestle-icon" }, f.icon));
+    lbl.appendChild(document.createTextNode(" " + f.label));
+    head.appendChild(lbl);
+    head.appendChild(el("div", { class: "pestle-meta" },
+      `${_DIR_ARROW[direction] || "→"} ${pressure}/5`));
+    card.appendChild(head);
+
+    const meter = el("div", { class: "pestle-meter" });
+    const fill  = el("div", { class: "pestle-meter-fill" });
+    fill.style.width = `${pressure * 20}%`;
+    meter.appendChild(fill);
+    card.appendChild(meter);
+
+    if (fa.assessment) {
+      card.appendChild(el("div", { class: "pestle-text" }, String(fa.assessment)));
+    }
+    if ((fa.citations || []).length) {
+      const cites = el("div", { class: "cites" });
+      fa.citations.forEach((c) => {
+        cites.appendChild(el(
+          "a",
+          { class: "cite", href: safeUrl(c.url), target: "_blank", rel: "noopener noreferrer" },
+          `§ ${c.source_type || "src"}`,
+        ));
+      });
+      card.appendChild(cites);
+    }
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  return wrap;
+}
+
 // V7.24 — Porter's Five Forces section: ECharts radar chart at top,
 // 5 cards underneath with each force's assessment + citations.
 const _FORCE_ORDER = [
@@ -1013,6 +1086,10 @@ function render(brief) {
   if (porter) app.appendChild(porter);
   const swot = renderSwot(brief.swot);
   if (swot) app.appendChild(swot);
+
+  // V7.26 — PESTLE macro-environment sits after SWOT
+  const pestle = renderPestle(brief.pestle);
+  if (pestle) app.appendChild(pestle);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });

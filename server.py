@@ -235,6 +235,7 @@ def api_run():
                         fake_finance_llm,
                         fake_gtm_llm_with_hallucination,
                         fake_marketing_llm,
+                        fake_pestle_llm,
                         fake_porter_llm,
                         fake_security_llm,
                         fake_strategy_llm,
@@ -256,6 +257,7 @@ def api_run():
                         contradictions_llm=fake_contradictions_llm,
                         porter_llm=fake_porter_llm,
                         swot_llm=fake_swot_llm,
+                        pestle_llm=fake_pestle_llm,
                         on_event=emit,
                     )
                 elif mode == "self":
@@ -371,7 +373,14 @@ def api_run():
                     def _emit_serp(ev: dict) -> None:
                         q.put({"phase": "serp", **ev})
 
-                    serp_queries = default_external_queries(profile.name)
+                    # V7.26 — profile.industry drives industry-aware queries,
+                    # profile.customer_segment is a hint for region.
+                    region_hint = profile_data.get("region", "") or profile_data.get("country", "")
+                    serp_queries = default_external_queries(
+                        profile.name,
+                        industry=profile.industry,
+                        region=region_hint,
+                    )
                     external = discover_external_sources(
                         target=profile.name,
                         client=client,
@@ -408,6 +417,7 @@ def api_run():
                         "phase": "serp", "status": "summary",
                         "discovered": len(external),
                         "added_to_bundle": added,
+                        "industry": profile.industry, "region": region_hint,
                         "queries": [q for q, _ in serp_queries],
                     })
 
@@ -459,7 +469,9 @@ def api_run():
                     def _emit_serp(ev: dict) -> None:
                         q.put({"phase": "serp", **ev})
 
-                    serp_queries = default_external_queries(target)
+                    industry = (data.get("industry") or "").strip()
+                    region   = (data.get("region")   or "").strip()
+                    serp_queries = default_external_queries(target, industry=industry, region=region)
                     external = discover_external_sources(
                         target=target,
                         client=client,
@@ -471,6 +483,7 @@ def api_run():
                     q.put({
                         "phase": "serp", "status": "summary",
                         "discovered": len(external),
+                        "industry": industry, "region": region,
                         "queries": [q for q, _ in serp_queries],
                     })
 

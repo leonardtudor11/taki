@@ -405,6 +405,68 @@ class StrategicPlan(_AutoListBase):
         return FitTier.MEDIUM
 
 
+class PestleFactor(_AutoListBase):
+    """V7.26 — one of the six PESTLE macro factors, scored against the bundle.
+
+    `pressure`: 1=neutral / barely material, 5=major macro force.
+    `direction`: "tailwind" (helps target), "headwind" (hurts target),
+                 "neutral" (material but ambiguous).
+    """
+
+    name: str = ""
+    pressure: int = Field(default=3, ge=1, le=5)
+    direction: str = "neutral"                     # tailwind / headwind / neutral
+    assessment: str = ""
+    citations: list[Citation] = Field(default_factory=list)
+
+    @field_validator("pressure", mode="before")
+    @classmethod
+    def _coerce_pressure(cls, v):
+        if isinstance(v, int):
+            return max(1, min(5, v))
+        if isinstance(v, str):
+            s = v.strip().lower()
+            words = {"very low": 1, "low": 2, "moderate": 3, "medium": 3, "high": 4, "very high": 5, "extreme": 5}
+            if s in words:
+                return words[s]
+            try:
+                return max(1, min(5, int(float(s))))
+            except ValueError:
+                return 3
+        return 3
+
+    @field_validator("direction", mode="before")
+    @classmethod
+    def _coerce_direction(cls, v):
+        if v is None:
+            return "neutral"
+        s = str(v).strip().lower()
+        if s in ("up", "positive", "tailwind", "+", "favorable", "favourable", "supportive"):
+            return "tailwind"
+        if s in ("down", "negative", "headwind", "-", "adverse", "unfavorable", "unfavourable"):
+            return "headwind"
+        if s in ("tailwind", "headwind", "neutral"):
+            return s
+        return "neutral"
+
+
+class Pestle(_AutoListBase):
+    """V7.26 — PESTLE macro-environment analysis.
+
+    Six factors: Political, Economic, Social, Technological, Legal,
+    Environmental. Each one carries a citation-grounded assessment of how
+    the outside world is currently affecting (or about to affect) the
+    target. Renders as a 2×3 grid with direction arrows + intensity bars.
+    """
+
+    political:     PestleFactor = Field(default_factory=lambda: PestleFactor(name="political"))
+    economic:      PestleFactor = Field(default_factory=lambda: PestleFactor(name="economic"))
+    social:        PestleFactor = Field(default_factory=lambda: PestleFactor(name="social"))
+    technological: PestleFactor = Field(default_factory=lambda: PestleFactor(name="technological"))
+    legal:         PestleFactor = Field(default_factory=lambda: PestleFactor(name="legal"))
+    environmental: PestleFactor = Field(default_factory=lambda: PestleFactor(name="environmental"))
+
+
 class Force(_AutoListBase):
     """V7.24 — one of Porter's Five Forces, scored against the bundle."""
 
@@ -538,6 +600,7 @@ class CascadeBrief(_AutoListBase):
     contradictions: list[Contradiction] = Field(default_factory=list)
     five_forces: Optional[FiveForces] = None
     swot: Optional[Swot] = None
+    pestle: Optional[Pestle] = None
     guardrail_report: GuardrailReport = Field(default_factory=GuardrailReport)
     executive_summary: str = ""
     strategic_plan: Optional[StrategicPlan] = None

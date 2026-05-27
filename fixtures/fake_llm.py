@@ -545,6 +545,73 @@ def fake_swot_llm(_prompt: str) -> str:
     })
 
 
+# ─── PESTLE (V7.26) ───────────────────────────────────────────────────────
+
+def fake_pestle_llm(_prompt: str) -> str:
+    """Canned PESTLE aligned w/ the Northwind sample bundle. Citations are
+    verbatim from the fixture's source texts."""
+    return json.dumps({
+        "political": {
+            "name": "political",
+            "pressure": 2,
+            "direction": "neutral",
+            "assessment": "No explicit political signal in the bundle for Northwind; the Series B was a private round with no regulatory disclosure beyond standard.",
+            "citations": [],
+        },
+        "economic": {
+            "name": "economic",
+            "pressure": 4,
+            "direction": "tailwind",
+            "assessment": "Fresh $40M Series B capitalization provides 18-24 month runway; the new $250/seat enterprise tier suggests pricing power has expanded into procurement-led deal sizes.",
+            "citations": [{
+                "url": "https://news.example/northwind-series-b",
+                "snippet": "closed a $40M Series B led by Acme Ventures",
+                "source_type": "news",
+            }],
+        },
+        "social": {
+            "name": "social",
+            "pressure": 2,
+            "direction": "neutral",
+            "assessment": "Public reviews flag onboarding friction and billing transparency — moderate social signal but not yet a reputational drag.",
+            "citations": [{
+                "url": "https://reviews.example/northwind",
+                "snippet": "billing surprises and a slow first onboarding",
+                "source_type": "review",
+            }],
+        },
+        "technological": {
+            "name": "technological",
+            "pressure": 3,
+            "direction": "neutral",
+            "assessment": "Tableau remains a direct technological substitute; Northwind's claimed 3x time-to-insight advantage is the public framing of that competition.",
+            "citations": [{
+                "url": "https://northwind.example/blog/why-us-vs-tableau",
+                "snippet": "outperform Tableau on time-to-first-insight by 3x",
+                "source_type": "site",
+            }],
+        },
+        "legal": {
+            "name": "legal",
+            "pressure": 3,
+            "direction": "tailwind",
+            "assessment": "SOC 2 Type II already cleared and ISO 27001 filed — procurement-grade compliance now in hand, which is itself a legal/regulatory tailwind for enterprise sales.",
+            "citations": [{
+                "url": "https://news.example/northwind-soc2",
+                "snippet": "SOC 2 Type II cleared, ISO 27001 filed",
+                "source_type": "news",
+            }],
+        },
+        "environmental": {
+            "name": "environmental",
+            "pressure": 1,
+            "direction": "neutral",
+            "assessment": "Northwind operates a cloud analytics platform; no direct environmental exposure visible in the bundle.",
+            "citations": [],
+        },
+    })
+
+
 # ─── Contradictions (V7.23) ───────────────────────────────────────────────
 
 def fake_contradictions_llm(_prompt: str) -> str:

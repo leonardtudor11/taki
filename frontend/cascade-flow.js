@@ -694,6 +694,7 @@ function _handleLiveEvent(ev, cy, tip) {
     case 'serp':
       // V7.22 — Google SERP discovery streams BEFORE fetch. Tip-only updates;
       // no pip — the pip strip starts at 'pii' phase below.
+      // V7.26 — also handles tier_summary + tier_dropped events
       if (ev.status === 'serp_start') {
         setTip(tip, `🔎 SERP discovery · ${ev.query}`, true);
       } else if (ev.status === 'serp_done') {
@@ -704,7 +705,13 @@ function _handleLiveEvent(ev, cy, tip) {
       } else if (ev.status === 'summary') {
         const n = ev.discovered || 0;
         const added = ev.added_to_bundle != null ? ` · ${ev.added_to_bundle} scraped into bundle` : '';
-        setTip(tip, `🔎 SERP discovery done · ${n} external URL${n === 1 ? '' : 's'} found${added}`, true);
+        const ind = ev.industry ? ` · industry: ${ev.industry}` : '';
+        const reg = ev.region ? ` · region: ${ev.region}` : '';
+        setTip(tip, `🔎 SERP discovery done · ${n} external URL${n === 1 ? '' : 's'} found${added}${ind}${reg}`, true);
+      } else if (ev.status === 'tier_summary') {
+        const t = ev.tiers || {};
+        const parts = Object.keys(t).sort().map((k) => `${k}=${t[k]}`);
+        setTip(tip, `🔎 SERP tiers · ${parts.join(' · ')} · kept ${ev.kept || 0}`, true);
       }
       break;
     case 'fetch':
@@ -834,6 +841,16 @@ function _handleLiveEvent(ev, cy, tip) {
         setTip(tip, `◰ SWOT · ${ev.s||0}S / ${ev.w||0}W / ${ev.o||0}O / ${ev.t_||0}T`, true);
       } else if (ev.status === 'error') {
         setTip(tip, `⚠ SWOT failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
+      }
+      break;
+    case 'pestle':
+      // V7.26 — parallel macro-env agent; no pip
+      if (ev.status === 'start') {
+        setTip(tip, '🌍 PESTLE · scoring macro forces (political/economic/social/tech/legal/env)…', true);
+      } else if (ev.status === 'done') {
+        setTip(tip, `🌍 PESTLE · P=${ev.political}/5 · E=${ev.economic}/5 · S=${ev.social}/5 · T=${ev.technological}/5 · L=${ev.legal}/5 · Env=${ev.environmental}/5`, true);
+      } else if (ev.status === 'error') {
+        setTip(tip, `⚠ PESTLE failed: ${ev.error || 'unknown'} (brief still assembled)`, true);
       }
       break;
     case 'strategy':

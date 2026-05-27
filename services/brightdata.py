@@ -103,6 +103,136 @@ class BrightDataClient:
         return self._request(self.unlocker_zone, url)
 
 
+# ─── V7.26 — Source-tier classifier + domain registry ────────────────────
+#
+# Each candidate URL is tagged with a quality tier so the SERP merge step
+# can prefer high-signal domains and cap the share of community/aggregator
+# noise. Tiers (lower number = more authoritative):
+#
+#   T1 — regulator, official statistic, intergovernmental body
+#   T2 — academic / peer-reviewed
+#   T3 — newspaper of record + top-tier analyst
+#   T4 — trade publication + recognized expert column
+#   T5 — community / aggregator (capped at ~25% of the bundle)
+#   T6 — review aggregator (capped together w/ T5)
+#   T0 — UNCLASSIFIED (treated as T4 fallback so we don't drop unknown
+#        but plausible domains entirely)
+#
+# Substring match on host is sufficient — these are stable institutional
+# domains; we don't need full PSL parsing.
+
+T1_REGULATOR  = "T1"   # *.gov, *.europa.eu, sec.gov, eur-lex, iea, irena, ...
+T2_ACADEMIC   = "T2"   # scholar, nature, science, jstor, arxiv, *.edu
+T3_NEWS       = "T3"   # ft.com, bloomberg, reuters, economist, mckinsey
+T4_TRADE      = "T4"   # techcrunch, theinformation, redmonk, industry trades
+T5_COMMUNITY  = "T5"   # reddit, HN, medium, substack
+T6_REVIEW     = "T6"   # g2, trustpilot, capterra, glassdoor
+T0_UNKNOWN    = "T0"   # default fallback
+
+TIER_WEIGHT = {
+    T1_REGULATOR: 1.00,
+    T2_ACADEMIC:  1.00,
+    T3_NEWS:      0.85,
+    T4_TRADE:     0.70,
+    T5_COMMUNITY: 0.40,
+    T6_REVIEW:    0.50,
+    T0_UNKNOWN:   0.60,
+}
+
+# Suffixes match the END of the hostname (after `.`).
+_TIER_SUFFIXES = {
+    T1_REGULATOR: (
+        ".gov", ".mil", ".gov.uk", ".gov.ie", ".gov.au", ".gov.ca",
+        ".europa.eu", ".eu", ".gov.eu",
+        "oecd.org", "imf.org", "worldbank.org", "iea.org", "irena.org",
+        "un.org", "who.int", "iso.org", "nist.gov", "noaa.gov", "ec.europa.eu",
+        "ecb.europa.eu", "eea.europa.eu", "epa.gov",
+        "sec.gov", "esma.europa.eu", "ec.europa.eu",
+        "eur-lex.europa.eu", "europarl.europa.eu",
+        "ons.gov.uk", "bls.gov", "fred.stlouisfed.org", "stlouisfed.org",
+        "bea.gov", "statistics.gov.uk", "eurostat.ec.europa.eu",
+    ),
+    T2_ACADEMIC: (
+        "scholar.google.com", "nature.com", "science.org", "sciencemag.org",
+        "jstor.org", "arxiv.org", "ssrn.com", "pubmed.ncbi.nlm.nih.gov",
+        "ncbi.nlm.nih.gov", "biorxiv.org", "medrxiv.org",
+        "sciencedirect.com", "springer.com", "wiley.com", "tandfonline.com",
+        "cambridge.org", "oup.com", "mit.edu", "stanford.edu", "harvard.edu",
+        "ac.uk", "edu.au", ".edu",
+        "researchgate.net", "academia.edu",
+    ),
+    T3_NEWS: (
+        "ft.com", "bloomberg.com", "reuters.com", "wsj.com", "nytimes.com",
+        "washingtonpost.com", "economist.com", "theguardian.com",
+        "telegraph.co.uk", "bbc.co.uk", "bbc.com", "cnbc.com", "forbes.com",
+        "businessinsider.com", "fortune.com", "axios.com",
+        "mckinsey.com", "bcg.com", "bain.com", "deloitte.com", "pwc.com",
+        "kpmg.com", "ey.com", "gartner.com", "forrester.com", "idc.com",
+        "morningstar.com", "spglobal.com", "fitchratings.com", "moodys.com",
+        "statista.com", "crunchbase.com", "pitchbook.com",
+    ),
+    T4_TRADE: (
+        "techcrunch.com", "theinformation.com", "wired.com", "arstechnica.com",
+        "theverge.com", "engadget.com", "venturebeat.com",
+        "redmonk.com", "stratechery.com", "a16z.com",
+        "hpcwire.com", "datanami.com", "bigdatawire.com",          # HPC / big data
+        "infoq.com", "thenewstack.io", "registerm.com",            # software trade
+        # industry trades — wind / solar / renewable
+        "windpowermonthly.com", "renewableenergyworld.com",
+        "rechargenews.com", "energypost.eu", "pv-magazine.com",
+        "windpowerengineering.com", "windustry.org", "windeurope.org",
+        "iea-wind.org", "ewea.org", "globalwindenergycouncil.com",
+        # industry trades — finance/SaaS
+        "saastr.com", "fintech.com", "fintechnews.org",
+        # industry trades — health/biotech
+        "fiercebiotech.com", "biopharmadive.com", "endpointsnews.com",
+        # industry trades — manufacturing
+        "industryweek.com", "manufacturing.net",
+        # market research firms (T4 tier — paywalled summary content)
+        "futuremarketinsights.com", "technavio.com", "marketresearchfuture.com",
+        "marketsandmarkets.com", "grandviewresearch.com", "alliedmarketresearch.com",
+        "tracxn.com",
+    ),
+    T5_COMMUNITY: (
+        "reddit.com", "news.ycombinator.com", "lobste.rs", "hackernews.com",
+        "medium.com", "substack.com", "dev.to", "hashnode.com",
+        "twitter.com", "x.com", "linkedin.com",  # social — caveat: behind walls
+        "quora.com", "stackoverflow.com", "stackexchange.com",
+    ),
+    T6_REVIEW: (
+        "g2.com", "trustpilot.com", "capterra.com", "softwareadvice.com",
+        "glassdoor.com", "indeed.com", "comparably.com",
+        "productpan.com", "producthunt.com",
+    ),
+}
+
+# Hard blocklist — domains we never want in the bundle.
+_BLOCKED_SUFFIXES = (
+    "blogspot.com", "wordpress.com",   # untyped UGC
+    "scribd.com", "slideshare.net",    # paywall/login-walled
+    "facebook.com", "instagram.com", "tiktok.com", "pinterest.com",
+)
+
+
+def classify_url(url: str) -> str:
+    """Return the tier code for a URL host. Substring suffix match."""
+    try:
+        host = (urllib.parse.urlparse(url).hostname or "").lower()
+    except Exception:
+        return T0_UNKNOWN
+    if not host:
+        return T0_UNKNOWN
+    # blocked → return a sentinel handled by caller
+    for s in _BLOCKED_SUFFIXES:
+        if host == s or host.endswith("." + s):
+            return "BLOCKED"
+    for tier, suffixes in _TIER_SUFFIXES.items():
+        for s in suffixes:
+            if host == s or host.endswith("." + s) or host.endswith(s):
+                return tier
+    return T0_UNKNOWN
+
+
 # ─── V7.22 — SERP-based external source discovery ────────────────────────
 #
 # Surfaces non-target-domain perspectives (reviews, HN/Reddit threads,
@@ -172,16 +302,22 @@ def discover_external_sources(
     exclude_hosts: list[str] | None = None,
     n_per_query: int = 3,
     on_event=None,
+    low_tier_cap: float = 0.30,
 ) -> list[tuple[str, SourceType]]:
     """Run each Google SERP query, extract top result URLs, tag w/ source_type.
 
+    V7.26 — Each discovered URL is classified by domain tier (T1-T6) and
+    BLOCKED hosts are dropped outright. Community + review hosts (T5+T6
+    combined) are capped at low_tier_cap of the final bundle so Reddit /
+    G2 can't drown out higher-signal sources.
+
     Returns deduplicated list of (url, source_type) tuples in query order.
-    Failures on individual queries are reported via on_event but don't
-    abort the whole discovery pass — one flaky query shouldn't burn the run.
+    Per-query failures are reported via on_event but don't abort the pass.
     """
     excl = {h.lower() for h in (exclude_hosts or [])}
-    out: list[tuple[str, SourceType]] = []
+    candidates: list[tuple[str, SourceType, str]] = []   # (url, stype, tier)
     seen_urls: set[str] = set()
+    tier_count: dict[str, int] = {}
 
     for query, stype in queries:
         if on_event:
@@ -196,33 +332,201 @@ def discover_external_sources(
                     "error": f"{type(e).__name__}: {e}",
                 })
             continue
-        urls = parse_serp_results(html, exclude_hosts=excl, max_urls=n_per_query * 4)
-        picked = 0
+        urls = parse_serp_results(html, exclude_hosts=excl, max_urls=n_per_query * 6)
+        picked_for_query = 0
         for u in urls:
             if u in seen_urls:
                 continue
+            tier = classify_url(u)
+            if tier == "BLOCKED":
+                continue
             seen_urls.add(u)
-            out.append((u, stype))
-            picked += 1
-            if picked >= n_per_query:
+            candidates.append((u, stype, tier))
+            tier_count[tier] = tier_count.get(tier, 0) + 1
+            picked_for_query += 1
+            if picked_for_query >= n_per_query:
                 break
         if on_event:
             on_event({
                 "status": "serp_done", "query": query,
-                "found": picked, "source_type": stype.value,
+                "found": picked_for_query, "source_type": stype.value,
             })
+
+    # V7.26 — cap low-tier (T5 community + T6 review) share.
+    total = len(candidates)
+    if total == 0:
+        return []
+    low_tier_kept = 0
+    low_tier_max = max(1, int(total * low_tier_cap))
+    out: list[tuple[str, SourceType]] = []
+    for u, st, tier in candidates:
+        if tier in (T5_COMMUNITY, T6_REVIEW):
+            if low_tier_kept >= low_tier_max:
+                if on_event:
+                    on_event({"status": "tier_dropped", "url": u, "tier": tier, "reason": "low-tier cap reached"})
+                continue
+            low_tier_kept += 1
+        out.append((u, st))
+
+    if on_event:
+        on_event({
+            "status": "tier_summary",
+            "tiers": tier_count,
+            "low_tier_cap": low_tier_cap,
+            "kept": len(out),
+            "dropped_for_cap": total - len(out),
+        })
     return out
 
 
-def default_external_queries(target: str) -> list[tuple[str, SourceType]]:
-    """Canonical 4-query set used by live + self modes. Order matters for the
-    streaming pip UX (review → competitor → outage → funding)."""
-    return [
-        (f'"{target}" review OR critique',                          SourceType.REVIEW),
-        (f'"{target}" vs Firebase OR Neon OR PlanetScale',          SourceType.REVIEW),
-        (f'"{target}" outage OR downtime OR incident',              SourceType.NEWS),
-        (f'"{target}" funding OR valuation OR Series',              SourceType.NEWS),
+# V7.26 — industry-aware SERP query templates.
+#
+# Three layers:
+#   - Base layer (always runs): filings, mainstream news of record, scholar
+#   - Industry layer: queries derived from BusinessProfile.industry that
+#     route to industry-specific trade publications + analyst firms
+#   - Region layer: queries that add national/EU regulator context
+#
+# Industry keys are matched as substring tokens against the supplied
+# `industry` string — so "wind turbines" / "wind energy" / "windpower"
+# all hit the WIND_ENERGY templates.
+
+_INDUSTRY_QUERIES: dict[str, list[tuple[str, SourceType]]] = {
+    # Renewable / wind energy
+    "wind": [
+        ('"{target}" IRENA OR "wind energy"',                        SourceType.NEWS),
+        ('"{target}" "Wind Power Monthly" OR "WindEurope"',          SourceType.NEWS),
+        ('"wind energy {region}" market report 2024 OR 2025',        SourceType.NEWS),
+        ('"EU Green Deal" wind OR renewable 2024 OR 2025',           SourceType.NEWS),
+        ('site:iea.org OR site:irena.org "wind" {region}',           SourceType.NEWS),
+        ('"{target}" filetype:pdf',                                   SourceType.NEWS),
+    ],
+    "solar": [
+        ('"{target}" IRENA OR "PV Magazine" OR "solar power"',       SourceType.NEWS),
+        ('"solar energy {region}" market report 2024 OR 2025',       SourceType.NEWS),
+        ('site:iea.org OR site:irena.org "solar" {region}',          SourceType.NEWS),
+        ('"{target}" filetype:pdf',                                   SourceType.NEWS),
+    ],
+    "renewable": [
+        ('"{target}" IRENA OR "renewable energy"',                   SourceType.NEWS),
+        ('"renewable energy {region}" capacity 2024 OR 2025',        SourceType.NEWS),
+        ('"EU Green Deal" {region}',                                  SourceType.NEWS),
+        ('"{target}" filetype:pdf',                                   SourceType.NEWS),
+    ],
+    # SaaS / Backend
+    "backend": [
+        ('"{target}" Gartner OR Forrester market research',          SourceType.REVIEW),
+        ('"{target}" architecture limitations OR scalability',       SourceType.REVIEW),
+        ('"backend-as-a-service" market size 2024 OR 2025',          SourceType.NEWS),
+        ('"{target}" site:scholar.google.com',                       SourceType.OTHER),
+    ],
+    "database": [
+        ('"{target}" Gartner OR Forrester database research',        SourceType.REVIEW),
+        ('"database market" Postgres OR cloud 2024 OR 2025',         SourceType.NEWS),
+        ('"{target}" site:scholar.google.com',                       SourceType.OTHER),
+    ],
+    "saas": [
+        ('"{target}" SaaStr OR Forrester OR Gartner',                SourceType.REVIEW),
+        ('"SaaS market" {region} 2024 OR 2025',                       SourceType.NEWS),
+        ('"{target}" filetype:pdf annual report OR 10-K',            SourceType.NEWS),
+    ],
+    # Health / biotech
+    "biotech": [
+        ('"{target}" FierceBiotech OR Endpoints',                    SourceType.NEWS),
+        ('"{target}" FDA filing OR EMA submission',                  SourceType.NEWS),
+        ('"{target}" site:pubmed.ncbi.nlm.nih.gov OR site:arxiv.org', SourceType.OTHER),
+    ],
+    "health": [
+        ('"{target}" "Endpoints News" OR "STAT News"',               SourceType.NEWS),
+        ('"{target}" site:pubmed.ncbi.nlm.nih.gov',                  SourceType.OTHER),
+        ('"healthcare market" {region} 2024 OR 2025',                 SourceType.NEWS),
+    ],
+    # Finance / fintech
+    "fintech": [
+        ('"{target}" "Financial Times" OR Bloomberg',                SourceType.NEWS),
+        ('"{target}" CB Insights OR PitchBook',                      SourceType.NEWS),
+        ('"fintech market" {region} 2024 OR 2025',                    SourceType.NEWS),
+    ],
+    # Manufacturing
+    "manufacturing": [
+        ('"{target}" "Industry Week" OR Manufacturing.net',          SourceType.NEWS),
+        ('"manufacturing market" {region} 2024 OR 2025',              SourceType.NEWS),
+        ('"{target}" "supply chain"',                                 SourceType.NEWS),
+    ],
+}
+
+# Region → expanded synonym list. Used as `{region}` placeholder fill.
+_REGION_EXPAND = {
+    "romania":      "Romania OR EU OR Eastern Europe",
+    "ro":           "Romania OR EU OR Eastern Europe",
+    "uk":           "United Kingdom OR UK OR Britain",
+    "us":           "United States OR US OR USA",
+    "germany":      "Germany OR DACH",
+    "france":       "France OR EU",
+    "eu":           "European Union OR EU",
+}
+
+
+def _industry_template_for(industry: str) -> list[tuple[str, SourceType]]:
+    """Substring-match the industry against template keys. Returns first match's
+    template list, or empty list if no industry signal."""
+    if not industry:
+        return []
+    s = industry.lower()
+    for key, tmpl in _INDUSTRY_QUERIES.items():
+        if key in s:
+            return tmpl
+    return []
+
+
+def default_external_queries(
+    target: str,
+    industry: str | None = None,
+    region: str | None = None,
+) -> list[tuple[str, SourceType]]:
+    """Base + industry-aware + region-aware SERP query set (V7.26).
+
+    Base queries always run — they hit filings, news of record, academic.
+    Industry queries layer on if `industry` matches a known template
+    (substring match — 'wind energy' / 'wind turbines' both hit 'wind').
+    Region tokens (Romania / EU / US / etc.) get expanded into synonym
+    lists so a Romanian wind-energy firm picks up both 'Romania' AND
+    'Eastern Europe' coverage.
+
+    When no industry / region is supplied, falls back to the canonical
+    review/competitor/outage/funding template that's domain-agnostic.
+    """
+    region_token = _REGION_EXPAND.get((region or "").lower().strip(), region or "")
+
+    base: list[tuple[str, SourceType]] = [
+        # T1 — primary filing / regulatory
+        (f'"{target}" filetype:pdf annual report OR 10-K OR prospectus',  SourceType.NEWS),
+        # T3 — newspaper of record
+        (f'"{target}" "Financial Times" OR Reuters OR Bloomberg',         SourceType.NEWS),
+        # T2 — academic / scholar
+        (f'"{target}" site:scholar.google.com OR site:arxiv.org OR study', SourceType.OTHER),
     ]
+
+    industry_layer = _industry_template_for(industry or "")
+    # fill {target} + {region} placeholders
+    rendered: list[tuple[str, SourceType]] = []
+    for q, st in industry_layer:
+        rendered.append((
+            q.replace("{target}", target).replace("{region}", region_token).strip(),
+            st,
+        ))
+
+    if not industry_layer:
+        # domain-agnostic fallback — the old V7.22 template (still useful as
+        # a baseline for unknown industries)
+        rendered = [
+            (f'"{target}" review OR critique',                  SourceType.REVIEW),
+            (f'"{target}" vs competitor OR comparison',         SourceType.REVIEW),
+            (f'"{target}" outage OR downtime OR incident',      SourceType.NEWS),
+            (f'"{target}" funding OR valuation OR Series',      SourceType.NEWS),
+        ]
+
+    return base + rendered
 
 
 def build_bundle(
