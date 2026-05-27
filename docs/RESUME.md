@@ -28,25 +28,41 @@ sleep 2 && curl -s http://localhost:5001/api/status
 ```
 Open http://localhost:5001 in the browser.
 
-## Live URLs (V7.13 + hackathon-submission deploys)
+## Live URLs (V7.28 — backend now public via Cloud Run)
 
 - **Public repo**: https://github.com/leonardtudor11/taki (MIT, topics added)
-- **Public dashboard**: https://frontend-sage-pi.vercel.app (static — replay
-  + dropped drawer + click-dept filtering all work; live demo / live run /
-  analyze-my-business need the local Flask backend at :5001)
-- **Vercel project**: auto-named `frontend` under `leonardtudor11s-projects`.
-  Rename to `taki` is cosmetic only — do it AFTER lablab submission.
+- **Public dashboard**: https://frontend-sage-pi.vercel.app
+  Gallery dropdown shows Orchid (default) / Supabase / Notion / Pfizer.
+  ?case=<slug> switches to a cached brief. ?key=<TAKI_AUTH_TOKEN> enables
+  the 🚀 self-mode and ⚡ live-demo buttons to call the public backend.
+- **Public backend (Cloud Run)**: `https://taki-backend-xmkvqnh62a-uc.a.run.app`
+  Region us-central1, service taki-backend, runtime SA has aiplatform.user
+  + secretAccessor + storage.objectViewer + artifactregistry.writer +
+  logging.logWriter + cloudbuild.builds.builder. Secrets via Secret Manager.
+  Spend cap enforced via TAKI_BD_SPEND_CAP env var.
+- **Auth**: `TAKI_AUTH_TOKEN` in `.env` (gitignored). Send as `?key=` URL
+  param OR `Authorization: Bearer <token>` header to /api/run.
+  Public share URL (for judges): https://frontend-sage-pi.vercel.app/?key=<TAKI_AUTH_TOKEN>
+- **Deploy commands**:
+  - Backend: `bash scripts/deploy_cloudrun.sh` (idempotent — rebuilds + redeploys)
+  - Frontend: `cd frontend && npx vercel --prod --yes` (Vercel git auto-deploy
+    is still broken since 2026-05-26 — see Hard-Won Knowledge below)
+  - Refresh cached briefs (re-runs cascade w/o re-scraping): `.venv/bin/python scripts/rerun_briefs.py`
+- **Vercel project**: `frontend` under `leonardtudor11s-projects`.
 
-## Project shape — 5-agent cascade, 4 modes
+## Project shape — 9-agent cascade, 4 modes (V7.28)
 
 ```
-Bright Data live web → SharedBundle (Lean cache)
-        ↓ PII redact → leak/scope guard
-        ↓ (parallel fan-out)
-[Marketing] [GTM] [Finance] [Security]   ← 4 dept agents
-        ↓ grounding (drop uncited claims)
-        ↓ cross-pollinate (synergies + handoffs)
-        ↓ Strategy (Chief of Staff synthesizes StrategicPlan)
+Bright Data live web → SharedBundle (Lean cache, source-tier classifier T1→T6)
+        ↓ PII redact → leak/scope guard (trusted-publisher exempt)
+        ↓ (parallel fan-out — 4 depts)
+[Marketing] [GTM] [Finance] [Security]
+        ↓ grounding (claim-level + V7.21 cite-level)
+        ↓ cross_pollinate (handoffs + synergies)
+        ↓ profile_extract (V7.28 — LLM extracts industry/stage/etc; target-mode only)
+        ↓ (parallel fan-out — 5 reasoning agents)
+[Strategy] [Contradictions] [Porter] [SWOT] [PESTLE]
+   ↓ V7.21 cite-prune + V7.28 owner-dept citation fallback for plays
         ↓ assemble → CascadeBrief
         ↓ /api/run SSE → cytoscape graph + dashboard re-render
 ```
@@ -85,10 +101,13 @@ Bright Data live web → SharedBundle (Lean cache)
   section.
 
 ## Tests
-- 117/117 green (~14s)
+- 146/146 green excluding the slow Vertex e2e (`test_cascade_brief.py`)
+  — ~8m26s on macOS (NOT the "~15s" claimed in old resumes).
+- Full suite incl. e2e cascade: ~12m12s.
 - tests/test_schema_coercion.py — V7.10 Orchid SRL regression
 - tests/test_url_audit.py — normalize / DNS / audit_urls / quality gate
 - tests/test_subpage_expansion.py — V7.12 sub-page discovery synonyms
+- tests/test_brightdata.py — V7.28 expanded industry templates + fallback
 
 ## Open hackathon-submission tasks (deadline May 30 build / May 31 finale)
 
