@@ -937,14 +937,30 @@
     background: transparent;
     border: none;
     border-bottom: 1px solid var(--rule-soft);
-    border-radius: 0;
-    padding: 10px 0 12px;
-    margin-bottom: 0;
+    border-radius: 2px;
+    padding: 10px 8px 12px;
+    margin: 0 -8px;             /* bleed past the inner gutter so hover glow has room */
     font-size: 14px;
     line-height: 1.5;
     color: var(--paper);
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.25s ease;
+    will-change: transform;
   }
   .claim:last-child { border-bottom: none; }
+  /* V7.16 — hover tilt + dept-tinted glow on claim cards */
+  .claim:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.022);
+  }
+  .panel.marketing .claim:hover { box-shadow: 0 6px 20px -8px rgba(255, 133, 201, 0.38); }
+  .panel.gtm       .claim:hover { box-shadow: 0 6px 20px -8px rgba( 90, 214, 232, 0.38); }
+  .panel.finance   .claim:hover { box-shadow: 0 6px 20px -8px rgba(152, 224, 138, 0.38); }
+  .panel.security  .claim:hover { box-shadow: 0 6px 20px -8px rgba(240, 168,  73, 0.38); }
+  /* respect prefers-reduced-motion — skip the lift */
+  @media (prefers-reduced-motion: reduce) {
+    .claim { transition: background 0.18s ease; }
+    .claim:hover { transform: none; }
+  }
   /* V4 confidence bar — hairline at the top of each claim, dept-coloured */
   .claim-bar {
     height: 2px;
@@ -1171,7 +1187,7 @@
      Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
 <script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="cascade-flow.js?v=7.14"></script>
-<script src="app.js?v=7.14"></script>
+<script src="cascade-flow.js?v=7.16"></script>
+<script src="app.js?v=7.16"></script>
 </body>
 </html>
