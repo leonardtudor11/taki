@@ -632,3 +632,41 @@ def fake_contradictions_llm(_prompt: str) -> str:
             },
         ],
     })
+
+
+# ─── Expert Quotes (V7.34) ───────────────────────────────────────────────
+
+def fake_expert_quotes_llm(_prompt: str) -> str:
+    """Canned ExpertQuote list shaped for the Northwind fixture.
+
+    Three quotes spanning the value strata the V7.34 panel ranks:
+      1) external analyst commentary (Gartner-style framing)
+      2) external journalist coverage (Reuters-style attributable fact)
+      3) target's own CEO — kept LAST because the schema/agent ranks
+         third-party voices first per the prompt.
+    """
+    return json.dumps({
+        "quotes": [
+            {
+                "name": "Lakshmi Patel",
+                "role": "Principal Analyst",
+                "organization": "Gartner",
+                "quote": "Northwind's pivot toward enterprise SKUs is forcing the mid-market SaaS pricing reset everyone in this space saw coming.",
+                "citation": "https://gartner.example/report",
+            },
+            {
+                "name": "Mark Reynolds",
+                "role": "Reporter",
+                "organization": "Reuters",
+                "quote": "Northwind raised its Pro tier from $49 to $79 per seat in March, citing demand for the new enterprise compliance bundle.",
+                "citation": "https://www.reuters.com/example",
+            },
+            {
+                "name": "Priya Sharma",
+                "role": "CEO",
+                "organization": "Northwind Analytics",
+                "quote": "We're investing every dollar of the new pricing into the security and compliance roadmap our enterprise customers asked for.",
+                "citation": "https://northwind.example/blog",
+            },
+        ],
+    })

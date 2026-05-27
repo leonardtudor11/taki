@@ -393,6 +393,60 @@ function _renderGenericPanel(signal, color) {
 }
 
 
+// V7.34 — Expert quotes panel. Renders verbatim attributed quotes
+// (analysts, regulators, journalists, named executives) above the
+// departments section. Skipped when brief.expert_quotes is empty so
+// older briefs degrade cleanly.
+function renderExpertQuotes(brief) {
+  const quotes = (brief && Array.isArray(brief.expert_quotes)) ? brief.expert_quotes : [];
+  if (!quotes.length) return null;
+
+  const wrap = el("section", {
+    class: "quotes-panel",
+    role: "region",
+    "aria-label": "Expert quotes",
+  });
+  wrap.appendChild(el("div", { class: "quotes-eyebrow" }, "Expert voices"));
+  wrap.appendChild(el("h2", { class: "quotes-title" }, `What the named voices said about ${brief.target || "this company"}`));
+
+  const grid = el("div", { class: "quotes-grid" });
+  for (const q of quotes) {
+    if (!q || !q.quote) continue;
+    const card = el("article", { class: "quote-card" });
+    // Verbatim quote — block content
+    const body = el("blockquote", { class: "quote-body" });
+    body.appendChild(document.createTextNode("“"));
+    body.appendChild(document.createTextNode(String(q.quote)));
+    body.appendChild(document.createTextNode("”"));
+    card.appendChild(body);
+
+    // Attribution line: Name · Role · Organization
+    const attrib = el("div", { class: "quote-attrib" });
+    const parts = [];
+    if (q.name)         parts.push(String(q.name));
+    if (q.role)         parts.push(String(q.role));
+    if (q.organization) parts.push(String(q.organization));
+    attrib.textContent = parts.length ? "— " + parts.join(" · ") : "— attributed";
+    card.appendChild(attrib);
+
+    if (q.citation) {
+      const href = safeUrl(q.citation);
+      if (href !== "#") {
+        const cite = el("a", {
+          class: "quote-cite",
+          href, target: "_blank", rel: "noopener noreferrer",
+        }, "source ↗");
+        card.appendChild(cite);
+      }
+    }
+    grid.appendChild(card);
+  }
+  if (!grid.childNodes.length) return null;
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+
 function renderSectorSignal(brief) {
   if (!brief || !brief.sector) return null;
   const meta = SECTOR_PANEL_META[brief.sector];
@@ -1321,6 +1375,11 @@ function render(brief) {
   // skip this section entirely (null return).
   const sectorPanel = renderSectorSignal(brief);
   if (sectorPanel) app.appendChild(sectorPanel);
+
+  // V7.34 — Expert quotes panel sits between sector signal and depts so
+  // judges scanning the brief hit the human voices before the dept grid.
+  const quotesPanel = renderExpertQuotes(brief);
+  if (quotesPanel) app.appendChild(quotesPanel);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });

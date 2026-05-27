@@ -506,6 +506,79 @@
     .sector-section-grid { grid-template-columns: 1fr; }
   }
 
+  /* V7.34 — Expert quotes panel. Sits between sector signal and depts.
+     Two-column grid of quote cards on desktop; single column on mobile. */
+  .quotes-panel {
+    margin: 36px 40px;
+    padding: 26px 28px 22px;
+    background: rgba(255, 255, 255, 0.014);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--shu);
+    border-radius: 0;
+    max-width: 1200px;
+  }
+  .quotes-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--shu);
+    margin-bottom: 10px;
+  }
+  .quotes-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 100;
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.25;
+    margin: 0 0 22px;
+    color: var(--paper);
+  }
+  .quotes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 14px;
+  }
+  .quote-card {
+    background: var(--ink-2);
+    border: 1px solid var(--rule);
+    padding: 16px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.18s ease;
+  }
+  .quote-card:hover { border-color: var(--paper-dim); }
+  .quote-body {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--paper);
+    margin: 0;
+    font-style: italic;
+  }
+  .quote-attrib {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+    letter-spacing: 0.04em;
+  }
+  .quote-cite {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--paper-dim);
+    align-self: flex-start;
+    padding-bottom: 1px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .quote-cite:hover { color: var(--shu); border-bottom-color: var(--shu); }
+  @media (max-width: 900px) {
+    .quotes-panel { margin: 24px 16px; padding: 18px 18px 14px; }
+    .quotes-grid { grid-template-columns: 1fr; }
+  }
+
   /* V7.28 — industry/stage/segment chip strip above the strategic plan
      hero. Gives a judge instant signal "what kind of business is this"
      without having to scroll into the dept panels. */
@@ -1974,7 +2047,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.29.1"></script>
-<script src="app.js?v=7.29.1"></script>
+<script src="cascade-flow.js?v=7.34"></script>
+<script src="app.js?v=7.34"></script>
 </body>
 </html>

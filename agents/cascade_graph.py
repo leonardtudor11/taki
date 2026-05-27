@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, Callable, TypedDict
 
+from agents import expert_quotes as expert_quotes_agent  # V7.34
 from agents import finance as finance_agent
 from agents import gtm as gtm_agent
 from agents import contradictions as contradictions_agent
@@ -53,6 +54,7 @@ from agents.schemas import (
     Claim,
     Contradiction,
     EnergySignal,
+    ExpertQuote,
     FiveForces,
     GenericSignal,
     GuardrailReport,
@@ -133,6 +135,8 @@ class CascadeState(TypedDict, total=False):
     # a SectorSignal subclass — pharma / saas / energy / generic.
     sector: Sector
     sector_signal: SectorSignal
+    # V7.34 — named-expert verbatim quotes extracted from the bundle.
+    expert_quotes: list[ExpertQuote]
 
 
 def _now_iso() -> str:
@@ -258,6 +262,7 @@ def build_graph(
     pestle_llm: LLMFn | None = None,
     profile_llm: LLMFn | None = None,            # V7.28
     sector_llm: LLMFn | None = None,             # V7.29
+    expert_quotes_llm: LLMFn | None = None,      # V7.34
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -488,6 +493,35 @@ def build_graph(
         })
         return {"sector": sector, "sector_signal": signal, "events": [start, done]}
 
+    def expert_quotes_node(state: CascadeState) -> dict:
+        """V7.34 — extract named-individual verbatim quotes from the bundle.
+
+        Runs serially between profile_extract and sector_pass so the
+        post-grounding 5-way reasoning fan-out stays equal-depth (a
+        6-way fan-out from sector_pass would risk the same Vertex
+        degradation pattern V7.29-pt3 fixed for sector_pass). One LLM
+        call; failures degrade to an empty list and never break cascade.
+        """
+        start = _emit(on_event, {
+            "t": _now_iso(), "phase": "expert_quotes", "status": "start",
+        })
+        try:
+            quotes = expert_quotes_agent.analyze(
+                bundle=state.get("clean", state["bundle"]),
+                llm=expert_quotes_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "expert_quotes", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {"expert_quotes": [], "events": [start, err]}
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "expert_quotes", "status": "done",
+            "count": len(quotes),
+        })
+        return {"expert_quotes": quotes, "events": [start, done]}
+
     def strategy_node(state: CascadeState) -> dict:
         """Synthesize all dept outputs + synergies + handoffs into a
         StrategicPlan via an LLM. The 'answer' layer.
@@ -714,6 +748,7 @@ def build_graph(
             guardrail_report=report,
             executive_summary=exec_summary,
             strategic_plan=plan,
+            expert_quotes=state.get("expert_quotes", []),  # V7.34
             **sector_kwargs,
         )
         total_claims = (
@@ -745,6 +780,10 @@ def build_graph(
     g.add_node("grounding", grounding_node)
     g.add_node("cross_pollinate", cross_node)
     g.add_node("profile_extract", profile_extract_node)     # V7.28 — feeds strategy
+    # V7.34 — node name MUST differ from the 'expert_quotes' state key
+    # (LangGraph rejects collisions); _pass suffix matches sector_pass /
+    # contradictions_pass / porter_pass / swot_pass / pestle_pass.
+    g.add_node("expert_quotes_pass", expert_quotes_node)
     g.add_node("sector_pass", sector_node)                  # V7.29 — sector sub-pipeline
     g.add_node("strategy", strategy_node)
     g.add_node("contradictions_pass", contradictions_node)  # node name must differ from state key
@@ -782,7 +821,10 @@ def build_graph(
     # still fan parallel from sector_pass, equal-depth, so the LangGraph
     # fan-in barrier into assemble stays clean (no double-fire).
     g.add_edge("cross_pollinate", "profile_extract")
-    g.add_edge("profile_extract", "sector_pass")
+    # V7.34 — expert_quotes_pass runs serially between profile_extract and
+    # sector_pass. Keeps the post-sector 5-way fan-in equal-depth.
+    g.add_edge("profile_extract", "expert_quotes_pass")
+    g.add_edge("expert_quotes_pass", "sector_pass")
     g.add_edge("sector_pass", "strategy")
     g.add_edge("sector_pass", "contradictions_pass")
     g.add_edge("sector_pass", "porter_pass")
@@ -808,6 +850,7 @@ def run(
     marketing_llm: LLMFn | None = None,
     profile_llm: LLMFn | None = None,            # V7.28
     sector_llm: LLMFn | None = None,             # V7.29
+    expert_quotes_llm: LLMFn | None = None,      # V7.34
     event_path: Path | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -842,6 +885,7 @@ def run(
             marketing_llm=marketing_llm,
             profile_llm=profile_llm,                # V7.28
             sector_llm=sector_llm,                  # V7.29
+            expert_quotes_llm=expert_quotes_llm,    # V7.34
             on_event=on_event,
             mode=mode,
             business_profile=business_profile,

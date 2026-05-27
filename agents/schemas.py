@@ -818,6 +818,28 @@ class GenericSignal(_AutoListBase):
 SectorSignal = Union[PharmaSignal, SaasSignal, EnergySignal, GenericSignal]
 
 
+class ExpertQuote(_AutoListBase):
+    """V7.34 — verbatim attributed quote surfaced from the bundle.
+
+    The expert_quotes agent (agents/expert_quotes.py) scans bundle text
+    for named-individual quotes — CEOs, analysts, regulators, academic
+    researchers, journalists. These carry weight in B2B decision-making
+    that statistical summaries don't replicate: an analyst quote names
+    the framing that buyers will repeat back to the founder.
+
+    Each field is OPTIONAL — the agent emits whatever it could
+    confidently attribute. Empty 'name' implies an institutional voice
+    (e.g. a report byline); empty 'organization' is fine when the
+    individual is the brand (e.g. an independent journalist).
+    """
+
+    name: str = ""               # "Albert Bourla"
+    role: str = ""               # "CEO", "Principal Analyst", "Senior Researcher"
+    organization: str = ""       # "Pfizer", "Gartner", "MIT CSAIL"
+    quote: str = ""              # verbatim text — required for the entry to ship
+    citation: str = ""           # URL where the quote appeared
+
+
 class CascadeBrief(_AutoListBase):
     """The unified deliverable every department cascades into."""
 
@@ -846,3 +868,5 @@ class CascadeBrief(_AutoListBase):
     saas_signal: Optional[SaasSignal] = None
     energy_signal: Optional[EnergySignal] = None
     generic_signal: Optional[GenericSignal] = None
+    # V7.34 — named-expert verbatim quotes extracted from the bundle.
+    expert_quotes: list[ExpertQuote] = Field(default_factory=list)
