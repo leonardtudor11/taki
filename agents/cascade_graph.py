@@ -772,19 +772,24 @@ def build_graph(
     #   porter_pass                 — Porter's 5 Forces analysis (V7.24)
     #   swot_pass                   — SWOT 2x2 (V7.24)
     #   pestle_pass                 — PESTLE 2x3 (V7.26)
-    # V7.29 — single serial gate (profile_extract) then 6-way parallel fan-out
-    # to all reasoning agents. Equal-depth parallel branches keep LangGraph's
-    # fan-in barrier clean (no double-fire of assemble).
+    # V7.29-pt3 — two serial gates (profile_extract, sector_pass) then 5-way
+    # parallel fan-out to the universal reasoning agents. Earlier topology
+    # had sector_pass parallel with strategy + 4 frameworks (6-way fan-out),
+    # but Vertex degrades responses when 6 LLM calls fire simultaneously —
+    # sector returned empty lists silently. Serialising sector_pass right
+    # after profile_extract costs ~30s of wall clock but guarantees the
+    # sector signal actually populates. The 5 remaining reasoning agents
+    # still fan parallel from sector_pass, equal-depth, so the LangGraph
+    # fan-in barrier into assemble stays clean (no double-fire).
     g.add_edge("cross_pollinate", "profile_extract")
-    g.add_edge("profile_extract", "strategy")
-    g.add_edge("profile_extract", "sector_pass")          # V7.29
-    g.add_edge("profile_extract", "contradictions_pass")
-    g.add_edge("profile_extract", "porter_pass")
-    g.add_edge("profile_extract", "swot_pass")
-    g.add_edge("profile_extract", "pestle_pass")
-    # all six reasoning branches join into assemble
+    g.add_edge("profile_extract", "sector_pass")
+    g.add_edge("sector_pass", "strategy")
+    g.add_edge("sector_pass", "contradictions_pass")
+    g.add_edge("sector_pass", "porter_pass")
+    g.add_edge("sector_pass", "swot_pass")
+    g.add_edge("sector_pass", "pestle_pass")
+    # five reasoning branches join into assemble
     g.add_edge("strategy", "assemble")
-    g.add_edge("sector_pass", "assemble")                  # V7.29
     g.add_edge("contradictions_pass", "assemble")
     g.add_edge("porter_pass", "assemble")
     g.add_edge("swot_pass", "assemble")

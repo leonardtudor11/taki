@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import json
 
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
 from agents.base import strip_fences
 from agents.schemas import (
     BusinessProfile,
@@ -226,6 +228,67 @@ _SECTOR_PROMPT_MAP: dict[Sector, tuple[str, type]] = {
 }
 
 
+def _coerce_citations(data, bundle: SharedBundle) -> object:
+    """Walk a dict/list tree and coerce bare-string citation entries to the
+    Citation dict shape Pydantic expects.
+
+    LLMs frequently emit citations as a list of plain strings (the verbatim
+    snippet) rather than {url, snippet, source_type} dicts. Without coercion,
+    Pydantic validation rejects the whole sector signal — we end up with an
+    empty fallback. This walker recurses through any 'citations' keys and
+    rewrites string entries; when possible it also resolves the source URL
+    by finding the snippet inside one of the bundle's source texts.
+    """
+    # Build a snippet→url lookup once, lazy on first need
+    source_index: list[tuple[str, str, str]] = []  # (norm_text, url, source_type)
+
+    def _index():
+        if source_index:
+            return source_index
+        for src in (bundle.sources or []):
+            text = (src.text or "").lower()
+            st = src.source_type.value if hasattr(src.source_type, "value") else str(src.source_type)
+            source_index.append((text, src.url, st))
+        return source_index
+
+    def _lookup(snippet: str) -> tuple[str, str]:
+        """Find first source whose text contains a slice of the snippet."""
+        if not snippet:
+            return ("", "site")
+        needle = snippet.strip().lower()
+        if len(needle) < 20:
+            return ("", "site")
+        # match the first 60 chars to dodge minor paraphrase
+        probe = needle[:60]
+        for txt, url, st in _index():
+            if probe in txt:
+                return (url, st)
+        return ("", "site")
+
+    def _walk(node):
+        if isinstance(node, dict):
+            for k, v in list(node.items()):
+                if k == "citations" and isinstance(v, list):
+                    coerced = []
+                    for c in v:
+                        if isinstance(c, dict):
+                            coerced.append(c)
+                        elif isinstance(c, str):
+                            url, st = _lookup(c)
+                            coerced.append({"url": url, "snippet": c, "source_type": st})
+                        else:
+                            coerced.append(c)
+                    node[k] = coerced
+                else:
+                    _walk(v)
+        elif isinstance(node, list):
+            for item in node:
+                _walk(item)
+        return node
+
+    return _walk(data)
+
+
 def analyze(
     bundle: SharedBundle,
     profile: BusinessProfile | None,
@@ -255,9 +318,27 @@ def analyze(
         industry=industry_str,
         evidence=_evidence_block(bundle),
     )
+
+    # V7.29-pt2 — Vertex 429 mid-cascade is common when 6 parallel reasoning
+    # agents fire LLM calls simultaneously after profile_extract. Retry the
+    # sector call w/ exponential backoff so it doesn't silently fall back to
+    # an empty signal just because the dept agents got the quota slot first.
+    @retry(
+        stop=stop_after_attempt(4),
+        wait=wait_exponential(multiplier=2, min=2, max=30),
+        retry=retry_if_exception_type(Exception),
+        reraise=True,
+    )
+    def _call() -> str:
+        return llm(prompt)
+
     try:
-        raw = llm(prompt)
+        raw = _call()
         data = json.loads(strip_fences(raw))
+        # coerce LLM-emitted bare-string citations to Citation dict shape so
+        # Pydantic validates. Also resolves source_type+url via bundle text
+        # lookup when possible.
+        data = _coerce_citations(data, bundle)
         signal = model_cls.model_validate(data)
         return (sector, signal)
     except Exception:

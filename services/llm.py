@@ -26,7 +26,13 @@ def get_vertex_llm(
     location: str | None = None,
     model: str = _MODEL,
 ) -> LLMFn:
-    """Vertex AI path. Requires GCP_PROJECT_ID and ADC (see gcloud auth)."""
+    """Vertex AI path. Requires GCP_PROJECT_ID and ADC (see gcloud auth).
+
+    V7.29-pt3 — wraps `generate_content` in tenacity exponential backoff
+    so transient 429 rate-limits, empty-string returns, and quota-throttle
+    truncation don't silently propagate as `""` (which then JSON-fails
+    upstream and silently collapses an agent's output to defaults).
+    """
     project = project or os.environ.get("GCP_PROJECT_ID")
     location = location or os.environ.get("GCP_LOCATION", "global")
     if not project:
@@ -36,16 +42,36 @@ def get_vertex_llm(
         )
     # lazy import so the AI Studio path can run without google-genai installed
     from google import genai
+    from tenacity import (
+        retry,
+        retry_if_exception_type,
+        stop_after_attempt,
+        wait_exponential,
+    )
 
     client = genai.Client(vertexai=True, project=project, location=location)
 
+    class _EmptyResponse(Exception):
+        """Raised when Vertex returns blank text — tenacity retries it."""
+
+    @retry(
+        stop=stop_after_attempt(4),
+        wait=wait_exponential(multiplier=2, min=2, max=30),
+        retry=retry_if_exception_type((Exception,)),
+        reraise=True,
+    )
     def _complete(prompt: str) -> str:
         resp = client.models.generate_content(
             model=model,
             contents=prompt,
             config={"response_mime_type": "application/json"},
         )
-        return resp.text or ""
+        text = resp.text or ""
+        # Empty response under load is the failure mode that silently
+        # collapses agents to defaults. Surface as a retry trigger.
+        if not text.strip():
+            raise _EmptyResponse("vertex returned empty text")
+        return text
 
     return _complete
 

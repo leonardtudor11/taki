@@ -43,18 +43,24 @@ class _AutoListBase(BaseModel):
             if name not in data:
                 continue
             ann_str = str(field.annotation)
-            if "list[" not in ann_str and "List[" not in ann_str:
-                continue
             v = data[name]
-            if v is None:
-                data[name] = []
-            elif isinstance(v, dict):
-                data[name] = [v]
-            elif isinstance(v, str):
-                # only safe for list[str] fields; for list[Claim] this will
-                # fail validation downstream with a clear 'expected dict for
-                # Claim' message rather than the cryptic 'expected list'.
-                data[name] = [v]
+            if "list[" in ann_str or "List[" in ann_str:
+                if v is None:
+                    data[name] = []
+                elif isinstance(v, dict):
+                    data[name] = [v]
+                elif isinstance(v, str):
+                    # only safe for list[str] fields; for list[Claim] this will
+                    # fail validation downstream with a clear 'expected dict for
+                    # Claim' message rather than the cryptic 'expected list'.
+                    data[name] = [v]
+            elif ann_str == "<class 'str'>" and v is None:
+                # V7.29-pt3 — LLMs commonly emit `null` for string fields they
+                # can't fill ("deployment_scale": null) when asked to populate
+                # all keys in a schema. Without this coercion, Pydantic rejects
+                # the whole entry and the sector signal silently collapses to
+                # empty lists. Coerce to default empty string.
+                data[name] = ""
         return data
 
 
