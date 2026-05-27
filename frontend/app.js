@@ -453,6 +453,105 @@ function _openSynergyDrawer(synergy, brief) {
   drawer.focus({ preventScroll: true });
 }
 
+// V7.25 — Gantt chart for recommended plays.
+// Parses each play's `timeframe` ("this week", "30 days", "this quarter")
+// into a [start_day, end_day] span and renders horizontal bars on a
+// shared timeline, colored by primary owner dept.
+
+function _parseTimeframe(t) {
+  const s = String(t || "").toLowerCase().trim();
+  if (!s) return [0, 30];
+  // explicit "N days" / "N day" wins
+  const days = s.match(/(\d+)\s*day/);
+  if (days) return [0, Math.max(1, parseInt(days[1], 10))];
+  // "N weeks"
+  const weeks = s.match(/(\d+)\s*week/);
+  if (weeks) return [0, parseInt(weeks[1], 10) * 7];
+  // "N months"
+  const months = s.match(/(\d+)\s*month/);
+  if (months) return [0, parseInt(months[1], 10) * 30];
+  // named windows
+  if (s.includes("this week") || s === "week" || s === "1w") return [0, 7];
+  if (s.includes("two week") || s === "2w" || s.includes("biweek")) return [0, 14];
+  if (s.includes("this month")) return [0, 30];
+  if (s.includes("quarter") || /q[1-4]/.test(s)) return [0, 90];
+  if (s.includes("half") || s.includes("h1") || s.includes("h2") || s.includes("6 month")) return [0, 180];
+  if (s.includes("year") || s.includes("annual")) return [0, 365];
+  if (s.includes("immediate") || s.includes("now")) return [0, 3];
+  return [0, 30];  // safe default
+}
+
+const _OWNER_CLASS = { gtm: "gtm", finance: "finance", security: "security", marketing: "marketing" };
+
+function renderPlanGantt(plan) {
+  if (!plan || !plan.recommended_plays || !plan.recommended_plays.length) return null;
+  const plays = plan.recommended_plays;
+  const spans = plays.map((p) => _parseTimeframe(p.timeframe));
+  const maxDay = Math.max(30, ...spans.map((s) => s[1]));
+
+  const wrap = el("div", { class: "gantt-section" });
+  wrap.appendChild(el("div", { class: "section-title" }, "Strategic plan · Gantt timeline"));
+  wrap.appendChild(el(
+    "div",
+    { class: "gantt-hint" },
+    `Bars span each play's timeframe (max ${maxDay} days). Hover for full text · click a bar to scroll to the play card.`,
+  ));
+
+  // Day scale tick row
+  const scale = el("div", { class: "gantt-scale" });
+  // tick every ceil(maxDay/6) days for readable spacing
+  const tickStep = maxDay <= 30 ? 5 : maxDay <= 90 ? 15 : 30;
+  for (let d = 0; d <= maxDay; d += tickStep) {
+    const tick = el("div", { class: "gantt-tick" }, d === 0 ? "0" : `${d}d`);
+    tick.style.left = `${(d / maxDay) * 100}%`;
+    scale.appendChild(tick);
+  }
+  wrap.appendChild(scale);
+
+  const rows = el("div", { class: "gantt-rows" });
+  plays.forEach((play, i) => {
+    const [start, end] = spans[i];
+    const row = el("div", { class: "gantt-row" });
+
+    const label = el("div", { class: "gantt-row-label" }, `P${play.priority || 3}`);
+    row.appendChild(label);
+
+    const track = el("div", { class: "gantt-track" });
+    const ownerKey = String((play.owners || [])[0] || "").toLowerCase();
+    const ownerCls = _OWNER_CLASS[ownerKey] || "default";
+    const fullText = String(play.text || "");
+    const bar = el(
+      "div",
+      {
+        class: `gantt-bar gantt-bar-${ownerCls}`,
+        title: `${fullText}\n${play.timeframe || ""} · owners: ${(play.owners || []).join(", ") || "—"}`,
+        role: "button",
+        tabindex: "0",
+        "aria-label": `Play P${play.priority || 3}: ${fullText}`,
+      },
+      fullText,
+    );
+    bar.style.left  = `${(start / maxDay) * 100}%`;
+    bar.style.width = `${Math.max(2, ((end - start) / maxDay) * 100)}%`;
+    // click → scroll the matching .plan-play into view and expand it
+    bar.addEventListener("click", () => {
+      const card = document.querySelectorAll(".plan-play")[i];
+      if (card) {
+        card.setAttribute("aria-expanded", "true");
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+    bar.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); bar.click(); }
+    });
+    track.appendChild(bar);
+    row.appendChild(track);
+    rows.appendChild(row);
+  });
+  wrap.appendChild(rows);
+  return wrap;
+}
+
 // V7.24 — Porter's Five Forces section: ECharts radar chart at top,
 // 5 cards underneath with each force's assessment + citations.
 const _FORCE_ORDER = [
@@ -877,6 +976,9 @@ function render(brief) {
   const planNode = renderStrategicPlan(brief.strategic_plan);
   if (planNode) {
     app.appendChild(planNode);
+    // V7.25 — Gantt timeline of the plays sits right under the plan hero
+    const gantt = renderPlanGantt(brief.strategic_plan);
+    if (gantt) app.appendChild(gantt);
   } else if (brief.executive_summary) {
     const ex = el("div", { class: "exec", role: "region", "aria-label": "Executive summary" });
     ex.appendChild(el("h2", null, "Executive summary"));
