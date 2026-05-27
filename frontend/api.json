@@ -1,0 +1,6 @@
+{
+  "_comment": "Backend base URL for /api/* calls. Empty string = same-origin (local server.py on :5001). Filled at deploy time with the Cloud Run URL so Vercel-hosted frontend can hit it cross-origin.",
+  "backend_base": "",
+  "_auth_comment": "When the backend has TAKI_AUTH_TOKEN set, supply a default_key here OR the user passes ?key=<token> in the URL. Frontend appends it to /api/* requests automatically.",
+  "default_key": ""
+}

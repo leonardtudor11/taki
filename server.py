@@ -46,9 +46,46 @@ FRONTEND = ROOT / "frontend"
 FRONTEND_BRIEF = FRONTEND / "brief.json"
 
 app = Flask(__name__, static_folder=None)
-# CORS so the dashboard can be served from a different origin during dev
-# (e.g. python -m http.server :8000 hitting this backend at :5001).
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# CORS so the dashboard can be served from a different origin (Vercel frontend
+# + Cloud Run backend split, or local :8000 hitting :5001 during dev). Allow
+# all origins on /api/* — the bearer-token middleware below is what actually
+# protects writes; CORS is just a browser policy, not a security boundary.
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=False)
+
+# V7.28 — optional bearer-token gate for the WRITE endpoints. Unset locally
+# (host stays trusted on 127.0.0.1); set in Cloud Run via Secret Manager so
+# a public URL can't be drained by drive-by traffic. Accepts either:
+#   Authorization: Bearer <token>
+#   ?key=<token>  (URL param — easier for share links to judges)
+_AUTH_TOKEN = os.environ.get("TAKI_AUTH_TOKEN", "").strip()
+_AUTH_PROTECTED_PATHS = {"/api/run"}
+
+
+def _extract_token() -> str:
+    """Read bearer token from header OR ?key= URL param."""
+    auth = (request.headers.get("Authorization") or "").strip()
+    if auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return (request.args.get("key") or "").strip()
+
+
+@app.before_request
+def _auth_gate():
+    """Reject unauthenticated writes when TAKI_AUTH_TOKEN is configured.
+
+    Skips OPTIONS preflights so browser CORS still works. Read-only endpoints
+    (status, brief, static frontend) stay open — only the cascade-trigger
+    endpoint is gated.
+    """
+    if not _AUTH_TOKEN:
+        return None  # auth disabled (local dev)
+    if request.method == "OPTIONS":
+        return None
+    if request.path not in _AUTH_PROTECTED_PATHS:
+        return None
+    if _extract_token() != _AUTH_TOKEN:
+        return (jsonify({"error": "unauthorized"}), 401)
+    return None
 
 # Single-slot run lock. The dashboard is a single-user demo; one cascade at a
 # time keeps things simple and prevents accidental double-spend on Bright Data.
@@ -572,8 +609,15 @@ def api_run():
 # ───────────────── entrypoint ─────────────────
 
 if __name__ == "__main__":
-    port = int(os.environ.get("TAKI_BACKEND_PORT", "5001"))
-    print(f"\n  Taki backend → http://localhost:{port}/")
-    print(f"  modes: demo (always on) · live ({'on' if not _live_blockers() else 'BLOCKED: ' + '; '.join(_live_blockers())})\n")
+    # V7.28 — Cloud Run sets PORT and expects the container to bind 0.0.0.0.
+    # Local dev keeps the loopback bind for safety. PORT takes precedence
+    # over TAKI_BACKEND_PORT so the same image runs on Cloud Run unchanged.
+    cloud_port = os.environ.get("PORT")
+    port = int(cloud_port or os.environ.get("TAKI_BACKEND_PORT", "5001"))
+    host = "0.0.0.0" if cloud_port else "127.0.0.1"
+    auth_state = "enabled" if _AUTH_TOKEN else "disabled (local dev)"
+    print(f"\n  Taki backend → http://{host}:{port}/")
+    print(f"  modes: demo (always on) · live ({'on' if not _live_blockers() else 'BLOCKED: ' + '; '.join(_live_blockers())})")
+    print(f"  auth:  {auth_state}\n")
     # threaded=True so SSE generators don't block the next request.
-    app.run(host="127.0.0.1", port=port, threaded=True, debug=False, use_reloader=False)
+    app.run(host=host, port=port, threaded=True, debug=False, use_reloader=False)

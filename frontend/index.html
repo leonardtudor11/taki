@@ -410,6 +410,48 @@
     border-left: 2px solid var(--shu);
     max-width: 920px;
   }
+  /* V7.28 — industry/stage/segment chip strip above the strategic plan
+     hero. Gives a judge instant signal "what kind of business is this"
+     without having to scroll into the dept panels. */
+  .plan-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .plan-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--paper-dim);
+    background: rgba(255, 255, 255, 0.02);
+    white-space: nowrap;
+    max-width: 460px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .plan-chip-industry {
+    color: var(--shu);
+    border-color: rgba(232, 74, 58, 0.42);
+    background: rgba(232, 74, 58, 0.06);
+    font-weight: 500;
+  }
+  .plan-chip-stage {
+    color: var(--gtm);
+    border-color: rgba(90, 214, 232, 0.35);
+    background: rgba(90, 214, 232, 0.06);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .plan-chip-segment {
+    color: var(--paper);
+    border-color: var(--rule);
+  }
   .plan-eyebrow {
     font-family: "JetBrains Mono", monospace;
     font-size: 10px;
@@ -1836,7 +1878,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.27"></script>
-<script src="app.js?v=7.27"></script>
+<script src="cascade-flow.js?v=7.28"></script>
+<script src="app.js?v=7.28"></script>
 </body>
 </html>

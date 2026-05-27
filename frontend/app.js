@@ -231,10 +231,39 @@ function _renderPlay(play, idx) {
   return li;
 }
 
-function renderStrategicPlan(plan) {
+function renderStrategicPlan(plan, businessProfile) {
   if (!plan || !plan.headline) return null;
 
   const wrap = el("section", { class: "plan", role: "region", "aria-label": "Strategic plan" });
+
+  // V7.28 — industry/stage/customer chips so a judge scanning the gallery
+  // sees IMMEDIATELY what kind of business this brief is about. Without this,
+  // pharma briefs look the same as SaaS briefs at first glance.
+  if (businessProfile && (businessProfile.industry || businessProfile.stage)) {
+    const chips = el("div", { class: "plan-chips", role: "list" });
+    if (businessProfile.industry) {
+      chips.appendChild(el(
+        "span",
+        { class: "plan-chip plan-chip-industry", role: "listitem", title: "Industry" },
+        String(businessProfile.industry)
+      ));
+    }
+    if (businessProfile.stage) {
+      chips.appendChild(el(
+        "span",
+        { class: "plan-chip plan-chip-stage", role: "listitem", title: "Maturity stage" },
+        String(businessProfile.stage)
+      ));
+    }
+    if (businessProfile.customer_segment) {
+      chips.appendChild(el(
+        "span",
+        { class: "plan-chip plan-chip-segment", role: "listitem", title: "Customer segment" },
+        String(businessProfile.customer_segment)
+      ));
+    }
+    wrap.appendChild(chips);
+  }
 
   // headline
   wrap.appendChild(el("div", { class: "plan-eyebrow" }, "Strategic plan"));
@@ -1046,7 +1075,7 @@ function render(brief) {
 
   // V6 — strategic plan hero (the conclusion). If absent, fall back to the
   // legacy templated exec summary so older briefs still render usefully.
-  const planNode = renderStrategicPlan(brief.strategic_plan);
+  const planNode = renderStrategicPlan(brief.strategic_plan, brief.business_profile);
   if (planNode) {
     app.appendChild(planNode);
     // V7.25 — Gantt timeline of the plays sits right under the plan hero
@@ -1281,7 +1310,7 @@ function _stopPolling() {
 
 function _pollStatus() {
   _stopPolling();
-  fetch("/api/status", { cache: "no-store" })
+  fetch(_apiUrl("/api/status"), { cache: "no-store" })
     .then((r) => r.ok ? r.json() : null)
     .then((s) => {
       if (!s) return;
@@ -1307,7 +1336,7 @@ function _pollStatus() {
 }
 
 function _checkStatusOnLoad() {
-  fetch("/api/status", { cache: "no-store" })
+  fetch(_apiUrl("/api/status"), { cache: "no-store" })
     .then((r) => r.ok ? r.json() : null)
     .then((s) => {
       if (!s) return;
@@ -1319,6 +1348,39 @@ function _checkStatusOnLoad() {
       }
     })
     .catch(() => {});
+}
+
+// ───────── backend wire — Cloud Run cross-origin + bearer-token ──────
+//
+// V7.28 — Vercel hosts the static frontend; Cloud Run hosts /api/*. The two
+// origins differ in production, so /api/* fetches need an absolute URL.
+// frontend/api.json holds that URL (and optionally a default auth key).
+// The user can also override the key via ?key=<token> in the page URL — that
+// way share links to judges carry the auth automatically.
+//
+// Local dev (./demo.sh): api.json.backend_base stays empty → same-origin :5001.
+async function _loadApiConfig() {
+  try {
+    const r = await fetch("api.json", { cache: "no-store" });
+    if (!r.ok) return;
+    const cfg = await r.json();
+    if (cfg && typeof cfg.backend_base === "string") {
+      window.TAKI_BACKEND_BASE = cfg.backend_base;
+    }
+    // URL param ?key= wins over default_key in api.json
+    const urlKey = new URLSearchParams(location.search).get("key");
+    window.TAKI_AUTH_KEY = urlKey || (cfg && cfg.default_key) || "";
+  } catch {
+    // api.json optional — same-origin default if missing
+  }
+}
+
+function _apiUrl(path) {
+  const base = (window.TAKI_BACKEND_BASE || "").replace(/\/$/, "");
+  const key = window.TAKI_AUTH_KEY || "";
+  let url = base + path;
+  if (key) url += (url.includes("?") ? "&" : "?") + "key=" + encodeURIComponent(key);
+  return url;
 }
 
 // ───────── case gallery — multi-brief switcher (?case=<slug>) ─────────
@@ -1383,7 +1445,11 @@ async function _initCaseSelect() {
   });
 }
 
-_briefUrl()
+// V7.28 — load api.json FIRST so /api/* URLs + auth key are set before
+// anything downstream (cascade-flow.js status fetch, self-modal POST, etc.)
+// reads them. Then load the case-aware brief.
+_loadApiConfig()
+  .then(_briefUrl)
   .then((url) => fetch(url))
   .then((r) => { if (!r.ok) throw new Error(`brief ${r.status}`); return r.json(); })
   .then((b) => {

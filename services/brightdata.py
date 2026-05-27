@@ -469,6 +469,153 @@ _INDUSTRY_QUERIES: dict[str, list[tuple[str, SourceType]]] = {
         ('"manufacturing market" {region} 2024 OR 2025',              SourceType.NEWS),
         ('"{target}" "supply chain"',                                 SourceType.NEWS),
     ],
+    # V7.28 — Pharma / large enterprise
+    "pharma": [
+        ('"{target}" FDA approval OR clinical trial OR ClinicalTrials.gov', SourceType.NEWS),
+        ('"{target}" EMA OR "European Medicines Agency"',            SourceType.NEWS),
+        ('"{target}" "Endpoints News" OR "STAT News" OR FiercePharma', SourceType.NEWS),
+        ('"{target}" filetype:pdf 10-K OR annual report OR pipeline', SourceType.NEWS),
+        ('"{target}" site:pubmed.ncbi.nlm.nih.gov',                   SourceType.OTHER),
+        ('"{target}" Bloomberg OR Reuters drug pricing',              SourceType.NEWS),
+    ],
+    "pharmaceutical": [
+        ('"{target}" FDA approval OR clinical trial OR ClinicalTrials.gov', SourceType.NEWS),
+        ('"{target}" EMA OR "European Medicines Agency"',            SourceType.NEWS),
+        ('"{target}" "Endpoints News" OR "STAT News"',               SourceType.NEWS),
+        ('"{target}" filetype:pdf 10-K OR annual report OR pipeline', SourceType.NEWS),
+    ],
+    # V7.28 — Productivity / knowledge tools (Notion/Asana/Slack-like)
+    "productivity": [
+        ('"{target}" Gartner Magic Quadrant OR Forrester Wave',      SourceType.REVIEW),
+        ('"{target}" G2 OR Capterra OR Trustpilot recent reviews',   SourceType.REVIEW),
+        ('"{target}" enterprise plan OR Business plan pricing',      SourceType.PRICING),
+        ('"{target}" SOC 2 OR ISO 27001 OR HIPAA compliance',        SourceType.NEWS),
+        ('"{target}" Bloomberg OR TechCrunch OR The Information',    SourceType.NEWS),
+    ],
+    # V7.28 — Developer tools (broader than backend/database)
+    "devtools": [
+        ('"{target}" Gartner OR Forrester developer tools',          SourceType.REVIEW),
+        ('"{target}" HackerNews OR Reddit r/programming',            SourceType.REVIEW),
+        ('"{target}" site:github.com stars OR forks',                SourceType.OTHER),
+        ('"{target}" "developer survey" OR "Stack Overflow"',        SourceType.OTHER),
+    ],
+    "developer": [
+        ('"{target}" Gartner OR Forrester developer tools',          SourceType.REVIEW),
+        ('"{target}" HackerNews OR Reddit',                          SourceType.REVIEW),
+        ('"{target}" site:github.com',                                SourceType.OTHER),
+    ],
+    # V7.28 — E-commerce / retail / D2C
+    "ecommerce": [
+        ('"{target}" Shopify OR BigCommerce platform',               SourceType.NEWS),
+        ('"{target}" GMV OR "gross merchandise value"',              SourceType.NEWS),
+        ('"{target}" Trustpilot OR "consumer reviews"',              SourceType.REVIEW),
+        ('"retail e-commerce market" {region} 2024 OR 2025',          SourceType.NEWS),
+    ],
+    "retail": [
+        ('"{target}" Retail Dive OR Modern Retail',                  SourceType.NEWS),
+        ('"{target}" Trustpilot OR consumer reviews',                SourceType.REVIEW),
+        ('"retail market" {region} 2024 OR 2025',                     SourceType.NEWS),
+    ],
+    "d2c": [
+        ('"{target}" Modern Retail OR Retail Brew DTC',              SourceType.NEWS),
+        ('"{target}" Trustpilot OR Reddit reviews',                  SourceType.REVIEW),
+    ],
+    # V7.28 — Media / publishing
+    "media": [
+        ('"{target}" Press Gazette OR Digiday OR Adweek',            SourceType.NEWS),
+        ('"{target}" Bloomberg OR Reuters media',                    SourceType.NEWS),
+        ('"media industry" {region} 2024 OR 2025',                    SourceType.NEWS),
+    ],
+    "publishing": [
+        ('"{target}" Press Gazette OR Publishers Weekly',            SourceType.NEWS),
+        ('"{target}" Reuters Institute report',                      SourceType.NEWS),
+    ],
+    # V7.28 — Education / edtech
+    "education": [
+        ('"{target}" EdSurge OR "Inside Higher Ed"',                 SourceType.NEWS),
+        ('"{target}" "Common Sense" OR "EdTechHub"',                 SourceType.NEWS),
+        ('"edtech market" {region} 2024 OR 2025',                     SourceType.NEWS),
+    ],
+    "edtech": [
+        ('"{target}" EdSurge OR "EdTechHub"',                        SourceType.NEWS),
+        ('"{target}" Holon IQ OR "education investment"',            SourceType.NEWS),
+    ],
+    # V7.28 — Logistics / supply chain
+    "logistics": [
+        ('"{target}" Supply Chain Dive OR FreightWaves',             SourceType.NEWS),
+        ('"{target}" "supply chain" OR "freight rates"',             SourceType.NEWS),
+    ],
+    "supply": [
+        ('"{target}" Supply Chain Dive OR FreightWaves',             SourceType.NEWS),
+        ('"{target}" Gartner supply chain',                          SourceType.NEWS),
+    ],
+    # V7.28 — Automotive
+    "automotive": [
+        ('"{target}" "Automotive News" OR Reuters Autos',            SourceType.NEWS),
+        ('"{target}" EV OR "electric vehicle" 2024 OR 2025',          SourceType.NEWS),
+    ],
+    "auto": [
+        ('"{target}" "Automotive News" OR Reuters Autos',            SourceType.NEWS),
+        ('"{target}" EV OR "electric vehicle"',                       SourceType.NEWS),
+    ],
+    # V7.28 — Aerospace / defence
+    "aerospace": [
+        ('"{target}" "Aviation Week" OR Defense News',               SourceType.NEWS),
+        ('"{target}" FAA OR EASA certification',                     SourceType.NEWS),
+    ],
+    "defense": [
+        ('"{target}" Defense News OR Breaking Defense',              SourceType.NEWS),
+        ('"{target}" DoD OR Pentagon contract',                      SourceType.NEWS),
+    ],
+    # V7.28 — Insurance / insurtech
+    "insurance": [
+        ('"{target}" "Insurance Journal" OR Reuters Insurance',      SourceType.NEWS),
+        ('"insurtech market" {region} 2024 OR 2025',                  SourceType.NEWS),
+    ],
+    "insurtech": [
+        ('"{target}" "Insurance Journal" OR Coverager',              SourceType.NEWS),
+    ],
+    # V7.28 — Crypto / blockchain
+    "crypto": [
+        ('"{target}" CoinDesk OR The Block OR Decrypt',              SourceType.NEWS),
+        ('"{target}" SEC OR CFTC enforcement',                       SourceType.NEWS),
+    ],
+    "blockchain": [
+        ('"{target}" CoinDesk OR The Block',                         SourceType.NEWS),
+    ],
+    # V7.28 — Real estate / proptech
+    "real estate": [
+        ('"{target}" Bisnow OR The Real Deal',                       SourceType.NEWS),
+        ('"real estate market" {region} 2024 OR 2025',                SourceType.NEWS),
+    ],
+    "proptech": [
+        ('"{target}" Bisnow OR PropTech Today',                      SourceType.NEWS),
+    ],
+    # V7.28 — Legal / lawtech
+    "legal": [
+        ('"{target}" "Law.com" OR "American Lawyer"',                SourceType.NEWS),
+        ('"{target}" "Above the Law" OR LawSites',                   SourceType.NEWS),
+    ],
+    "law": [
+        ('"{target}" "Law.com" OR "American Lawyer"',                SourceType.NEWS),
+    ],
+    # V7.28 — Consulting / professional services
+    "consulting": [
+        ('"{target}" Consultancy.eu OR Bloomberg consulting',        SourceType.NEWS),
+        ('"{target}" "Big Four" OR partner promotion',               SourceType.NEWS),
+    ],
+    "agency": [
+        ('"{target}" Adweek OR Campaign agency',                     SourceType.NEWS),
+        ('"{target}" award OR client win',                            SourceType.NEWS),
+    ],
+    # V7.28 — Gaming
+    "gaming": [
+        ('"{target}" GamesIndustry.biz OR PocketGamer',              SourceType.NEWS),
+        ('"{target}" Steam OR Twitch concurrent players',            SourceType.NEWS),
+    ],
+    "games": [
+        ('"{target}" GamesIndustry.biz OR PocketGamer',              SourceType.NEWS),
+    ],
 }
 
 # Region → expanded synonym list. Used as `{region}` placeholder fill.
@@ -533,13 +680,29 @@ def default_external_queries(
         ))
 
     if not industry_layer:
-        # domain-agnostic fallback — the old V7.22 template (still useful as
-        # a baseline for unknown industries)
+        # V7.28 — domain-agnostic fallback for arbitrary/unknown industries.
+        # Expanded beyond V7.22 to cover the common ways a target leaks
+        # information regardless of sector: reviews, hiring, compliance,
+        # legal/regulatory surface, M&A, leadership, controversies.
         rendered = [
-            (f'"{target}" review OR critique',                  SourceType.REVIEW),
-            (f'"{target}" vs competitor OR comparison',         SourceType.REVIEW),
-            (f'"{target}" outage OR downtime OR incident',      SourceType.NEWS),
-            (f'"{target}" funding OR valuation OR Series',      SourceType.NEWS),
+            # Customer voice — works for any sector with consumer/business
+            # facing reviews
+            (f'"{target}" Trustpilot OR G2 OR Capterra reviews',  SourceType.REVIEW),
+            (f'"{target}" Glassdoor OR Indeed employee reviews',  SourceType.REVIEW),
+            (f'"{target}" Reddit OR HackerNews discussion',       SourceType.REVIEW),
+            # Competitive surface
+            (f'"{target}" vs competitor OR alternative OR comparison', SourceType.REVIEW),
+            # Operational / risk
+            (f'"{target}" outage OR downtime OR security incident', SourceType.NEWS),
+            (f'"{target}" lawsuit OR settlement OR investigation', SourceType.NEWS),
+            (f'"{target}" GDPR OR HIPAA OR SOC2 OR compliance',  SourceType.NEWS),
+            # Financial / growth
+            (f'"{target}" funding OR valuation OR Series OR IPO', SourceType.NEWS),
+            (f'"{target}" layoff OR hiring spree OR headcount',   SourceType.NEWS),
+            (f'"{target}" acquisition OR merger 2024 OR 2025',    SourceType.NEWS),
+            # Leadership / strategy
+            (f'"{target}" CEO OR founder interview',              SourceType.NEWS),
+            (f'"{target}" earnings call OR investor day',         SourceType.NEWS),
         ]
 
     return base + rendered

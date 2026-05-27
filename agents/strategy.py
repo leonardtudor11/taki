@@ -73,10 +73,93 @@ def _render_handoffs(handoffs: list[HandoffMessage]) -> str:
     )
 
 
+# V7.28 — shared sector guide. Both TARGET and SELF prompts inject this so
+# play recommendations adapt to the buyer's actual decision criteria instead
+# of collapsing to generic "engage leadership / develop messaging" output.
+_SECTOR_GUIDE = """⚑ SECTOR-AWARE PLAY SELECTION ⚑
+Read the dept signals (named regulators, named customers, named products,
+employee titles, geographies, industry references) to infer the sector.
+Then match plays to that sector's real buying pattern. Do NOT default to
+generic enterprise-sales language for every target.
+
+PHARMA / HEALTHCARE / LIFE SCIENCES — buyers decide on regulatory posture,
+clinical pipeline, and named clinical partners. Strong plays look like:
+ - "Trace their public clinical pipeline (Phase II/III drugs per
+   ClinicalTrials.gov + EMA register). Compliance + GTM spend lands
+   where the pipeline lands — those programs are the buying centres."
+ - "Surface their FDA/EMA submission calendar. Pre-submission quarters
+   are peak compliance budget; that's the buy window."
+ - "Map their named CRO partners + KOL physicians. Those relationships
+   are the actual influence path, not corporate marketing."
+AVOID for pharma: 'launch GTM campaign', 'develop messaging', generic
+ABM plays. Pharma buyers ignore vendor noise; they react to regulators.
+
+ENTERPRISE INFRASTRUCTURE / ENERGY / MANUFACTURING / DEFENCE — buyers
+decide on installed-base proof, certifications, and procurement standing.
+Strong plays:
+ - "Map their installed-base / reference customers by name + capacity +
+   year. RFP pre-qualification gates on this list."
+ - "Inventory their certification stack (IEC / ISO / sector-specific).
+   Gaps are entry wedges; the seller positions to fill them."
+ - "Identify named procurement leads in their RFP filings and trade
+   conference attendee lists. Those are the actual decision-makers."
+ - "Co-author technical case studies with their named utility/integrator
+   partners — third-party validation moves procurement scoring."
+AVOID: SEO suggestions, social calendars, paid-ad recommendations.
+
+ENTERPRISE SaaS / BaaS / DEV TOOLS / PLG MOTION — buyers decide on
+product fit, expansion economics, and reference logos. Strong plays:
+ - "Identify named expansion customers in their case studies. Sell
+   into the same buyer archetypes they already convert."
+ - "Map the senior engineers / DevOps leads they hired this quarter
+   (from their public careers feed + LinkedIn). Those are evaluators."
+ - "Watch their pricing-page tiering for segment shifts — a new tier
+   means a new ICP they're chasing; reposition there first."
+ - "Surface their public SOC 2 / ISO 27001 / HIPAA posture. Mid-market
+   buyers gate on this; gaps are tactical openings."
+
+PROFESSIONAL SERVICES / AGENCIES / CONSULTING — buyers decide on
+named partners, sector specialization, and case study depth.
+Strong plays:
+ - "Map their named client portfolio. Vertical concentration tells you
+   the sectors they'll cross-sell into next."
+ - "Watch their partnership announcements. Each new partner is a
+   distribution channel signal."
+
+LOWER-BARRIER SMB SaaS / D2C / CONSUMER / FREEMIUM — buyers decide on
+funnel clarity, pricing transparency, social proof. Strong plays:
+ - "Map their G2 / Trustpilot recent reviews to identify churn vectors."
+ - "Identify named partners / influencers from their public partner page."
+ - "Watch their freemium-to-paid conversion friction (pricing page,
+   onboarding flow, paywall placement)."
+
+When in doubt about sector — treat as HIGH-BARRIER B2B. The expensive
+mistake is recommending generic enterprise-sales motions to a regulated
+or procurement-led buyer.
+
+⚑ NAMING SPECIFICITY (HARD RULE) ⚑
+EVERY recommended_play MUST name at least one specific entity from
+the dept signals — a named person, product, regulator, customer,
+competitor, city, venue, regulatory program, or hiring role.
+Plays without named entities are templated and useless.
+
+Reject your own draft and rewrite if you see yourself writing:
+ - "engage their leadership" → NAME the leaders from the hiring signals
+ - "develop messaging" → SAY what messaging to whom
+ - "position our solution as" → CITE the specific signal driving the position
+ - "launch a campaign" → NAME the segment + the trigger
+ - "de-risk their growth" → NAME the specific risk + risk-source
+A play that could be copy-pasted to any other target is a failed play.
+"""
+
+
 _PROMPT_TARGET = """You are the Chief of Staff for an enterprise revenue intelligence org.
-Three department agents produced GROUNDED signals about target "{target}".
+Four department agents produced GROUNDED signals about target "{target}".
 Your job is to synthesize them into ONE strategic plan a CRO could act on
-this week — not a summary of signals, an actual plan.
+this week — not a summary of signals, an actual plan, with named entities.
+
+TARGET PROFILE (V7.28 — LLM-extracted from the bundle, NOT user input):
+{target_profile_context}
 
 EVIDENCE — dept signals
 {gtm_block}
@@ -91,26 +174,37 @@ CROSS-DEPT SYNERGIES
 CROSS-DEPT HANDOFFS
 {handoffs_block}
 
+{sector_guide}
+
 Return JSON for a StrategicPlan with these fields:
 
 - target: "{target}"
-- headline: one sentence, sharp, no hedging. The "so what".
-- narrative: 2-3 paragraphs. Paragraph 1: what's the deal here (story).
-  Paragraph 2: why now (urgency / timing signals). Paragraph 3: where the
-  risk lives (compliance / reputation / vendor / pricing pressure).
+- headline: one sentence, sharp, no hedging. The "so what". Must name
+  a specific signal (a named program, person, product, regulatory
+  deadline, named customer, geography) — not generic "their growth".
+- narrative: 2-3 paragraphs. Paragraph 1: what's the deal here (story,
+  with named actors). Paragraph 2: why now (urgency / timing signals,
+  with named programs or deadlines). Paragraph 3: where the risk lives
+  (named compliance regime, named vendor, named geography).
 - icp_fit: "high" | "medium" | "low"
-- icp_rationale: 1-2 sentences tying to specific evidence.
+- icp_rationale: 1-2 sentences tying to specific evidence (named).
 - deal_size_estimate: e.g. "$50k-$200k ARR" — use signals (employee count
-  proxies, pricing tier, market segment) to bound it. If unknown, say so.
-- deal_size_rationale: how you arrived at that range.
+  proxies, pricing tier, market segment) to bound it. Be honest if the
+  evidence doesn't support a tight range; say "unknown — need [specific
+  data]" rather than guessing.
+- deal_size_rationale: how you arrived at that range. Name the signal.
 - urgency: "act this quarter" | "act this half" | "monitor"
-- urgency_rationale: 1 sentence.
+- urgency_rationale: 1 sentence — name the timing signal that drives it
+  (a regulatory deadline, a hiring spike, a pricing change, a launch).
 - recommended_plays: 3 to 5 entries. Each is JSON {{
-      "text": "one concrete action a seller / CSM / GRC owner can do",
+      "text": "one concrete action a seller / CSM / GRC owner can do
+               THIS WEEK or THIS MONTH. Must name at least one specific
+               entity (person, product, customer, regulator, hiring role,
+               geography, deadline) pulled from the dept signals above.",
       "priority": 1-5  (1 = urgent, 5 = later),
       "timeframe": "this week" | "30 days" | "this quarter" | "this half",
-      "owners": ["gtm" | "finance" | "security"]  (one or more),
-      "rationale": "why this play, tied to a specific signal",
+      "owners": ["gtm" | "finance" | "security" | "marketing"],
+      "rationale": "why this play, tied to a SPECIFIC named signal above",
       "citations": [{{"url": "...", "snippet": "verbatim snippet from a dept claim above", "source_type": "site"}}]
   }}
   Order plays by priority (1 first). Span owners across depts where the
@@ -122,7 +216,9 @@ Return JSON for a StrategicPlan with these fields:
   (they're gaps).
 
 Constraints:
-- Every recommended play MUST cite at least one snippet that appears
+- Every recommended_play MUST satisfy the NAMING SPECIFICITY rule above.
+  A play that could apply to any other company is a templated failure.
+- Every recommended_play MUST cite at least one snippet that appears
   verbatim in the dept signals above. Do not invent citations.
 - Do not include any field other than the ones listed.
 - Output JSON only. No prose around the JSON.
@@ -324,11 +420,13 @@ def analyze(
     else:
         prompt = _PROMPT_TARGET.format(
             target=target,
+            target_profile_context=_render_business_context(business_profile),
             gtm_block=gtm_block,
             finance_block=finance_block,
             security_block=security_block,
             synergies_block=_render_synergies(synergies),
             handoffs_block=_render_handoffs(handoffs),
+            sector_guide=_SECTOR_GUIDE,
         )
     raw = llm(prompt)
     data = json.loads(strip_fences(raw))

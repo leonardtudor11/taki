@@ -39,6 +39,7 @@ from agents import contradictions as contradictions_agent
 from agents import marketing as marketing_agent
 from agents import pestle as pestle_agent
 from agents import porter as porter_agent
+from agents import profile as profile_agent  # V7.28
 from agents import security as security_agent
 from agents import strategy as strategy_agent
 from agents import swot as swot_agent
@@ -172,6 +173,49 @@ def _executive_summary(ab: AccountBrief, ms: MarketSignal, rp: RiskProfile,
     return " ".join(parts)
 
 
+# V7.28 — When the strategy LLM's citation snippets are paraphrased rather
+# than verbatim, the cite-level grounding pass prunes them away and the play
+# ends up with `citations: []`. That breaks the "every play has an evidence
+# chain" promise. Fallback: pull the strongest citation from each owner-dept
+# whose claims fed into the strategist, so plays always carry some traceable
+# evidence trail.
+_OWNER_TO_STATE_KEY = {
+    "gtm":       "account_brief",
+    "finance":   "market_signal",
+    "security":  "risk_profile",
+    "marketing": "marketing_signal",
+}
+
+
+def _fallback_play_citations(play, state: "CascadeState") -> list[Citation]:
+    """Pull one citation per owner dept from the most-populated claim field."""
+    out: list[Citation] = []
+    seen: set[str] = set()
+    for owner in (play.owners or []):
+        key = _OWNER_TO_STATE_KEY.get(owner)
+        if key is None:
+            continue
+        dept = state.get(key)
+        if dept is None:
+            continue
+        # walk dept fields, find first non-empty claim list, take first cite
+        for field_name in type(dept).model_fields:
+            claims = getattr(dept, field_name, None)
+            if not isinstance(claims, list) or not claims:
+                continue
+            first = claims[0]
+            cites = getattr(first, "citations", None)
+            if not cites:
+                continue
+            cite = cites[0]
+            if cite.url in seen:
+                continue
+            seen.add(cite.url)
+            out.append(cite)
+            break
+    return out
+
+
 def _business_context_block(profile: BusinessProfile | None) -> str:
     """Render a BusinessProfile as compact prompt context for self-mode."""
     if not profile:
@@ -200,6 +244,7 @@ def build_graph(
     porter_llm: LLMFn | None = None,
     swot_llm: LLMFn | None = None,
     pestle_llm: LLMFn | None = None,
+    profile_llm: LLMFn | None = None,            # V7.28
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -359,6 +404,38 @@ def build_graph(
 
         return {"synergies": synergies, "handoffs": handoffs, "events": evs}
 
+    def profile_extract_node(state: CascadeState) -> dict:
+        """V7.28 — extract a BusinessProfile from the bundle in target-mode so
+        the dashboard's profile section + the industry chip can render, and so
+        the strategy prompt sees industry/stage context. Skipped in self-mode
+        (the founder already provided one via the onboarding form)."""
+        if mode == CascadeMode.SELF:
+            # pass through the closure-bound profile (set by self-mode flow)
+            if business_profile is not None:
+                return {"business_profile": business_profile}
+            return {}
+        start = _emit(on_event, {"t": _now_iso(), "phase": "profile", "status": "start"})
+        try:
+            profile = profile_agent.analyze(
+                state.get("clean", state["bundle"]),
+                llm=profile_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "profile", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            # minimal fallback so downstream can still render the target name
+            fallback = BusinessProfile(name=state["bundle"].target, url="")
+            return {"business_profile": fallback, "events": [start, err]}
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "profile", "status": "done",
+            "industry": profile.industry,
+            "stage": profile.stage.value if hasattr(profile.stage, "value") else str(profile.stage),
+            "competitors": len(profile.competitor_names or []),
+        })
+        return {"business_profile": profile, "events": [start, done]}
+
     def strategy_node(state: CascadeState) -> dict:
         """Synthesize all dept outputs + synergies + handoffs into a
         StrategicPlan via an LLM. The 'answer' layer.
@@ -369,6 +446,10 @@ def build_graph(
         """
         start = _emit(on_event, {"t": _now_iso(), "phase": "strategy", "status": "start"})
         try:
+            # V7.28 — prefer the (possibly LLM-extracted) profile from state
+            # over the closure-bound founder profile, so target-mode strategy
+            # gets the inferred industry context too.
+            profile_for_strategy = state.get("business_profile") or business_profile
             plan = strategy_agent.analyze(
                 target=state["bundle"].target,
                 account_brief=state["account_brief"],
@@ -378,21 +459,24 @@ def build_graph(
                 handoffs=state.get("handoffs", []),
                 llm=strategy_llm,
                 mode=mode,
-                business_profile=business_profile,
+                business_profile=profile_for_strategy,
                 marketing_signal=state.get("marketing_signal"),
             )
-            # V7.22-pt3 — apply cite-level grounding to strategy plays.
+            # V7.22-pt3 + V7.28 — apply cite-level grounding to strategy plays.
             # The strategy LLM tends to paraphrase rather than copy snippets
-            # verbatim, so its citations slip past the guard. Prune them
-            # the same way dept claims are pruned. Plays w/ 0 verified
-            # cites are kept (the play conclusion may still be valid as
-            # a synthesis of verified dept claims) but render w/o evidence.
+            # verbatim, so its own citations slip past the guard. Prune them
+            # the same way dept claims are pruned. V7.28: when pruning leaves
+            # a play with `citations: []`, fall back to one citation per
+            # owner-dept (top claim, top cite) so every play always carries
+            # SOME traceable evidence trail back to the bundle.
             if plan and plan.recommended_plays:
                 haystacks = [grounding._norm(t) for t in state["bundle"].texts()]
                 cleaned_plays = []
                 for play in plan.recommended_plays:
                     good = [c for c in play.citations if grounding._cite_is_grounded(c, haystacks)]
-                    if len(good) != len(play.citations):
+                    if not good:
+                        good = _fallback_play_citations(play, state)
+                    if good != list(play.citations):
                         cleaned_plays.append(play.model_copy(update={"citations": good}))
                     else:
                         cleaned_plays.append(play)
@@ -543,10 +627,12 @@ def build_graph(
             f"{plan.headline} — {plan.urgency}." if plan and plan.headline
             else _executive_summary(ab, ms, rp, synergies)
         )
+        # V7.28 — surface the (possibly LLM-extracted) target-mode profile
+        # in the brief so the dashboard can render industry/stage/competitors.
         brief = CascadeBrief(
             target=state["bundle"].target,
             mode=mode,
-            business_profile=business_profile,
+            business_profile=state.get("business_profile") or business_profile,
             account_brief=ab,
             market_signal=ms,
             marketing_signal=mk,
@@ -589,6 +675,7 @@ def build_graph(
     )
     g.add_node("grounding", grounding_node)
     g.add_node("cross_pollinate", cross_node)
+    g.add_node("profile_extract", profile_extract_node)     # V7.28 — feeds strategy
     g.add_node("strategy", strategy_node)
     g.add_node("contradictions_pass", contradictions_node)  # node name must differ from state key
     g.add_node("porter_pass", porter_node)                  # V7.24
@@ -610,11 +697,13 @@ def build_graph(
     g.add_edge("security", "grounding")
     g.add_edge("grounding", "cross_pollinate")
     # parallel branch after cross_pollinate:
-    #   strategy            — synthesize the plan
-    #   contradictions_pass — opposing-source claim pairs (V7.23)
-    #   porter_pass         — Porter's 5 Forces analysis (V7.24)
-    #   swot_pass           — SWOT 2x2 (V7.24)
-    g.add_edge("cross_pollinate", "strategy")
+    #   profile_extract → strategy  (V7.28 — profile feeds the strategy prompt)
+    #   contradictions_pass         — opposing-source claim pairs (V7.23)
+    #   porter_pass                 — Porter's 5 Forces analysis (V7.24)
+    #   swot_pass                   — SWOT 2x2 (V7.24)
+    #   pestle_pass                 — PESTLE 2x3 (V7.26)
+    g.add_edge("cross_pollinate", "profile_extract")  # V7.28
+    g.add_edge("profile_extract", "strategy")          # V7.28 serial gate
     g.add_edge("cross_pollinate", "contradictions_pass")
     g.add_edge("cross_pollinate", "porter_pass")
     g.add_edge("cross_pollinate", "swot_pass")
@@ -637,6 +726,7 @@ def run(
     security_llm: LLMFn | None = None,
     strategy_llm: LLMFn | None = None,
     marketing_llm: LLMFn | None = None,
+    profile_llm: LLMFn | None = None,            # V7.28
     event_path: Path | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -669,6 +759,7 @@ def run(
             security_llm=security_llm,
             strategy_llm=strategy_llm,
             marketing_llm=marketing_llm,
+            profile_llm=profile_llm,                # V7.28
             on_event=on_event,
             mode=mode,
             business_profile=business_profile,

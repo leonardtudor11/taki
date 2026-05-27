@@ -106,10 +106,14 @@ def test_parse_serp_results_respects_max_urls():
 
 
 def test_default_external_queries_base_layer_always_present():
-    """Even with no industry, base layer (filings/news/scholar) fires."""
+    """Even with no industry, base layer (filings/news/scholar) fires.
+
+    V7.28 — fallback layer expanded from 4 to 12 queries so a target with
+    an unknown industry still pulls reviews, hiring signals, legal/M&A,
+    leadership coverage, and compliance posture. 3 base + 12 fallback = 15.
+    """
     qs = default_external_queries("Supabase")
-    # base layer + fallback layer = 7 queries
-    assert len(qs) == 7
+    assert len(qs) == 15
     base_q = [q for q,_ in qs[:3]]
     assert any("filetype:pdf" in q and "annual report" in q for q in base_q)
     assert any("Financial Times" in q for q in base_q)
@@ -135,12 +139,21 @@ def test_default_external_queries_industry_backend_saas():
 
 
 def test_default_external_queries_unknown_industry_falls_back():
-    """Industry that doesn't match any template uses the V7.22 generic queries."""
+    """Industry that doesn't match any template uses the V7.28 generic queries.
+
+    V7.28 expanded fallback covers reviews, employee voice (Glassdoor),
+    competitive surface, ops/legal risk, compliance, and growth/leadership.
+    """
     qs = default_external_queries("Anything", industry="zigzag widgets")
     all_q = " ".join(q for q,_ in qs)
-    # generic fallback
-    assert "review OR critique" in all_q
-    assert "funding" in all_q or "outage" in all_q
+    # customer voice
+    assert "Trustpilot" in all_q or "G2" in all_q or "Glassdoor" in all_q
+    # competitive surface (V7.28 wording: 'alternative OR comparison')
+    assert "alternative" in all_q or "comparison" in all_q
+    # operational risk
+    assert "outage" in all_q or "lawsuit" in all_q
+    # growth signals
+    assert "funding" in all_q or "acquisition" in all_q or "layoff" in all_q
 
 
 def test_discover_external_sources_emits_events_and_dedupes():

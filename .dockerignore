@@ -1,0 +1,23 @@
+# keep image lean — Cloud Build uploads everything not listed here
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.git/
+.gitignore
+.gitattributes
+data/
+tests/
+docs/
+scripts/
+*.md
+.env
+.env.*
+.DS_Store
+.vercel/
+node_modules/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+events.jsonl
+demo.sh

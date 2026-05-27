@@ -623,14 +623,25 @@ function replayCascade(brief, cy, tip, button) {
 // Event maps to a cytoscape animation step, so the dashboard reflects the real
 // LangGraph cascade as it fires — not just a scripted replay.
 
-const BACKEND_BASE = '';   // same-origin when served by Flask; empty string is fine cross-origin too
+// V7.28 — backend base + auth key live on window so app.js can set them
+// after fetching frontend/api.json + reading ?key=<token> URL param.
+// Empty backend_base = same-origin (local `python server.py` on :5001).
+// Filled = Cloud Run URL (cross-origin from Vercel-hosted frontend).
 const RUN_ENDPOINT = '/api/run';
 const STATUS_ENDPOINT = '/api/status';
+
+function _apiUrl(path) {
+  const base = (window.TAKI_BACKEND_BASE || '').replace(/\/$/, '');
+  const key = window.TAKI_AUTH_KEY || '';
+  let url = base + path;
+  if (key) url += (url.includes('?') ? '&' : '?') + 'key=' + encodeURIComponent(key);
+  return url;
+}
 
 async function _streamSSE(payload, onEvent, onError) {
   let res;
   try {
-    res = await fetch(BACKEND_BASE + RUN_ENDPOINT, {
+    res = await fetch(_apiUrl(RUN_ENDPOINT), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -1053,7 +1064,7 @@ function _wireToolbar(toolbar, container, tip) {
 
   // Reflect backend availability — if /api/status is unreachable, mark
   // live buttons as such; replay still works either way.
-  fetch(BACKEND_BASE + STATUS_ENDPOINT, { cache: 'no-store' })
+  fetch(_apiUrl(STATUS_ENDPOINT), { cache: 'no-store' })
     .then((r) => r.ok ? r.json() : null)
     .then((s) => {
       if (!s) {
