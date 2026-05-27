@@ -40,6 +40,7 @@ from agents import marketing as marketing_agent
 from agents import pestle as pestle_agent
 from agents import porter as porter_agent
 from agents import profile as profile_agent  # V7.28
+from agents import sector as sector_agent    # V7.29
 from agents import security as security_agent
 from agents import strategy as strategy_agent
 from agents import swot as swot_agent
@@ -51,13 +52,19 @@ from agents.schemas import (
     Citation,
     Claim,
     Contradiction,
+    EnergySignal,
     FiveForces,
+    GenericSignal,
     GuardrailReport,
     HandoffMessage,
     MarketSignal,
     MarketingSignal,
+    PharmaSignal,
     Pestle,
     RiskProfile,
+    SaasSignal,
+    Sector,
+    SectorSignal,
     SharedBundle,
     StrategicPlan,
     Swot,
@@ -121,6 +128,11 @@ class CascadeState(TypedDict, total=False):
     # downstream can read it.)
     business_profile: BusinessProfile
     mode: CascadeMode
+    # V7.29 — sector-conditional sub-pipeline. sector_pass picks one of
+    # 4 sector branches based on business_profile.industry and produces
+    # a SectorSignal subclass — pharma / saas / energy / generic.
+    sector: Sector
+    sector_signal: SectorSignal
 
 
 def _now_iso() -> str:
@@ -245,6 +257,7 @@ def build_graph(
     swot_llm: LLMFn | None = None,
     pestle_llm: LLMFn | None = None,
     profile_llm: LLMFn | None = None,            # V7.28
+    sector_llm: LLMFn | None = None,             # V7.29
     on_event: EventCallback | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -435,6 +448,45 @@ def build_graph(
             "competitors": len(profile.competitor_names or []),
         })
         return {"business_profile": profile, "events": [start, done]}
+
+    def sector_node(state: CascadeState) -> dict:
+        """V7.29 — sector-conditional sub-pipeline. Reads profile.industry
+        (extracted upstream in profile_extract or supplied in self-mode),
+        routes to the matching sector agent (pharma / saas / energy / generic),
+        and returns a typed SectorSignal. One LLM call. Failures fall back
+        to an empty signal of the right type — never breaks cascade."""
+        profile = state.get("business_profile") or business_profile
+        start = _emit(on_event, {"t": _now_iso(), "phase": "sector", "status": "start"})
+        try:
+            sector, signal = sector_agent.analyze(
+                bundle=state.get("clean", state["bundle"]),
+                profile=profile,
+                llm=sector_llm,
+            )
+        except Exception as exc:
+            err = _emit(on_event, {
+                "t": _now_iso(), "phase": "sector", "status": "error",
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            return {
+                "sector": Sector.GENERIC,
+                "sector_signal": GenericSignal(),
+                "events": [start, err],
+            }
+        # one-line summary of what the sector branch produced
+        if isinstance(signal, PharmaSignal):
+            counts = f"pipeline={len(signal.pipeline)} subs={len(signal.submissions)} partners={len(signal.partners)}"
+        elif isinstance(signal, SaasSignal):
+            counts = f"tiers={len(signal.tiers)} plg={len(signal.plg_metrics)} logos={len(signal.reference_logos)}"
+        elif isinstance(signal, EnergySignal):
+            counts = f"sites={len(signal.sites)} certs={len(signal.certifications)} grid={len(signal.grid_deals)}"
+        else:
+            counts = f"moats={len(signal.moats)} cadence={len(signal.cadence)}"
+        done = _emit(on_event, {
+            "t": _now_iso(), "phase": "sector", "status": "done",
+            "sector": sector.value, "counts": counts,
+        })
+        return {"sector": sector, "sector_signal": signal, "events": [start, done]}
 
     def strategy_node(state: CascadeState) -> dict:
         """Synthesize all dept outputs + synergies + handoffs into a
@@ -629,6 +681,22 @@ def build_graph(
         )
         # V7.28 — surface the (possibly LLM-extracted) target-mode profile
         # in the brief so the dashboard can render industry/stage/competitors.
+        # V7.29 — route the sector_signal into the typed CascadeBrief slot so
+        # the frontend can render the correct sector-specific panel.
+        sector_kwargs: dict = {}
+        sector = state.get("sector")
+        signal = state.get("sector_signal")
+        if sector is not None and signal is not None:
+            sector_kwargs["sector"] = sector
+            if isinstance(signal, PharmaSignal):
+                sector_kwargs["pharma_signal"] = signal
+            elif isinstance(signal, SaasSignal):
+                sector_kwargs["saas_signal"] = signal
+            elif isinstance(signal, EnergySignal):
+                sector_kwargs["energy_signal"] = signal
+            elif isinstance(signal, GenericSignal):
+                sector_kwargs["generic_signal"] = signal
+
         brief = CascadeBrief(
             target=state["bundle"].target,
             mode=mode,
@@ -646,6 +714,7 @@ def build_graph(
             guardrail_report=report,
             executive_summary=exec_summary,
             strategic_plan=plan,
+            **sector_kwargs,
         )
         total_claims = (
             len(brief.account_brief.all_claims())
@@ -676,6 +745,7 @@ def build_graph(
     g.add_node("grounding", grounding_node)
     g.add_node("cross_pollinate", cross_node)
     g.add_node("profile_extract", profile_extract_node)     # V7.28 — feeds strategy
+    g.add_node("sector_pass", sector_node)                  # V7.29 — sector sub-pipeline
     g.add_node("strategy", strategy_node)
     g.add_node("contradictions_pass", contradictions_node)  # node name must differ from state key
     g.add_node("porter_pass", porter_node)                  # V7.24
@@ -702,14 +772,19 @@ def build_graph(
     #   porter_pass                 — Porter's 5 Forces analysis (V7.24)
     #   swot_pass                   — SWOT 2x2 (V7.24)
     #   pestle_pass                 — PESTLE 2x3 (V7.26)
-    g.add_edge("cross_pollinate", "profile_extract")  # V7.28
-    g.add_edge("profile_extract", "strategy")          # V7.28 serial gate
-    g.add_edge("cross_pollinate", "contradictions_pass")
-    g.add_edge("cross_pollinate", "porter_pass")
-    g.add_edge("cross_pollinate", "swot_pass")
-    g.add_edge("cross_pollinate", "pestle_pass")  # V7.26
-    # all five join into assemble
+    # V7.29 — single serial gate (profile_extract) then 6-way parallel fan-out
+    # to all reasoning agents. Equal-depth parallel branches keep LangGraph's
+    # fan-in barrier clean (no double-fire of assemble).
+    g.add_edge("cross_pollinate", "profile_extract")
+    g.add_edge("profile_extract", "strategy")
+    g.add_edge("profile_extract", "sector_pass")          # V7.29
+    g.add_edge("profile_extract", "contradictions_pass")
+    g.add_edge("profile_extract", "porter_pass")
+    g.add_edge("profile_extract", "swot_pass")
+    g.add_edge("profile_extract", "pestle_pass")
+    # all six reasoning branches join into assemble
     g.add_edge("strategy", "assemble")
+    g.add_edge("sector_pass", "assemble")                  # V7.29
     g.add_edge("contradictions_pass", "assemble")
     g.add_edge("porter_pass", "assemble")
     g.add_edge("swot_pass", "assemble")
@@ -727,6 +802,7 @@ def run(
     strategy_llm: LLMFn | None = None,
     marketing_llm: LLMFn | None = None,
     profile_llm: LLMFn | None = None,            # V7.28
+    sector_llm: LLMFn | None = None,             # V7.29
     event_path: Path | None = None,
     mode: CascadeMode = CascadeMode.TARGET,
     business_profile: BusinessProfile | None = None,
@@ -760,6 +836,7 @@ def run(
             strategy_llm=strategy_llm,
             marketing_llm=marketing_llm,
             profile_llm=profile_llm,                # V7.28
+            sector_llm=sector_llm,                  # V7.29
             on_event=on_event,
             mode=mode,
             business_profile=business_profile,

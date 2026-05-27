@@ -104,6 +104,45 @@ function flowEl(tag, cls, text) {
   return e;
 }
 
+// V7.29 — sector-conditional satellite cluster. Different industries get
+// different sub-pipeline nodes injected into the cascade graph so the visual
+// topology reflects each brief's sector. Pharma adds clinical pipeline +
+// regulatory + partners nodes; SaaS adds tiers + PLG + logos; etc.
+const SECTOR_NODE_DEFS = {
+  pharma: {
+    color: '#ff85c9',
+    nodes: [
+      { id: 'pharma_pipeline', label: 'Clinical pipeline', field: 'pipeline' },
+      { id: 'pharma_subs',     label: 'Regulatory subs',   field: 'submissions' },
+      { id: 'pharma_partners', label: 'Clinical partners', field: 'partners' },
+    ],
+  },
+  saas: {
+    color: '#5ad6e8',
+    nodes: [
+      { id: 'saas_tiers', label: 'Pricing tiers',  field: 'tiers' },
+      { id: 'saas_plg',   label: 'PLG metrics',    field: 'plg_metrics' },
+      { id: 'saas_logos', label: 'Reference logos', field: 'reference_logos' },
+    ],
+  },
+  energy: {
+    color: '#f0a849',
+    nodes: [
+      { id: 'energy_sites', label: 'Installed sites', field: 'sites' },
+      { id: 'energy_certs', label: 'Certifications',  field: 'certifications' },
+      { id: 'energy_grid',  label: 'Grid deals',      field: 'grid_deals' },
+    ],
+  },
+  generic: {
+    color: '#c8a8ff',
+    nodes: [
+      { id: 'gen_moats',   label: 'Competitive moats', field: 'moats' },
+      { id: 'gen_cadence', label: 'Operating cadence', field: 'cadence' },
+    ],
+  },
+};
+
+
 function buildElements(brief) {
   const els = [
     { data: { id: 'source',    label: 'Bright Data',   type: 'source', color: PAPER_DIM } },
@@ -121,6 +160,41 @@ function buildElements(brief) {
     { data: { id: 'e_fb', source: 'finance',   target: 'brief',     type: 'output', color: DEPT_COLOR.finance } },
     { data: { id: 'e_sb', source: 'security',  target: 'brief',     type: 'output', color: DEPT_COLOR.security } },
   ];
+
+  // V7.29 — inject sector-specific satellite nodes for the active sector.
+  // Pharma briefs get pipeline+submissions+partners nodes; SaaS gets
+  // tiers+PLG+logos; energy gets sites+certs+grid; generic gets moats+cadence.
+  // Different brief = different graph topology. Each node label shows the
+  // count of items the sector agent extracted for that bucket.
+  const sector = brief && brief.sector;
+  const def = sector && SECTOR_NODE_DEFS[sector];
+  const sectorSignal = sector && brief && brief[`${sector}_signal`];
+  if (def && sectorSignal) {
+    for (const n of def.nodes) {
+      const bucket = sectorSignal[n.field];
+      const count = Array.isArray(bucket) ? bucket.length : 0;
+      const labelWithCount = count > 0 ? `${n.label} (${count})` : n.label;
+      els.push({
+        data: {
+          id: n.id, label: labelWithCount,
+          type: 'sector', sectorKey: sector,
+          color: def.color,
+        },
+      });
+      els.push({
+        data: {
+          id: `e_src_${n.id}`, source: 'source', target: n.id,
+          type: 'feed', color: def.color,
+        },
+      });
+      els.push({
+        data: {
+          id: `e_${n.id}_brief`, source: n.id, target: 'brief',
+          type: 'output', color: def.color,
+        },
+      });
+    }
+  }
 
   // Stagger handoff arcs so multiple handoffs that share neighbours don't
   // pile their labels on top of each other. We assign each handoff an arc
@@ -196,6 +270,17 @@ function cytoStyle() {
     {
       selector: 'node[type="dept"]:selected',
       style: { 'border-width': 4, 'background-color': 'rgba(255,255,255,0.04)' },
+    },
+    // V7.29 — sector satellite nodes: slightly slimmer + dashed border to
+    // distinguish from the universal dept nodes ("sector branch, not dept")
+    {
+      selector: 'node[type="sector"]',
+      style: {
+        width: 138, height: 38,
+        'border-style': 'dashed',
+        'font-size': 10.5,
+        'font-weight': 500,
+      },
     },
 
     {

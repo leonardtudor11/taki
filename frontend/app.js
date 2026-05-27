@@ -231,6 +231,200 @@ function _renderPlay(play, idx) {
   return li;
 }
 
+// ───────── V7.29 — sector-conditional dashboard panel ─────────
+//
+// Different industries get different dashboard sections. Pharma sees
+// clinical pipeline tables; SaaS sees pricing-tier grids; energy sees
+// installed-site lists. The cytoscape cascade graph above gets a
+// matching satellite cluster (cascade-flow.js SECTOR_NODE_DEFS) so
+// the visual topology AND the data section both reflect the sector.
+
+const SECTOR_PANEL_META = {
+  pharma:  { title: "Pharma sector signal", color: "#ff85c9",
+             subtitle: "Clinical pipeline · regulatory submissions · partners",
+             field:   "pharma_signal" },
+  saas:    { title: "SaaS sector signal", color: "#5ad6e8",
+             subtitle: "Pricing tiers · PLG metrics · reference logos",
+             field:   "saas_signal" },
+  energy:  { title: "Energy / infrastructure sector signal", color: "#f0a849",
+             subtitle: "Installed sites · certifications · grid deals",
+             field:   "energy_signal" },
+  generic: { title: "Sector signal", color: "#c8a8ff",
+             subtitle: "Competitive moats · operating cadence",
+             field:   "generic_signal" },
+};
+
+
+function _renderSectorCard(parts) {
+  const card = el("div", { class: "sector-card" });
+  for (const [labelText, valueText] of parts) {
+    if (valueText == null || valueText === "") continue;
+    const row = el("div", { class: "sector-card-row" });
+    row.appendChild(el("span", { class: "sector-card-label" }, String(labelText)));
+    row.appendChild(el("span", { class: "sector-card-value" }, String(valueText)));
+    card.appendChild(row);
+  }
+  return card;
+}
+
+
+function _renderSectorSection(title, items, cardBuilder, accentColor) {
+  if (!items || items.length === 0) return null;
+  const wrap = el("div", { class: "sector-section" });
+  const h = el("h4", { class: "sector-section-title", style: `color: ${accentColor}` },
+                String(title));
+  h.appendChild(el("span", { class: "sector-section-count" }, ` (${items.length})`));
+  wrap.appendChild(h);
+  const grid = el("div", { class: "sector-section-grid" });
+  items.forEach((item) => {
+    const card = cardBuilder(item);
+    if (card) grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+
+function _renderPharmaPanel(signal, color) {
+  const wrap = el("div", { class: "sector-body" });
+  const p = _renderSectorSection("Clinical pipeline", signal.pipeline || [], (it) =>
+    _renderSectorCard([
+      ["Drug",        it.name],
+      ["Phase",       it.phase],
+      ["Indication",  it.indication],
+      ["Milestone",   it.recent_milestone],
+    ]), color);
+  if (p) wrap.appendChild(p);
+  const s = _renderSectorSection("Regulatory submissions", signal.submissions || [], (it) =>
+    _renderSectorCard([
+      ["Agency",       it.agency],
+      ["Product",      it.product],
+      ["Type",         it.submission_type],
+      ["Status",       it.status],
+      ["Decision",     it.decision_window],
+    ]), color);
+  if (s) wrap.appendChild(s);
+  const pt = _renderSectorSection("Clinical partners", signal.partners || [], (it) =>
+    _renderSectorCard([
+      ["Partner",  it.name],
+      ["Role",     it.role],
+      ["Program",  it.program],
+    ]), color);
+  if (pt) wrap.appendChild(pt);
+  return wrap;
+}
+
+
+function _renderSaasPanel(signal, color) {
+  const wrap = el("div", { class: "sector-body" });
+  const t = _renderSectorSection("Pricing tiers", signal.tiers || [], (it) =>
+    _renderSectorCard([
+      ["Tier",      it.name],
+      ["Price",     it.price],
+      ["Audience",  it.audience],
+      ["Unlocks",   it.distinguishing_feature],
+    ]), color);
+  if (t) wrap.appendChild(t);
+  const p = _renderSectorSection("PLG metrics", signal.plg_metrics || [], (it) =>
+    _renderSectorCard([
+      ["Metric",  it.metric],
+      ["Value",   it.value],
+      ["Source",  it.source_quote],
+    ]), color);
+  if (p) wrap.appendChild(p);
+  const l = _renderSectorSection("Reference logos", signal.reference_logos || [], (it) =>
+    _renderSectorCard([
+      ["Customer",  it.customer_name],
+      ["Industry",  it.industry],
+      ["Scale",     it.deployment_scale],
+      ["Use case",  it.use_case],
+    ]), color);
+  if (l) wrap.appendChild(l);
+  return wrap;
+}
+
+
+function _renderEnergyPanel(signal, color) {
+  const wrap = el("div", { class: "sector-body" });
+  const s = _renderSectorSection("Installed sites", signal.sites || [], (it) =>
+    _renderSectorCard([
+      ["Location",       it.location],
+      ["Capacity",       it.capacity_mw],
+      ["Status",         it.status],
+      ["Commissioned",   it.commissioning_year],
+    ]), color);
+  if (s) wrap.appendChild(s);
+  const c = _renderSectorSection("Certifications", signal.certifications || [], (it) =>
+    _renderSectorCard([
+      ["Standard",  it.standard],
+      ["Status",    it.status],
+      ["Year",      it.year],
+    ]), color);
+  if (c) wrap.appendChild(c);
+  const g = _renderSectorSection("Grid deals", signal.grid_deals || [], (it) =>
+    _renderSectorCard([
+      ["Utility",    it.utility],
+      ["Region",     it.region],
+      ["Capacity",   it.capacity],
+      ["Deal type",  it.deal_type],
+    ]), color);
+  if (g) wrap.appendChild(g);
+  return wrap;
+}
+
+
+function _renderGenericPanel(signal, color) {
+  const wrap = el("div", { class: "sector-body" });
+  const m = _renderSectorSection("Competitive moats", signal.moats || [], (it) =>
+    _renderSectorCard([
+      ["Axis",        it.axis],
+      ["Evidence",    it.evidence],
+      ["Durability",  it.durability],
+    ]), color);
+  if (m) wrap.appendChild(m);
+  const c = _renderSectorSection("Operating cadence", signal.cadence || [], (it) =>
+    _renderSectorCard([
+      ["Activity",     it.activity_type],
+      ["Frequency",    it.frequency],
+      ["Most recent",  it.most_recent],
+    ]), color);
+  if (c) wrap.appendChild(c);
+  return wrap;
+}
+
+
+function renderSectorSignal(brief) {
+  if (!brief || !brief.sector) return null;
+  const meta = SECTOR_PANEL_META[brief.sector];
+  if (!meta) return null;
+  const signal = brief[meta.field];
+  if (!signal) return null;
+
+  // bail early if every bucket is empty
+  const allBuckets = Object.values(signal).filter((v) => Array.isArray(v));
+  const totalItems = allBuckets.reduce((n, b) => n + b.length, 0);
+  if (totalItems === 0) return null;
+
+  const wrap = el("section", {
+    class: "sector-panel",
+    role: "region",
+    "aria-label": meta.title,
+  });
+  wrap.appendChild(el("div", { class: "sector-eyebrow", style: `color: ${meta.color}` },
+                       brief.sector.toUpperCase()));
+  wrap.appendChild(el("h2", { class: "sector-title" }, meta.title));
+  wrap.appendChild(el("div", { class: "sector-subtitle" }, meta.subtitle));
+
+  let body;
+  if (brief.sector === "pharma")       body = _renderPharmaPanel(signal, meta.color);
+  else if (brief.sector === "saas")    body = _renderSaasPanel(signal, meta.color);
+  else if (brief.sector === "energy")  body = _renderEnergyPanel(signal, meta.color);
+  else                                  body = _renderGenericPanel(signal, meta.color);
+  wrap.appendChild(body);
+  return wrap;
+}
+
+
 function renderStrategicPlan(plan, businessProfile) {
   if (!plan || !plan.headline) return null;
 
@@ -1119,6 +1313,14 @@ function render(brief) {
   // V7.26 — PESTLE macro-environment sits after SWOT
   const pestle = renderPestle(brief.pestle);
   if (pestle) app.appendChild(pestle);
+
+  // V7.29 — sector-conditional panel. Renders ONE of four layouts based
+  // on brief.sector. Pharma shows clinical pipeline + submissions +
+  // partners; SaaS shows tiers + PLG + logos; energy shows sites + certs
+  // + grid; generic shows moats + cadence. Old briefs w/o sector signal
+  // skip this section entirely (null return).
+  const sectorPanel = renderSectorSignal(brief);
+  if (sectorPanel) app.appendChild(sectorPanel);
 
   app.appendChild(el("div", { class: "section-title" }, "Departments"));
   const cols = el("div", { class: "cols" });

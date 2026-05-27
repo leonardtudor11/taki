@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -584,6 +584,234 @@ class Contradiction(_AutoListBase):
         return 2
 
 
+# ════════════════════════════════════════════════════════════════════
+# V7.29 — Sector-conditional sub-pipeline
+#
+# Different industries deserve different topology. A pharma cascade
+# should surface clinical pipeline + regulatory submissions + KOL
+# partnerships. A SaaS cascade should surface pricing tier + PLG
+# metrics + reference logos. The 5 universal frameworks (Porter, SWOT,
+# PESTLE, Contradictions, Strategy) stay sector-agnostic because that
+# IS their value. But the bundle-derived signals branch by sector.
+# ════════════════════════════════════════════════════════════════════
+
+
+class Sector(str, Enum):
+    """V7.29 — sector classification picked by the cascade router."""
+
+    PHARMA = "pharma"
+    SAAS = "saas"
+    ENERGY = "energy"
+    GENERIC = "generic"
+
+
+# Substring → Sector mapping. The cascade router lowercases
+# business_profile.industry and matches the first hit. Order matters
+# (more-specific keywords before broader ones).
+_SECTOR_KEYWORDS: list[tuple[str, "Sector"]] = [
+    # pharma / life sciences
+    ("pharmac",        Sector.PHARMA),
+    ("biotech",        Sector.PHARMA),
+    ("biopharm",       Sector.PHARMA),
+    ("life science",   Sector.PHARMA),
+    ("clinical",       Sector.PHARMA),
+    ("therapeutic",    Sector.PHARMA),
+    ("drug",           Sector.PHARMA),
+    ("medical device", Sector.PHARMA),
+    # energy / infrastructure / manufacturing
+    ("wind",           Sector.ENERGY),
+    ("solar",          Sector.ENERGY),
+    ("renewable",      Sector.ENERGY),
+    ("energy",         Sector.ENERGY),
+    ("utility",        Sector.ENERGY),
+    ("grid",           Sector.ENERGY),
+    ("turbine",        Sector.ENERGY),
+    ("nuclear",        Sector.ENERGY),
+    ("manufactur",     Sector.ENERGY),
+    ("infrastructure", Sector.ENERGY),
+    ("automotive",     Sector.ENERGY),
+    ("aerospace",      Sector.ENERGY),
+    # SaaS / cloud / developer tools
+    ("saas",           Sector.SAAS),
+    ("paas",           Sector.SAAS),
+    ("baas",           Sector.SAAS),
+    ("backend-as",     Sector.SAAS),
+    ("database",       Sector.SAAS),
+    ("devtool",        Sector.SAAS),
+    ("developer",      Sector.SAAS),
+    ("productivity",   Sector.SAAS),
+    ("workspace",      Sector.SAAS),
+    ("collaboration",  Sector.SAAS),
+    ("knowledge",      Sector.SAAS),
+    ("cloud",          Sector.SAAS),
+    ("software",       Sector.SAAS),
+    ("platform",       Sector.SAAS),
+]
+
+
+def classify_sector(industry: str | None) -> Sector:
+    """Substring-match the industry string against known sector keywords.
+    Falls back to GENERIC when no keyword hits (unknown / brand-new sector).
+    """
+    if not industry:
+        return Sector.GENERIC
+    s = industry.lower()
+    for keyword, sector in _SECTOR_KEYWORDS:
+        if keyword in s:
+            return sector
+    return Sector.GENERIC
+
+
+# ── PHARMA branch — clinical pipeline + regulatory + partnerships ────
+
+class DrugPipelineItem(_AutoListBase):
+    """One drug / therapeutic in the target's pipeline."""
+
+    name: str = ""
+    phase: str = ""              # e.g. "Phase II", "Phase III", "Approved"
+    indication: str = ""         # e.g. "Hemophilia B", "Crohn's"
+    recent_milestone: str = ""   # most recent public event
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class RegulatorySubmission(_AutoListBase):
+    """One regulatory filing / submission."""
+
+    agency: str = ""             # FDA / EMA / PMDA / ...
+    product: str = ""
+    submission_type: str = ""    # NDA / BLA / IND / IDE / 510(k) / etc.
+    status: str = ""             # under review / approved / refused
+    decision_window: str = ""    # PDUFA date or expected decision
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class ClinicalPartner(_AutoListBase):
+    """A named clinical / commercial partner."""
+
+    name: str = ""               # institution or company
+    role: str = ""               # CRO / academic site / co-developer
+    program: str = ""            # which drug / indication tied to
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class PharmaSignal(_AutoListBase):
+    """V7.29 — pharma sector signal. Replaces generic plays w/ clinical depth."""
+
+    pipeline: list[DrugPipelineItem] = Field(default_factory=list)
+    submissions: list[RegulatorySubmission] = Field(default_factory=list)
+    partners: list[ClinicalPartner] = Field(default_factory=list)
+
+
+# ── SAAS branch — pricing tier + PLG metric + reference logo ─────────
+
+class PricingTier(_AutoListBase):
+    """One pricing tier on the target's pricing page."""
+
+    name: str = ""               # Free / Pro / Business / Enterprise
+    price: str = ""              # raw text — could be "$20/user/mo" or "Contact us"
+    audience: str = ""           # who this tier targets
+    distinguishing_feature: str = ""  # what unlocks at this tier
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class PLGMetric(_AutoListBase):
+    """A product-led-growth signal."""
+
+    metric: str = ""             # signup volume / freemium ratio / WAU mention
+    value: str = ""              # quote or paraphrase
+    source_quote: str = ""       # the verbatim phrase from the bundle
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class ReferenceLogo(_AutoListBase):
+    """A named customer / case study."""
+
+    customer_name: str = ""
+    industry: str = ""
+    deployment_scale: str = ""   # "global rollout", "10k seats", etc.
+    use_case: str = ""
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class SaasSignal(_AutoListBase):
+    """V7.29 — SaaS / BaaS / dev-tools sector signal."""
+
+    tiers: list[PricingTier] = Field(default_factory=list)
+    plg_metrics: list[PLGMetric] = Field(default_factory=list)
+    reference_logos: list[ReferenceLogo] = Field(default_factory=list)
+
+
+# ── ENERGY branch — sites + certifications + grid connection ─────────
+
+class InstalledSite(_AutoListBase):
+    """An operating / commissioned / under-construction site."""
+
+    location: str = ""           # site name + region
+    capacity_mw: str = ""        # raw text e.g. "84 MW", "1.2 GW"
+    status: str = ""             # operating / commissioning / planned
+    commissioning_year: str = ""
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class CertificationItem(_AutoListBase):
+    """A standards / regulatory certification."""
+
+    standard: str = ""           # IEC 61400-1 / ISO 14001 / GL / etc.
+    status: str = ""             # held / in progress / lapsed
+    year: str = ""
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class GridConnection(_AutoListBase):
+    """A grid connection or utility partnership."""
+
+    utility: str = ""            # named transmission/distribution operator
+    region: str = ""
+    capacity: str = ""           # MW / MWh in agreement
+    deal_type: str = ""          # PPA / EPC / interconnect agreement
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class EnergySignal(_AutoListBase):
+    """V7.29 — energy / infrastructure / manufacturing sector signal."""
+
+    sites: list[InstalledSite] = Field(default_factory=list)
+    certifications: list[CertificationItem] = Field(default_factory=list)
+    grid_deals: list[GridConnection] = Field(default_factory=list)
+
+
+# ── GENERIC branch — fallback for sectors w/o a specialised pipeline ─
+
+class CompetitiveMoat(_AutoListBase):
+    """An axis along which the target out-positions competitors."""
+
+    axis: str = ""               # what dimension they win on
+    evidence: str = ""           # the supporting signal
+    durability: str = ""         # "low" / "medium" / "high" — how moaty
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class OperatingCadence(_AutoListBase):
+    """A cadence signal — how often they release / announce / hire."""
+
+    activity_type: str = ""      # launches / hiring / partnerships / press
+    frequency: str = ""          # quarterly / monthly / weekly / ad-hoc
+    most_recent: str = ""        # most recent instance
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class GenericSignal(_AutoListBase):
+    """V7.29 — fallback sector signal for industries w/o a specialised branch."""
+
+    moats: list[CompetitiveMoat] = Field(default_factory=list)
+    cadence: list[OperatingCadence] = Field(default_factory=list)
+
+
+# ── union of all sector signals ──────────────────────────────────────
+
+SectorSignal = Union[PharmaSignal, SaasSignal, EnergySignal, GenericSignal]
+
+
 class CascadeBrief(_AutoListBase):
     """The unified deliverable every department cascades into."""
 
@@ -604,3 +832,11 @@ class CascadeBrief(_AutoListBase):
     guardrail_report: GuardrailReport = Field(default_factory=GuardrailReport)
     executive_summary: str = ""
     strategic_plan: Optional[StrategicPlan] = None
+    # V7.29 — sector-conditional sub-pipeline output. Exactly one of the
+    # four sector signals is populated based on business_profile.industry;
+    # the others stay None.
+    sector: Optional[Sector] = None
+    pharma_signal: Optional[PharmaSignal] = None
+    saas_signal: Optional[SaasSignal] = None
+    energy_signal: Optional[EnergySignal] = None
+    generic_signal: Optional[GenericSignal] = None

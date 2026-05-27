@@ -410,6 +410,102 @@
     border-left: 2px solid var(--shu);
     max-width: 920px;
   }
+  /* V7.29 — sector-conditional dashboard panel. Renders one of four
+     layouts based on brief.sector. Pharma/SaaS/energy/generic each get
+     their own grid of cards keyed off the sector signal type. */
+  .sector-panel {
+    margin: 36px 40px;
+    padding: 26px 28px 22px;
+    background: rgba(255, 255, 255, 0.014);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--shu);
+    border-radius: 0;
+    max-width: 1200px;
+  }
+  .sector-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    margin-bottom: 10px;
+  }
+  .sector-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 100;
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--paper);
+  }
+  .sector-subtitle {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+    margin-bottom: 22px;
+    letter-spacing: 0.04em;
+  }
+  .sector-body {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .sector-section-title {
+    font-family: "Inter", -apple-system, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin: 0 0 12px;
+  }
+  .sector-section-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--paper-dim);
+    letter-spacing: 0;
+    margin-left: 4px;
+    text-transform: none;
+  }
+  .sector-section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .sector-card {
+    background: var(--ink-2);
+    border: 1px solid var(--rule);
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: border-color 0.18s ease;
+  }
+  .sector-card:hover { border-color: var(--paper-dim); }
+  .sector-card-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .sector-card-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .sector-card-value {
+    color: var(--paper);
+    word-break: break-word;
+  }
+  @media (max-width: 900px) {
+    .sector-panel { margin: 24px 16px; padding: 18px 18px 14px; }
+    .sector-section-grid { grid-template-columns: 1fr; }
+  }
+
   /* V7.28 — industry/stage/segment chip strip above the strategic plan
      hero. Gives a judge instant signal "what kind of business is this"
      without having to scroll into the dept panels. */
@@ -1878,7 +1974,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
-<script src="cascade-flow.js?v=7.28"></script>
-<script src="app.js?v=7.28"></script>
+<script src="cascade-flow.js?v=7.29"></script>
+<script src="app.js?v=7.29"></script>
 </body>
 </html>
