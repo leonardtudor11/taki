@@ -828,6 +828,35 @@
     .synergy:hover { border-left-width: 2px; padding-left: 16px; }
   }
 
+  /* ───────── claims 3D chart (V7.20) ───────── */
+  .claims-chart-wrap { margin: 4px 0 36px; }
+  .claims-chart-wrap .section-title { margin-bottom: 10px; }
+  .claims-chart-hint {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .claims-chart {
+    width: 100%;
+    height: 380px;
+    border: 1px solid var(--rule);
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.012), transparent 70%);
+  }
+  .claims-chart-empty {
+    height: 60px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--paper-dim);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    border: 1px dashed var(--rule);
+  }
+  @media (max-width: 768px) {
+    .claims-chart { height: 300px; }
+  }
+
   /* ───────── cascade flow — V3 cytoscape graph + text fallback ───────── */
   .flow { margin-bottom: 42px; }
   .cascade-toolbar {
@@ -1374,11 +1403,14 @@
     </div>
   </form>
 </div>
-<!-- cytoscape: interactive cascade graph · GSAP: scripted entry timing.
-     Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
+<!-- cytoscape: interactive cascade graph · GSAP: scripted entry timing ·
+     ECharts + ECharts-GL: 3D bar chart for the claim-breakdown panel.
+     Loaded synchronously before our scripts so render fns can use them. -->
 <script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="cascade-flow.js?v=7.19"></script>
-<script src="app.js?v=7.19"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
+<script src="cascade-flow.js?v=7.20"></script>
+<script src="app.js?v=7.20"></script>
 </body>
 </html>

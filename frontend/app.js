@@ -486,6 +486,161 @@ function renderSynergies(synergies, brief) {
   return wrap;
 }
 
+// V7.20 — 3D claims-breakdown chart. ECharts-GL bar3D w/ dept × field × count.
+// CDN-loaded; if the bundle isn't reachable (offline / network blocked) the
+// wrapper renders a friendly fallback line instead of failing the whole page.
+
+const _CHART_SECTIONS = [
+  { dept: 'GTM',       key: 'account_brief',    color: '#5ad6e8' },
+  { dept: 'Finance',   key: 'market_signal',    color: '#98e08a' },
+  { dept: 'Security',  key: 'risk_profile',     color: '#f0a849' },
+  { dept: 'Marketing', key: 'marketing_signal', color: '#ff85c9' },
+];
+
+function renderClaimsChart(brief) {
+  const wrap = el("div", { class: "claims-chart-wrap" });
+  wrap.appendChild(el("div", { class: "section-title" }, "Grounded claims · dept × signal"));
+  wrap.appendChild(el(
+    "div",
+    { class: "claims-chart-hint" },
+    "Drag to orbit · scroll to zoom · hover a bar for the exact count",
+  ));
+
+  if (typeof echarts === "undefined") {
+    wrap.appendChild(el(
+      "div",
+      { class: "claims-chart-empty" },
+      "ECharts CDN unreachable — 3D chart skipped (panels below still cover the breakdown).",
+    ));
+    return wrap;
+  }
+
+  // Build (dept, field) → count matrix. Only retain fields with any data anywhere.
+  const sections = _CHART_SECTIONS.map((s) => ({ ...s, data: brief[s.key] || {} }));
+  const allFields = new Set();
+  sections.forEach((s) => {
+    Object.entries(s.data).forEach(([f, v]) => {
+      if (Array.isArray(v) && v.length > 0) allFields.add(f);
+    });
+  });
+  const fields = [...allFields];
+  if (!fields.length) {
+    wrap.appendChild(el(
+      "div",
+      { class: "claims-chart-empty" },
+      "No grounded claims to chart — every dept dropped below threshold.",
+    ));
+    return wrap;
+  }
+
+  const depts = sections.map((s) => s.dept);
+  const colors = sections.map((s) => s.color);
+  const data = [];
+  sections.forEach((s, di) => {
+    fields.forEach((f, fi) => {
+      const claims = s.data[f];
+      const count = Array.isArray(claims) ? claims.length : 0;
+      if (count > 0) data.push([di, fi, count]);
+    });
+  });
+
+  const chart = el("div", { class: "claims-chart", id: "claims-chart" });
+  wrap.appendChild(chart);
+
+  // ECharts needs the container measured before init. Defer one frame.
+  requestAnimationFrame(() => {
+    let inst;
+    try {
+      inst = echarts.init(chart, null, { renderer: 'canvas' });
+    } catch (_e) {
+      chart.replaceWith(el(
+        "div",
+        { class: "claims-chart-empty" },
+        "ECharts init failed — 3D chart unavailable.",
+      ));
+      return;
+    }
+
+    const maxVal = Math.max(...data.map((d) => d[2]), 1);
+    inst.setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        backgroundColor: 'rgba(13, 14, 16, 0.92)',
+        borderColor: '#2a2620',
+        borderWidth: 1,
+        textStyle: { color: '#f1ede4', fontFamily: 'JetBrains Mono', fontSize: 11 },
+        formatter: (p) => {
+          const [di, fi, v] = p.value;
+          return `<b>${depts[di]}</b><br/>${fields[fi].replace(/_/g, " ")}<br/><b style="color:${colors[di]}">${v}</b> grounded claim${v === 1 ? '' : 's'}`;
+        },
+      },
+      xAxis3D: {
+        type: 'category',
+        data: depts,
+        axisLabel: { color: '#f1ede4', fontSize: 11, fontFamily: 'JetBrains Mono' },
+        axisLine: { lineStyle: { color: '#2a2620' } },
+        nameTextStyle: { color: '#b8b2a4' },
+      },
+      yAxis3D: {
+        type: 'category',
+        data: fields.map((f) => f.replace(/_/g, ' ')),
+        axisLabel: { color: '#b8b2a4', fontSize: 9, fontFamily: 'JetBrains Mono' },
+        axisLine: { lineStyle: { color: '#2a2620' } },
+      },
+      zAxis3D: {
+        type: 'value',
+        min: 0,
+        max: maxVal + 1,
+        axisLabel: { color: '#b8b2a4', fontSize: 10, fontFamily: 'JetBrains Mono' },
+        axisLine: { lineStyle: { color: '#2a2620' } },
+        splitLine: { lineStyle: { color: '#2a2620' } },
+      },
+      grid3D: {
+        boxWidth:  180,
+        boxDepth:  130,
+        boxHeight:  70,
+        viewControl: {
+          autoRotate: true,
+          autoRotateAfterStill: 4,
+          autoRotateSpeed: 5,
+          distance: 230,
+          alpha: 18,
+          beta: 35,
+        },
+        light: {
+          main: { intensity: 1.2, shadow: true, alpha: 35, beta: 40 },
+          ambient: { intensity: 0.35 },
+        },
+        environment: '#0d0e10',
+        axisLine:    { lineStyle: { color: '#2a2620' } },
+        axisPointer: { lineStyle: { color: '#e84a3a' } },
+      },
+      series: [{
+        type: 'bar3D',
+        data: data,
+        shading: 'realistic',
+        itemStyle: {
+          color: (p) => colors[p.value[0]],
+          opacity: 0.92,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            formatter: (p) => String(p.value[2]),
+            textStyle: { color: '#0d0e10', fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 'bold' },
+          },
+          itemStyle: { color: '#e84a3a' },
+        },
+      }],
+    });
+
+    // resize gracefully when the viewport changes
+    window.addEventListener('resize', () => inst.resize());
+  });
+
+  return wrap;
+}
+
 function parseDateSafe(s) {
   if (typeof s !== "string" || s.length > 64) return null;
   const d = new Date(s);
@@ -522,6 +677,10 @@ function render(brief) {
     const flow = renderCascadeFlow(brief);
     if (flow) app.appendChild(flow);
   }
+
+  // V7.20 — 3D claim-breakdown chart between cascade flow and synergies
+  const chart = renderClaimsChart(brief);
+  if (chart) app.appendChild(chart);
 
   const syn = renderSynergies(brief.synergy_signals, brief);
   if (syn) app.appendChild(syn);
