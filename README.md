@@ -75,6 +75,63 @@ Every citation chip is a real outbound link. On the current Orchid brief, citati
 
 ---
 
+## Reviewing Taki — judge's fast path
+
+Three viewing paths, ordered by time investment. Each shows the same shipped pipeline at a different fidelity.
+
+### 30 seconds — cached preview, zero setup
+
+Open **<https://frontend-sage-pi.vercel.app/>**. Cached Orchid SRL brief renders against the live frontend. Scroll the page — all 11 sections from above are populated with real grounded output (79 citations / 8 domains / 0 hallucinations).
+
+Nothing to install, nothing to click. The full deliverable is one URL.
+
+### 60 seconds — replay the cascade animation
+
+```bash
+./demo.sh                       # one-shot venv + tests + boot on :5001
+open http://localhost:5001
+# in the cascade-flow toolbar, click ▶ replay cascade
+```
+
+The 14-node LangGraph topology animates left → right: `pii_redact → leak_filter → 4-dept fan-out (parallel) → grounding → cross_pollinate → 5-parallel reasoning (strategy + porter + swot + pestle + contradictions) → assemble`. Pure client-side, drives off the cached `brief.json`. ~30s.
+
+Then click any node in the graph — the rest of the page filters to just that agent's claims. Click empty space to clear.
+
+### 3-5 minutes — live cascade against any target
+
+Requires `.env` filled with `BRIGHTDATA_API_KEY` + zone names + a Gemini key (see [Configuration](#configuration)).
+
+```bash
+./demo.sh                       # backend on :5001
+# click 🚀 analyze my business → paste your URL, industry, competitor URLs → submit
+```
+
+Real Bright Data SERP discovery + Web Unlocker fetch (with the tier classifier ranking sources T1 regulator → T6 review → BLOCKED) + LangGraph cascade + Vertex Gemini. Every node fires SSE events that drive the same graph animation live. Spend cap (`TAKI_BD_SPEND_CAP`) enforced.
+
+### What to look for during evaluation
+
+| Criterion | Where it lives in the product |
+|---|---|
+| **Bright Data depth** | Tier badge on every citation chip (T1 / T3 / T5). Source-tier classifier: `services/brightdata.py` → `classify_url`. Industry-aware SERP layers: `default_external_queries` (wind, solar, SaaS, biotech, fintech, generic fallback). Spend tracker: `services/brightdata.py` → `SpendTracker`. |
+| **Multi-agent architecture** | The cytoscape graph **is** the real LangGraph topology — not a diagram. Click any node to filter. Source: `agents/cascade_graph.py` (~150 lines, 14 nodes, explicit parallel fan-out). |
+| **Frameworks reasoning layer** | Porter radar + SWOT 2×2 + PESTLE 2×3 + Contradictions panel — each agent is citation-grounded (re-uses parent-claim citations, can't invent evidence). Files: `agents/porter.py`, `agents/swot.py`, `agents/pestle.py`, `agents/contradictions.py`. |
+| **Guardrails / integrity** | Red "Hallucinations caught" drawer at page bottom lists every claim killed by the grounding guard. Two layers: claim-level (assertion must cite a real bundle snippet) and **V7.21 citation-level** (each cite URL must map back to a fetched source). Brief honestly marks `grounded: yes` only when nothing slipped through. |
+| **Business value** | Strategic plan hero at top — 3-5 prioritized plays, each with a dept owner, a timeframe, and a citation chain back to evidence. Gantt timeline below shows execution sequence on a 0-180 day scale. CRO-actionable, not researcher-actionable. |
+
+### Reviewing the code
+
+If you'd rather read source than click through the UI:
+
+- `agents/cascade_graph.py` — the 14-node LangGraph
+- `services/brightdata.py` — tier classifier + industry-aware SERP + spend tracker
+- `guardrails/grounding.py` — claim + citation-level grounding
+- `agents/schemas.py` — every Pydantic schema in the system
+- `tests/` — 150 tests, all green (`. venv/bin/python -m pytest -q`)
+
+For a deeper technical reference: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (666 lines, judge-grade detail on every node, prompt, schema, and SSE event).
+
+---
+
 ## Architecture
 
 ```
