@@ -123,12 +123,55 @@ function renderPanel(dept, brief) {
 
 const _OWNER_LABEL = { gtm: "GTM", finance: "Finance", security: "Security" };
 
+// V7.17 — count-up animation when a stat value contains an integer or float.
+// Categorical values ("high", "low", "act this quarter") are skipped silently
+// — no parse, no flicker, original text stays put.
+function _startCounterIfNumeric(valueEl) {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const txt = valueEl.textContent || "";
+  const m = txt.match(/-?\d+(?:\.\d+)?/);
+  if (!m) return;
+  const finalNum = parseFloat(m[0]);
+  if (!isFinite(finalNum)) return;
+  const isInt = Number.isInteger(finalNum);
+  const prefix = txt.slice(0, m.index);
+  const suffix = txt.slice(m.index + m[0].length);
+  const dur = 900;
+  const t0 = performance.now();
+  const tick = (now) => {
+    const t = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    const cur = finalNum * eased;
+    const display = isInt ? String(Math.round(cur)) : cur.toFixed(1);
+    valueEl.textContent = `${prefix}${display}${suffix}`;
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 function _renderPlanStat(label, value, rationale, modifier) {
   const stat = el("div", { class: `plan-stat ${modifier || ""}`.trim() });
   stat.appendChild(el("div", { class: "plan-stat-label" }, label));
-  stat.appendChild(el("div", { class: "plan-stat-value" }, String(value || "—")));
+  const valueEl = el("div", { class: "plan-stat-value" }, String(value || "—"));
+  stat.appendChild(valueEl);
   if (rationale) {
     stat.appendChild(el("div", { class: "plan-stat-rationale" }, String(rationale)));
+  }
+  // V7.17 — start the count-up only once the stat scrolls into view.
+  // (Stats render in the plan hero which is above the fold for most viewports;
+  // observer covers narrow viewports + future deeper placement.)
+  if (typeof IntersectionObserver !== "undefined") {
+    const obs = new IntersectionObserver((entries, o) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          _startCounterIfNumeric(valueEl);
+          o.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    obs.observe(stat);
+  } else {
+    // no IO support — fall through, value stays static
   }
   return stat;
 }

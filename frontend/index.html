@@ -400,6 +400,20 @@
     border-top: 2px solid var(--paper-dim);
     padding: 12px 14px 14px;
     background: rgba(255,255,255,0.012);
+    /* V7.17 — flip-in reveal on render. Stagger via nth-child below. */
+    animation: plan-stat-flip-in 0.55s cubic-bezier(.4, .0, .2, 1) both;
+    transform-origin: center top;
+    backface-visibility: hidden;
+  }
+  .plan-stats .plan-stat:nth-child(1) { animation-delay: 0.08s; }
+  .plan-stats .plan-stat:nth-child(2) { animation-delay: 0.18s; }
+  .plan-stats .plan-stat:nth-child(3) { animation-delay: 0.28s; }
+  @keyframes plan-stat-flip-in {
+    from { opacity: 0; transform: perspective(800px) rotateX(-55deg) translateY(8px); }
+    to   { opacity: 1; transform: perspective(800px) rotateX(0deg)   translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plan-stat { animation: none; }
   }
   .plan-stat-fit-high   { border-top-color: var(--ok); }
   .plan-stat-fit-medium { border-top-color: var(--security); }
@@ -1187,7 +1201,7 @@
      Loaded synchronously before our scripts so renderCascadeFlow can use them. -->
 <script src="https://unpkg.com/cytoscape@3.30.0/dist/cytoscape.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="cascade-flow.js?v=7.16"></script>
-<script src="app.js?v=7.16"></script>
+<script src="cascade-flow.js?v=7.17"></script>
+<script src="app.js?v=7.17"></script>
 </body>
 </html>
