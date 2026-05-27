@@ -362,18 +362,37 @@ function cytoStyle() {
 }
 
 // Preset layout — keeps the architecture story readable: source on top,
-// depts in a row, brief at the bottom. cy.fit() scales to container width.
-function presetPositions() {
-  // Four dept nodes in a row: marketing · gtm · finance · security
-  // (kept evenly spaced; cytoscape's fit() rescales to container width).
-  return {
+// depts in a row, sector cluster on the row below, brief at the bottom.
+// cy.fit() scales to container width.
+function presetPositions(brief) {
+  const positions = {
     source:    { x: 460, y: 50 },
     marketing: { x: 100, y: 220 },
     gtm:       { x: 340, y: 220 },
     finance:   { x: 580, y: 220 },
     security:  { x: 820, y: 220 },
-    brief:     { x: 460, y: 400 },
+    brief:     { x: 460, y: 500 },
   };
+
+  // V7.29-pt4 — sector satellite nodes get an explicit row between depts
+  // and brief. Without this, cytoscape leaves them at (0,0) and the
+  // edges from source render off-canvas toward the upper-left.
+  const sector = brief && brief.sector;
+  const def = sector && SECTOR_NODE_DEFS[sector];
+  if (def && def.nodes && def.nodes.length) {
+    const sectorY = 360;
+    const count = def.nodes.length;
+    // Spread the sector cluster across the canvas width: 1 node = center,
+    // 2 nodes = (240, 680), 3 nodes = (220, 460, 700)
+    const xs =
+      count === 1 ? [460] :
+      count === 2 ? [240, 680] :
+                    [220, 460, 700];
+    def.nodes.forEach((n, i) => {
+      positions[n.id] = { x: xs[i] || 460, y: sectorY };
+    });
+  }
+  return positions;
 }
 
 function setTip(tip, text, active) {
@@ -394,7 +413,7 @@ function initCytoscape(container, tip, brief) {
     return;
   }
 
-  const positions = presetPositions();
+  const positions = presetPositions(brief);
   const elements = buildElements(brief).map((el) => {
     if (el.data && positions[el.data.id]) {
       return { ...el, position: { ...positions[el.data.id] } };
