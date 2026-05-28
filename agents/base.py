@@ -29,6 +29,12 @@ def build_context(bundle: SharedBundle) -> str:
 
 def parse_into(raw: str, schema: type[T]) -> T:
     obj = json.loads(strip_fences(raw))
+    # V7.46 — some LLM responses arrive as a one-element JSON LIST wrapping
+    # the schema dict ("[{...}]" instead of "{...}"). Observed crashing
+    # Pfizer Finance attempt 3 with a ValidationError "Input should be a
+    # valid dictionary ... input_type=list". Unwrap before validation.
+    if isinstance(obj, list) and len(obj) == 1 and isinstance(obj[0], dict):
+        obj = obj[0]
     try:
         return schema.model_validate(obj)
     except Exception:
