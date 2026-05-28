@@ -1011,7 +1011,19 @@ def build_bundle(
         )
     first_chromed: str | None = None
     for url, stype in urls or []:
-        text = html_to_text(client.unlock(url))[:cap_chars]
+        # V7.44 — wrap unlock so a single slow URL (e.g. Pfizer's heavy
+        # corporate JS pages timing out at 30s × 5 retries) doesn't abort
+        # the whole cascade. Skipping one URL is preferable to losing
+        # 75 SERP-discovered external sources + every downstream agent.
+        try:
+            text = html_to_text(client.unlock(url))[:cap_chars]
+        except Exception as exc:
+            if on_chrome is not None:
+                try:
+                    on_chrome({"url": url, "reason": f"unlock_failed: {type(exc).__name__}"})
+                except Exception:
+                    pass
+            continue
         sources.append(
             SourceItem(source_type=stype, url=url, text=text)
         )

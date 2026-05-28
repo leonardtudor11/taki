@@ -257,44 +257,84 @@ function buildElements(brief) {
     }
   }
 
-  // Stagger handoff arcs so multiple handoffs that share neighbours don't
-  // pile their labels on top of each other. We assign each handoff an arc
-  // class (arc-1..arc-3); the stylesheet binds different control-point
-  // distances per class.
-  const arcClasses = ['arc-1', 'arc-2', 'arc-3'];
+  // V7.45 — per-edge arc geometry, sign-corrected for edge direction.
+  //
+  // Cytoscape's `control-point-distances` follows a CLOCKWISE-perpendicular
+  // sign convention from the source→target direction. So the SAME numeric
+  // value bulges DIFFERENT ways depending on edge direction:
+  //   • LEFT→RIGHT edge:  positive distance = below the line (clockwise→down)
+  //   • RIGHT→LEFT edge:  positive distance = above the line (clockwise→up)
+  //
+  // The V7.32→V7.44 class-based stagger used a single fixed sign per arc
+  // index. Result: arc-2 (security→gtm, R→L) bulged DOWNWARD with
+  // distance -100, landing the label apex AT the Finance node (which
+  // sits between security and gtm) → label rendered behind Finance on
+  // every brief that emitted a security→gtm handoff. Same root cause
+  // for the synergy / handoff "tiny rectangle hidden behind finance"
+  // artifact reported across all gallery cases.
+  //
+  // Fix: compute cpDist + tmY per-edge from the canonical dept ordering
+  // (marketing < gtm < finance < security in x). Drop `text-rotation:
+  // autorotate` so text-margin-y is canvas-space (negative = above,
+  // positive = below) without the autorotate-flip of label-local axes.
+  const _DEPT_ORDER = { marketing: 0, gtm: 1, finance: 2, security: 3 };
+  const _HANDOFF_DEPTHS  = [40,  90,  140];
+  const _HANDOFF_MARGINS = [-12, -14, -22];
+  const _SYNERGY_DEPTHS  = [60,  105];
+  const _SYNERGY_MARGINS = [14,  22];
+
+  function _arcParams(srcKey, tgtKey, arcIndex, kind) {
+    const isHandoff = kind === 'handoff';
+    const depth = isHandoff
+      ? _HANDOFF_DEPTHS[arcIndex % _HANDOFF_DEPTHS.length]
+      : _SYNERGY_DEPTHS[arcIndex % _SYNERGY_DEPTHS.length];
+    const tmY = isHandoff
+      ? _HANDOFF_MARGINS[arcIndex % _HANDOFF_MARGINS.length]
+      : _SYNERGY_MARGINS[arcIndex % _SYNERGY_MARGINS.length];
+    const goingRight = (_DEPT_ORDER[srcKey] ?? 0) < (_DEPT_ORDER[tgtKey] ?? 0);
+    // bulge UP for handoffs: L→R wants negative, R→L wants positive
+    // bulge DOWN for synergies: opposite
+    const sign = isHandoff
+      ? (goingRight ? -1 : +1)
+      : (goingRight ? +1 : -1);
+    return { cpDist: [depth * sign], tmY };
+  }
+
   (brief.handoffs || []).forEach((h, i) => {
     const a = deptKey(h.from_dept);
     const b = deptKey(h.to_dept);
     if (!a || !b || a === b) return;
+    const { cpDist, tmY } = _arcParams(a, b, i, 'handoff');
     els.push({
       data: {
         id: `h${i}`, source: a, target: b, type: 'handoff',
         color: DEPT_COLOR[a],
         label: shortLabel(h.message),
         full: String(h.message || ''),
+        cpDist, tmY,
       },
-      classes: arcClasses[i % arcClasses.length],
     });
   });
 
   const seenPairs = new Set();
-  const synArcs = ['syn-arc-1', 'syn-arc-2'];
-  (brief.synergy_signals || []).forEach((s, i) => {
+  let synIdx = 0;
+  (brief.synergy_signals || []).forEach((s) => {
     const depts = (s.contributing_depts || []).map(deptKey).filter(Boolean);
     const unique = [...new Set(depts)];
     if (unique.length >= 2) {
       const key = [unique[0], unique[1]].sort().join('-');
-      // collapse multiple synergies on the same pair into one edge
       if (seenPairs.has(key)) return;
       seenPairs.add(key);
+      const { cpDist, tmY } = _arcParams(unique[0], unique[1], synIdx, 'synergy');
+      synIdx += 1;
       els.push({
         data: {
-          id: `y${i}`, source: unique[0], target: unique[1], type: 'synergy',
+          id: `y${synIdx}`, source: unique[0], target: unique[1], type: 'synergy',
           color: SYNERGY_COLOR,
           label: shortLabel(s.text, 'synergy'),
           full: String(s.text || ''),
+          cpDist, tmY,
         },
-        classes: synArcs[i % synArcs.length],
       });
     }
   });
@@ -408,14 +448,20 @@ function cytoStyle() {
       style: {
         'curve-style': 'unbundled-bezier',
         'control-point-weights': [0.5],
+        // V7.45 — data-driven per-edge stagger; sign-corrected in
+        // buildElements for L→R vs R→L edges so labels always sit ABOVE
+        // the dept row regardless of source/target ordering.
+        'control-point-distances': 'data(cpDist)',
         label: 'data(label)',
         'font-family': 'JetBrains Mono, ui-monospace, monospace',
         'font-size': 10.5,
         'font-weight': 600,
         color: 'data(color)',
-        'text-rotation': 'autorotate',
-        // V7.44 — hard cap label pixel width so cytoscape ellipsises
-        // anything wider rather than letting JS-side truncation leak.
+        // V7.45 — autorotate REMOVED. Was flipping label-local axes for
+        // R→L edges, inverting text-margin-y signs and landing labels
+        // on top of the Finance dept node. Horizontal labels read more
+        // cleanly anyway.
+        'text-margin-y': 'data(tmY)',
         'text-max-width': 110,
         'text-wrap': 'ellipsis',
         // solid INK pad + text outline = labels readable over anything
@@ -432,21 +478,15 @@ function cytoStyle() {
         'text-margin-y': -3,
       },
     },
-    // Stagger handoff arcs so labels don't pile on the same curve.
-    // V7.44 — widened curve depth (-50/-90/-130) + text-margin (-8/-30/-55)
-    // because the previous -32/-58/-84 + -2/-10/-18 combination still
-    // packed multiple handoff labels into the same ~20-px y-band above
-    // the dept row → labels visually stacked and unreadable. Wider
-    // staggers put each label on its own y-row clearly separated.
-    { selector: 'edge.arc-1', style: { 'control-point-weights': [0.35], 'control-point-distances': [-45],  'text-margin-y': -6  } },
-    { selector: 'edge.arc-2', style: { 'control-point-weights': [0.5],  'control-point-distances': [-100], 'text-margin-y': -42 } },
-    { selector: 'edge.arc-3', style: { 'control-point-weights': [0.65], 'control-point-distances': [-150], 'text-margin-y': -78 } },
+    // V7.45 — class-based per-arc rules removed. cpDist + tmY are now
+    // data-driven on the handoff/synergy edge styles above.
 
     {
       selector: 'edge[type="synergy"]',
       style: {
         'curve-style': 'unbundled-bezier',
         'control-point-weights': [0.5],
+        'control-point-distances': 'data(cpDist)',
         'line-style': 'dashed',
         'line-dash-pattern': [6, 4],
         label: 'data(label)',
@@ -454,7 +494,8 @@ function cytoStyle() {
         'font-size': 10.5,
         'font-weight': 600,
         color: SYNERGY_COLOR,
-        'text-rotation': 'autorotate',
+        // V7.45 — autorotate removed (see handoff comment above).
+        'text-margin-y': 'data(tmY)',
         'text-max-width': 110,
         'text-wrap': 'ellipsis',
         'text-background-color': INK,
@@ -474,8 +515,8 @@ function cytoStyle() {
     // to match the handoff stagger. Synergies now sit on their own y-rows
     // BELOW the dept line without overlapping handoff labels above OR
     // the sector-row nodes further below.
-    { selector: 'edge.syn-arc-1', style: { 'control-point-weights': [0.42], 'control-point-distances': [75],  'text-margin-y': 12 } },
-    { selector: 'edge.syn-arc-2', style: { 'control-point-weights': [0.58], 'control-point-distances': [120], 'text-margin-y': 40 } },
+    // V7.45 — synergy class rules removed; cpDist + tmY data-driven on
+    // the base synergy edge style above.
 
     { selector: '.dim',      style: { opacity: 0.15 } },
     { selector: '.beam',     style: { width: 3 } },
