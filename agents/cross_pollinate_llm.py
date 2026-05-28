@@ -251,6 +251,14 @@ def analyze(
     except Exception:
         return ([], [])
 
+    # V7.47 — same list-wrap shape that V7.46 hit in parse_into. Some LLM
+    # responses arrive as [{...}] instead of {...}; unwrap before the
+    # dict-shape gate. Without this, valid cross-talk gets silently
+    # dropped to templated fallback (observed on the Notion run where
+    # cross_pollinate_done events recorded source="fallback").
+    if isinstance(obj, list) and len(obj) == 1 and isinstance(obj[0], dict):
+        obj = obj[0]
+
     if not isinstance(obj, dict):
         return ([], [])
 
