@@ -3,9 +3,13 @@
 lablab.ai form text, 5-min video script, and slide deck outline for the Bright Data
 **Web Data UNLOCKED** 2026 hackathon. Paste, record, ship.
 
-Current state: V7.26 · 9-agent cascade · 14 LangGraph nodes · 150/150 tests green ·
-live frontend: `https://frontend-sage-pi.vercel.app` (Orchid SRL self-mode brief,
-79 cites / 8 domains, 0 hallucinations).
+**Current state (V7.41):**
+- 13 LLM agents + 1 post-cascade competitor enrichment
+- 5-layer guardrail (PII / leak / claim-level grounding / citation-level grounding / hallucinated-URL filter on V7.35 cross-talk)
+- 219/219 tests green (excl. e2e + preexisting test_server auth-leak)
+- Live frontend: `https://frontend-sage-pi.vercel.app` (gallery: orchid / supabase / notion / pfizer)
+- Live backend: `https://taki-backend-xmkvqnh62a-uc.a.run.app` (Cloud Run, bearer-token gated)
+- Eleven V7.30→V7.40 enrichment layers shipped: JS chrome fallback, target sub-page discovery, academic + analyst SERP overlays, dynamic LLM-generated industry SERP queries, expert-quote agent, LLM-driven cross-pollination (replaces templated handoffs), per-cascade source quality stats, competitor mini-bundle, cascade graph visual polish.
 
 ---
 

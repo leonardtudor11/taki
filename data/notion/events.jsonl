@@ -1,30 +1,40 @@
-{"t": "2026-05-27T16:23:38.402652+00:00", "phase": "pii", "status": "start"}
-{"t": "2026-05-27T16:23:38.403432+00:00", "phase": "pii", "status": "done", "redactions": 0}
-{"t": "2026-05-27T16:23:38.403894+00:00", "phase": "leak", "status": "start"}
-{"t": "2026-05-27T16:23:38.404532+00:00", "phase": "leak", "status": "done", "flags": []}
-{"t": "2026-05-27T16:23:38.405112+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
-{"t": "2026-05-27T16:23:38.405269+00:00", "phase": "dept", "dept": "finance", "status": "start"}
-{"t": "2026-05-27T16:23:38.405364+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
-{"t": "2026-05-27T16:23:38.405487+00:00", "phase": "dept", "dept": "security", "status": "start"}
-{"t": "2026-05-27T16:24:14.851424+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 7}
-{"t": "2026-05-27T16:24:20.589577+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 15}
-{"t": "2026-05-27T16:24:22.164384+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 11}
-{"t": "2026-05-27T16:24:28.022326+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 19}
-{"t": "2026-05-27T16:24:28.024581+00:00", "phase": "grounding", "status": "start"}
-{"t": "2026-05-27T16:24:28.050101+00:00", "phase": "grounding", "status": "done", "dropped": 11}
-{"t": "2026-05-27T16:24:28.051085+00:00", "phase": "handoff", "from": "finance", "to": "gtm", "message": "Pricing change detected \u2014 adjust outreach timing/messaging."}
-{"t": "2026-05-27T16:24:28.051131+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Reputational signal \u2014 frame responsibly, do not weaponize."}
-{"t": "2026-05-27T16:24:28.051163+00:00", "phase": "handoff", "from": "gtm", "to": "security", "message": "Hiring expansion \u2014 new attack surface / vendors to monitor."}
-{"t": "2026-05-27T16:24:28.051204+00:00", "phase": "synergy", "depts": ["finance", "security"], "text": "Pricing increase coincides with support/reputation complaints \u2014 churn risk; time GTM outreach around retention, not upsell."}
-{"t": "2026-05-27T16:24:28.051236+00:00", "phase": "synergy", "depts": ["gtm", "finance"], "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach."}
-{"t": "2026-05-27T16:24:28.052563+00:00", "phase": "strategy", "status": "start"}
-{"t": "2026-05-27T16:24:28.052764+00:00", "phase": "porter", "status": "start"}
-{"t": "2026-05-27T16:24:28.052859+00:00", "phase": "swot", "status": "start"}
-{"t": "2026-05-27T16:24:28.053013+00:00", "phase": "contradictions", "status": "start"}
-{"t": "2026-05-27T16:24:28.052971+00:00", "phase": "pestle", "status": "start"}
-{"t": "2026-05-27T16:24:56.872438+00:00", "phase": "contradictions", "status": "done", "found": 1}
-{"t": "2026-05-27T16:25:00.431929+00:00", "phase": "porter", "status": "done", "rivalry": 4, "new_entrants": 3, "supplier_power": 3, "buyer_power": 4, "substitutes": 5}
-{"t": "2026-05-27T16:25:03.174305+00:00", "phase": "strategy", "status": "done", "headline": "Notion's aggressive enterprise and AI expansion is outpacing its security and compliance infrastructure, creating an urgent opening for risk management and operational efficiency solutions.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
-{"t": "2026-05-27T16:25:06.792425+00:00", "phase": "swot", "status": "done", "s": 4, "w": 3, "o": 4, "t_": 3}
-{"t": "2026-05-27T16:25:21.093248+00:00", "phase": "pestle", "status": "done", "political": 1, "economic": 4, "social": 3, "technological": 5, "legal": 4, "environmental": 1}
-{"t": "2026-05-27T16:25:21.097870+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 41, "mode": "target"}
+{"t": "2026-05-28T10:53:33.655281+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-28T10:53:33.656217+00:00", "phase": "pii", "status": "done", "redactions": 0}
+{"t": "2026-05-28T10:53:33.656794+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-28T10:53:33.657438+00:00", "phase": "leak", "status": "done", "flags": []}
+{"t": "2026-05-28T10:53:33.658135+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-28T10:53:33.658248+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-28T10:53:33.658335+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
+{"t": "2026-05-28T10:53:33.658415+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-28T10:54:11.489089+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 9}
+{"t": "2026-05-28T10:54:17.693192+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 11}
+{"t": "2026-05-28T10:54:19.292341+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 20}
+{"t": "2026-05-28T10:54:20.004433+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 4}
+{"t": "2026-05-28T10:54:20.009717+00:00", "phase": "grounding", "status": "start"}
+{"t": "2026-05-28T10:54:20.035390+00:00", "phase": "grounding", "status": "done", "dropped": 4}
+{"t": "2026-05-28T10:54:20.036692+00:00", "phase": "cross_pollinate", "status": "start"}
+{"t": "2026-05-28T10:54:51.980426+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "GTM should explicitly leverage the gating of critical security features like SAML SSO, SCIM, and audit logs as a primary upsell driver from Business to Enterprise plans."}
+{"t": "2026-05-28T10:54:51.980826+00:00", "phase": "handoff", "from": "gtm", "to": "marketing", "message": "Marketing must partner with the new GTM Operations function to produce the quantitative ROI case studies needed to support the enterprise consolidation pitch, addressing a key content gap."}
+{"t": "2026-05-28T10:54:51.980875+00:00", "phase": "handoff", "from": "marketing", "to": "security", "message": "Security must be advised that our 'tool consolidation' value proposition makes Notion a high-value target, requiring a specific incident response plan for a wide blast radius breach."}
+{"t": "2026-05-28T10:54:51.980906+00:00", "phase": "handoff", "from": "security", "to": "finance", "message": "Finance should model the potential compliance liability stemming from non-Enterprise customer data being retained by undisclosed third-party AI vendors."}
+{"t": "2026-05-28T10:54:51.980934+00:00", "phase": "synergy", "depts": ["gtm", "security", "marketing"], "text": "Notion's enterprise sales motion is fundamentally powered by its security model; it deliberately paywalls critical compliance and governance features to create a high-stakes, non-negotiable upsell path for large customers."}
+{"t": "2026-05-28T10:54:51.980963+00:00", "phase": "synergy", "depts": ["gtm", "security", "marketing"], "text": "Notion's primary growth strategy around AI automation introduces an unquantified fourth-party risk by processing customer data through undisclosed third-party LLMs, creating a compliance and trust liability for all but its top-tier Enterprise clients who are guaranteed zero data retention."}
+{"t": "2026-05-28T10:54:51.980994+00:00", "phase": "synergy", "depts": ["marketing", "security", "gtm"], "text": "By successfully positioning itself as the central nervous system that consolidates a company's tools, Notion simultaneously makes itself a 'single point of catastrophic failure' where the impact of a breach is magnified across all connected systems."}
+{"t": "2026-05-28T10:54:51.981021+00:00", "phase": "cross_pollinate", "status": "done", "source": "llm", "handoffs": 4, "synergies": 3}
+{"t": "2026-05-28T10:54:51.982914+00:00", "phase": "profile", "status": "start"}
+{"t": "2026-05-28T10:55:07.878159+00:00", "phase": "profile", "status": "done", "industry": "SaaS all-in-one workspace and productivity platform", "stage": "growth", "competitors": 0}
+{"t": "2026-05-28T10:55:07.880267+00:00", "phase": "expert_quotes", "status": "start"}
+{"t": "2026-05-28T10:55:22.618880+00:00", "phase": "expert_quotes", "status": "done", "count": 0}
+{"t": "2026-05-28T10:55:22.622347+00:00", "phase": "sector", "status": "start"}
+{"t": "2026-05-28T10:55:35.496555+00:00", "phase": "sector", "status": "done", "sector": "saas", "counts": "tiers=1 plg=1 logos=0"}
+{"t": "2026-05-28T10:55:35.499855+00:00", "phase": "strategy", "status": "start"}
+{"t": "2026-05-28T10:55:35.499975+00:00", "phase": "contradictions", "status": "start"}
+{"t": "2026-05-28T10:55:35.500109+00:00", "phase": "swot", "status": "start"}
+{"t": "2026-05-28T10:55:35.500054+00:00", "phase": "porter", "status": "start"}
+{"t": "2026-05-28T10:55:35.510602+00:00", "phase": "pestle", "status": "start"}
+{"t": "2026-05-28T10:56:06.782171+00:00", "phase": "contradictions", "status": "done", "found": 3}
+{"t": "2026-05-28T10:56:13.409439+00:00", "phase": "porter", "status": "done", "rivalry": 5, "new_entrants": 2, "supplier_power": 4, "buyer_power": 3, "substitutes": 5}
+{"t": "2026-05-28T10:56:17.977558+00:00", "phase": "strategy", "status": "done", "headline": "Notion is weaponizing the security and compliance risks of its new 'Notion Agents' to force an upsell to its Enterprise plan, creating a direct, high-urgency entry point for GRC-focused sellers.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
+{"t": "2026-05-28T10:56:19.323560+00:00", "phase": "pestle", "status": "done", "political": 3, "economic": 4, "social": 4, "technological": 5, "legal": 3, "environmental": 1}
+{"t": "2026-05-28T10:56:35.328317+00:00", "phase": "swot", "status": "done", "s": 3, "w": 2, "o": 3, "t_": 2}
+{"t": "2026-05-28T10:56:35.338965+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 40, "mode": "target"}

@@ -1,30 +1,41 @@
-{"t": "2026-05-27T16:27:48.691693+00:00", "phase": "pii", "status": "start"}
-{"t": "2026-05-27T16:27:48.692873+00:00", "phase": "pii", "status": "done", "redactions": 0}
-{"t": "2026-05-27T16:27:48.693330+00:00", "phase": "leak", "status": "start"}
-{"t": "2026-05-27T16:27:48.694311+00:00", "phase": "leak", "status": "done", "flags": []}
-{"t": "2026-05-27T16:27:48.694904+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
-{"t": "2026-05-27T16:27:48.695149+00:00", "phase": "dept", "dept": "finance", "status": "start"}
-{"t": "2026-05-27T16:27:48.695264+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
-{"t": "2026-05-27T16:27:48.695371+00:00", "phase": "dept", "dept": "security", "status": "start"}
-{"t": "2026-05-27T16:28:26.652166+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 7}
-{"t": "2026-05-27T16:28:26.998955+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 9}
-{"t": "2026-05-27T16:28:35.200619+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 18}
-{"t": "2026-05-27T16:28:36.247471+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 13}
-{"t": "2026-05-27T16:28:36.250648+00:00", "phase": "grounding", "status": "start"}
-{"t": "2026-05-27T16:28:36.282907+00:00", "phase": "grounding", "status": "done", "dropped": 5}
-{"t": "2026-05-27T16:28:36.283928+00:00", "phase": "handoff", "from": "finance", "to": "gtm", "message": "Pricing change detected \u2014 adjust outreach timing/messaging."}
-{"t": "2026-05-27T16:28:36.283969+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Reputational signal \u2014 frame responsibly, do not weaponize."}
-{"t": "2026-05-27T16:28:36.284000+00:00", "phase": "handoff", "from": "gtm", "to": "security", "message": "Hiring expansion \u2014 new attack surface / vendors to monitor."}
-{"t": "2026-05-27T16:28:36.284039+00:00", "phase": "synergy", "depts": ["finance", "security"], "text": "Pricing increase coincides with support/reputation complaints \u2014 churn risk; time GTM outreach around retention, not upsell."}
-{"t": "2026-05-27T16:28:36.284069+00:00", "phase": "synergy", "depts": ["gtm", "finance"], "text": "Hiring plus funding/expansion signals a growth account \u2014 prioritize and resource the outreach."}
-{"t": "2026-05-27T16:28:36.285273+00:00", "phase": "strategy", "status": "start"}
-{"t": "2026-05-27T16:28:36.285457+00:00", "phase": "porter", "status": "start"}
-{"t": "2026-05-27T16:28:36.285531+00:00", "phase": "swot", "status": "start"}
-{"t": "2026-05-27T16:28:36.285663+00:00", "phase": "contradictions", "status": "start"}
-{"t": "2026-05-27T16:28:36.285631+00:00", "phase": "pestle", "status": "start"}
-{"t": "2026-05-27T16:29:01.071703+00:00", "phase": "contradictions", "status": "done", "found": 2}
-{"t": "2026-05-27T16:29:11.384732+00:00", "phase": "swot", "status": "done", "s": 4, "w": 2, "o": 3, "t_": 4}
-{"t": "2026-05-27T16:29:17.403741+00:00", "phase": "strategy", "status": "done", "headline": "Pfizer's concurrent global expansion, product launches, and AI transformation create an immediate, enterprise-wide need for a unified revenue intelligence and risk management platform.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
-{"t": "2026-05-27T16:29:19.766621+00:00", "phase": "pestle", "status": "done", "political": 4, "economic": 4, "social": 3, "technological": 5, "legal": 5, "environmental": 2}
-{"t": "2026-05-27T16:29:43.710057+00:00", "phase": "porter", "status": "done", "rivalry": 4, "new_entrants": 1, "supplier_power": 3, "buyer_power": 4, "substitutes": 5}
-{"t": "2026-05-27T16:29:43.713191+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 42, "mode": "target"}
+{"t": "2026-05-28T10:59:08.972151+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-28T10:59:08.973315+00:00", "phase": "pii", "status": "done", "redactions": 0}
+{"t": "2026-05-28T10:59:08.973885+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-28T10:59:08.974870+00:00", "phase": "leak", "status": "done", "flags": []}
+{"t": "2026-05-28T10:59:08.975561+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-28T10:59:08.975685+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-28T10:59:08.975785+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
+{"t": "2026-05-28T10:59:08.975897+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-28T10:59:42.320522+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 7}
+{"t": "2026-05-28T10:59:45.079616+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 6}
+{"t": "2026-05-28T10:59:51.903202+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 20}
+{"t": "2026-05-28T10:59:59.816377+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 13}
+{"t": "2026-05-28T10:59:59.819183+00:00", "phase": "grounding", "status": "start"}
+{"t": "2026-05-28T10:59:59.852148+00:00", "phase": "grounding", "status": "done", "dropped": 9}
+{"t": "2026-05-28T10:59:59.853573+00:00", "phase": "cross_pollinate", "status": "start"}
+{"t": "2026-05-28T11:00:39.253594+00:00", "phase": "handoff", "from": "gtm", "to": "marketing", "message": "The European Commission's approval of HYMPAVZI requires immediate development of commercialization, marketing, and sales support materials for the European product launch."}
+{"t": "2026-05-28T11:00:39.253984+00:00", "phase": "handoff", "from": "gtm", "to": "security", "message": "As we pursue partnership opportunities stemming from Pfizer's open call for business development and venture investments, we need Security to develop a third-party risk assessment for these specific engagement types."}
+{"t": "2026-05-28T11:00:39.254037+00:00", "phase": "handoff", "from": "gtm", "to": "marketing", "message": "Given the heavy concentration of hiring in R&D hubs like Cambridge, MA and Groton, CT, recruitment marketing efforts should be specifically tailored to attract scientific talent in these key geographies."}
+{"t": "2026-05-28T11:00:39.254067+00:00", "phase": "handoff", "from": "marketing", "to": "gtm", "message": "We have identified a content gap where the A-Z product list lacks patient-focused descriptions; GTM can use this insight to propose a content marketing engagement that better explains product value to laypersons."}
+{"t": "2026-05-28T11:00:39.254094+00:00", "phase": "synergy", "depts": ["gtm", "marketing"], "text": "Pfizer's push for AI adoption is not a general corporate initiative but is deeply integrated with its core R&D strategy, evidenced by concentrated hiring in scientific hubs, creating a targeted opportunity for specialized AI-for-R&D solutions."}
+{"t": "2026-05-28T11:00:39.254123+00:00", "phase": "synergy", "depts": ["finance", "gtm", "security"], "text": "Pfizer's aggressive growth strategy, combining new product launches like HYMPAVZI with a broad call for external partnerships, creates a compounded risk profile where failures in third-party compliance could directly jeopardize the commercial success of its expanding pipeline."}
+{"t": "2026-05-28T11:00:39.254153+00:00", "phase": "synergy", "depts": ["finance", "marketing", "security"], "text": "Pfizer's marketing of patient assistance programs and global health equity is a strategic defense against regulatory and reputational risks from pricing scrutiny, reframing its commercial model in terms of access and affordability."}
+{"t": "2026-05-28T11:00:39.254179+00:00", "phase": "synergy", "depts": ["gtm", "security", "marketing"], "text": "The major hiring initiative in China, framed by marketing as purpose-driven work, directly intersects with the company's largest identified geopolitical and operational risk, creating a potential conflict between employer branding and supply chain security."}
+{"t": "2026-05-28T11:00:39.254225+00:00", "phase": "cross_pollinate", "status": "done", "source": "llm", "handoffs": 4, "synergies": 4}
+{"t": "2026-05-28T11:00:39.256108+00:00", "phase": "profile", "status": "start"}
+{"t": "2026-05-28T11:00:48.862104+00:00", "phase": "profile", "status": "done", "industry": "Biopharmaceutical manufacturing and research", "stage": "scale", "competitors": 0}
+{"t": "2026-05-28T11:00:48.864395+00:00", "phase": "expert_quotes", "status": "start"}
+{"t": "2026-05-28T11:00:56.439860+00:00", "phase": "expert_quotes", "status": "done", "count": 0}
+{"t": "2026-05-28T11:00:56.443814+00:00", "phase": "sector", "status": "start"}
+{"t": "2026-05-28T11:01:05.827344+00:00", "phase": "sector", "status": "done", "sector": "pharma", "counts": "pipeline=0 subs=0 partners=0"}
+{"t": "2026-05-28T11:01:05.830152+00:00", "phase": "strategy", "status": "start"}
+{"t": "2026-05-28T11:01:05.830257+00:00", "phase": "contradictions", "status": "start"}
+{"t": "2026-05-28T11:01:05.830366+00:00", "phase": "swot", "status": "start"}
+{"t": "2026-05-28T11:01:05.830325+00:00", "phase": "porter", "status": "start"}
+{"t": "2026-05-28T11:01:05.830446+00:00", "phase": "pestle", "status": "start"}
+{"t": "2026-05-28T11:01:36.736716+00:00", "phase": "porter", "status": "done", "rivalry": 4, "new_entrants": 1, "supplier_power": 2, "buyer_power": 3, "substitutes": 5}
+{"t": "2026-05-28T11:01:37.980412+00:00", "phase": "contradictions", "status": "done", "found": 1}
+{"t": "2026-05-28T11:01:41.222727+00:00", "phase": "swot", "status": "done", "s": 4, "w": 0, "o": 3, "t_": 4}
+{"t": "2026-05-28T11:01:42.168376+00:00", "phase": "pestle", "status": "done", "political": 5, "economic": 4, "social": 4, "technological": 5, "legal": 5, "environmental": 2}
+{"t": "2026-05-28T11:01:54.798930+00:00", "phase": "strategy", "status": "done", "headline": "Pfizer's EU approval of HYMPAVZI, combined with a broad call for new partners, creates an immediate need to de-risk its expanding third-party ecosystem.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
+{"t": "2026-05-28T11:01:54.807284+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 37, "mode": "target"}
