@@ -103,11 +103,14 @@ function shortLabel(message, fallback) {
   const cleaned = firstClause.replace(_STOP_PREFIX, '').trim();
   if (!cleaned) return fallback || '';
   // Pull up to 5 words; trim trailing punctuation
-  const words = cleaned.split(/\s+/).slice(0, 5);
+  // V7.44 — tighter cap (was 5 words / 42 chars). Edge labels at font-size
+  // 11 over a 460px-tall canvas cannot read more than ~3 words without
+  // colliding with neighbour labels on the same dept pair. Full text
+  // stays available on hover via the tooltip strip.
+  const words = cleaned.split(/\s+/).slice(0, 3);
   words[words.length - 1] = words[words.length - 1].replace(_PUNCT_END, '');
   let out = words.join(' ');
-  // Cap absolute length so labels don't blow up the node row
-  if (out.length > 42) out = out.slice(0, 39).trimEnd() + '…';
+  if (out.length > 26) out = out.slice(0, 23).trimEnd() + '…';
   return out;
 }
 
@@ -325,14 +328,19 @@ function cytoStyle() {
     },
     // V7.40 — source node: cut-rectangle (corner-cut) signals "data
     // entry point" without looking the same as the dept nodes.
+    // V7.44 — dropped the rgba(184,178,164,0.04) tint. Cytoscape ignores
+    // the rgba alpha and applies the colour at full opacity, which made
+    // the label PAPER_DIM-on-PAPER_DIM = invisible. Reverted to base INK
+    // background so the "Bright Data" label reads against dark canvas
+    // like every other node.
     {
       selector: 'node[type="source"]',
       style: {
-        width: 144, height: 38,
+        width: 156, height: 40,
         'shape': 'cut-rectangle',
-        'font-size': 10.5,
-        'font-weight': 500,
-        'background-color': 'rgba(184,178,164,0.04)',  // subtle PAPER_DIM tint
+        'font-size': 11,
+        'font-weight': 600,
+        'color': '#e8e2d4',
       },
     },
     // V7.43 — brief node: bigger + thicker SHU border. Reverted V7.40
@@ -364,17 +372,12 @@ function cytoStyle() {
         'font-weight': 500,
       },
     },
-    // V7.32 — fade out empty sector buckets so the contrast between
-    // "sector pass extracted nothing here" and "extracted N items" is
-    // legible without reading the numbers.
-    {
-      selector: 'node[type="sector"][count = 0]',
-      style: {
-        'border-opacity': 0.45,
-        'color': PAPER_DIM,
-        'border-color': PAPER_DIM,
-      },
-    },
+    // V7.44 — dropped the V7.32 count=0 fade. When ALL buckets were 0
+    // (e.g. pharma brief w/ sparse sector pass) the sector row went
+    // near-invisible while the feed+output edges kept rendering — left
+    // arrows pointing into empty space. Show every sector node at full
+    // opacity; the "· 0" suffix carries the "extracted nothing" signal
+    // without making the node itself disappear.
 
     {
       selector: 'edge',
@@ -407,10 +410,14 @@ function cytoStyle() {
         'control-point-weights': [0.5],
         label: 'data(label)',
         'font-family': 'JetBrains Mono, ui-monospace, monospace',
-        'font-size': 11,
+        'font-size': 10.5,
         'font-weight': 600,
         color: 'data(color)',
         'text-rotation': 'autorotate',
+        // V7.44 — hard cap label pixel width so cytoscape ellipsises
+        // anything wider rather than letting JS-side truncation leak.
+        'text-max-width': 110,
+        'text-wrap': 'ellipsis',
         // solid INK pad + text outline = labels readable over anything
         'text-background-color': INK,
         'text-background-opacity': 1,
@@ -426,14 +433,14 @@ function cytoStyle() {
       },
     },
     // Stagger handoff arcs so labels don't pile on the same curve.
-    // V7.32 — tightened -60/-98/-136 → -45/-78/-110.
-    // V7.39 — tightened further to -32/-58/-84 for shallower tangents.
-    // V7.40 — added per-arc text-margin-y so multi-handoff labels stack
-    // VERTICALLY along the arc apex instead of overlapping at the
-    // same y-pixel-row above the dept line.
-    { selector: 'edge.arc-1', style: { 'control-point-distances': [-32], 'text-margin-y': -2 } },
-    { selector: 'edge.arc-2', style: { 'control-point-distances': [-58], 'text-margin-y': -10 } },
-    { selector: 'edge.arc-3', style: { 'control-point-distances': [-84], 'text-margin-y': -18 } },
+    // V7.44 — widened curve depth (-50/-90/-130) + text-margin (-8/-30/-55)
+    // because the previous -32/-58/-84 + -2/-10/-18 combination still
+    // packed multiple handoff labels into the same ~20-px y-band above
+    // the dept row → labels visually stacked and unreadable. Wider
+    // staggers put each label on its own y-row clearly separated.
+    { selector: 'edge.arc-1', style: { 'control-point-weights': [0.35], 'control-point-distances': [-45],  'text-margin-y': -6  } },
+    { selector: 'edge.arc-2', style: { 'control-point-weights': [0.5],  'control-point-distances': [-100], 'text-margin-y': -42 } },
+    { selector: 'edge.arc-3', style: { 'control-point-weights': [0.65], 'control-point-distances': [-150], 'text-margin-y': -78 } },
 
     {
       selector: 'edge[type="synergy"]',
@@ -444,10 +451,12 @@ function cytoStyle() {
         'line-dash-pattern': [6, 4],
         label: 'data(label)',
         'font-family': 'JetBrains Mono, ui-monospace, monospace',
-        'font-size': 11,
+        'font-size': 10.5,
         'font-weight': 600,
         color: SYNERGY_COLOR,
         'text-rotation': 'autorotate',
+        'text-max-width': 110,
+        'text-wrap': 'ellipsis',
         'text-background-color': INK,
         'text-background-opacity': 1,
         'text-background-padding': 4,
@@ -461,13 +470,12 @@ function cytoStyle() {
         'text-margin-y': 3,
       },
     },
-    // V7.39 — tightened synergy arcs from 70/108 → 52/82 to match the
-    // shallower handoff curves above and keep arrow tangents close to
-    // axis-aligned for clean perimeter landings.
-    // V7.40 — added text-margin-y stagger so paired synergy labels
-    // stack BELOW the dept line at distinct y-rows.
-    { selector: 'edge.syn-arc-1', style: { 'control-point-distances': [52], 'text-margin-y': 6 } },
-    { selector: 'edge.syn-arc-2', style: { 'control-point-distances': [82], 'text-margin-y': 16 } },
+    // V7.44 — widened synergy curves (70/110) + text-margin (+14/+38)
+    // to match the handoff stagger. Synergies now sit on their own y-rows
+    // BELOW the dept line without overlapping handoff labels above OR
+    // the sector-row nodes further below.
+    { selector: 'edge.syn-arc-1', style: { 'control-point-weights': [0.42], 'control-point-distances': [75],  'text-margin-y': 12 } },
+    { selector: 'edge.syn-arc-2', style: { 'control-point-weights': [0.58], 'control-point-distances': [120], 'text-margin-y': 40 } },
 
     { selector: '.dim',      style: { opacity: 0.15 } },
     { selector: '.beam',     style: { width: 3 } },
@@ -491,13 +499,16 @@ function cytoStyle() {
 // depts in a row, sector cluster on the row below, brief at the bottom.
 // cy.fit() scales to container width.
 function presetPositions(brief) {
+  // V7.44 — taller layout to fit wider handoff/synergy arcs without
+  // labels colliding with source (top) or sector row (mid). Container
+  // height also bumped 460→540px in index.html.
   const positions = {
-    source:    { x: 460, y: 50 },
-    marketing: { x: 100, y: 220 },
-    gtm:       { x: 340, y: 220 },
-    finance:   { x: 580, y: 220 },
-    security:  { x: 820, y: 220 },
-    brief:     { x: 460, y: 500 },
+    source:    { x: 460, y: 30 },
+    marketing: { x: 100, y: 260 },
+    gtm:       { x: 340, y: 260 },
+    finance:   { x: 580, y: 260 },
+    security:  { x: 820, y: 260 },
+    brief:     { x: 460, y: 580 },
   };
 
   // V7.29-pt4 — sector satellite nodes get an explicit row between depts
@@ -506,7 +517,7 @@ function presetPositions(brief) {
   const sector = brief && brief.sector;
   const def = sector && SECTOR_NODE_DEFS[sector];
   if (def && def.nodes && def.nodes.length) {
-    const sectorY = 360;
+    const sectorY = 430;
     const count = def.nodes.length;
     // Spread the sector cluster across the canvas width: 1 node = center,
     // 2 nodes = (240, 680), 3 nodes = (220, 460, 700)
@@ -561,14 +572,21 @@ function initCytoscape(container, tip, brief) {
 
   // Cascade entry animation: source → feeds → depts → outputs → brief → handoffs → synergies.
   // Each stage fades its layer in; total duration ~1.6s.
+  // V7.44 — sector satellite nodes were missing from the fade-in stage
+  // list, so they stayed at opacity:0 forever while their feed/output
+  // edges (which DO match the type=feed/output selectors below) faded
+  // in normally. Result: every sector brief rendered arrows that
+  // passed through invisible rectangles. Added an explicit sector
+  // stage at the same beat as the dept fade-in.
   const stages = [
-    ['node#source',         60],
-    ['edge[type="feed"]',  260],
-    ['node[type="dept"]',  440],
-    ['edge[type="output"]',720],
-    ['node#brief',         920],
-    ['edge[type="handoff"]', 1180],
-    ['edge[type="synergy"]', 1420],
+    ['node#source',                60],
+    ['edge[type="feed"]',          260],
+    ['node[type="dept"]',          440],
+    ['node[type="sector"]',        440],
+    ['edge[type="output"]',        720],
+    ['node#brief',                 920],
+    ['edge[type="handoff"]',       1180],
+    ['edge[type="synergy"]',       1420],
   ];
   stages.forEach(([sel, delay]) => {
     setTimeout(() => {
