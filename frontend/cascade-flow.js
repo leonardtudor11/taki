@@ -335,22 +335,18 @@ function cytoStyle() {
         'background-color': 'rgba(184,178,164,0.04)',  // subtle PAPER_DIM tint
       },
     },
-    // V7.40 — brief node: bigger, thicker SHU border, gentle SHU tint
-    // background, and a soft shadow. Emphasizes "this is the deliverable
-    // the whole cascade was building toward."
+    // V7.43 — brief node: bigger + thicker SHU border. Reverted V7.40
+    // background tint + heavy shadow which made the SHU-on-SHU label
+    // illegible. Background stays the standard dark INK like every
+    // other node; the thicker border + larger size + bold font carry
+    // the "deliverable" emphasis.
     {
       selector: 'node[type="brief"]',
       style: {
         width: 184, height: 58,
         'border-width': 4,
         'font-size': 13,
-        'font-weight': 600,
-        'background-color': 'rgba(232,74,58,0.06)',    // subtle SHU vermilion tint
-        'shadow-blur': 24,
-        'shadow-color': SHU,
-        'shadow-opacity': 0.18,
-        'shadow-offset-x': 0,
-        'shadow-offset-y': 0,
+        'font-weight': 700,
       },
     },
     {
@@ -388,20 +384,16 @@ function cytoStyle() {
         'target-arrow-color': 'data(color)',
         'target-arrow-shape': 'triangle',
         'target-arrow-fill': 'filled',
-        // V7.42 — bumped 1.6 → 1.8; combined with NEGATIVE
-        // distance-from-node the triangle TIP plunges INTO the node
-        // border by 4px. Guarantees zero perceived gap regardless of
-        // bezier tangent angle at rounded-corner perimeter intersection.
-        'arrow-scale': 1.8,
+        'arrow-scale': 1.5,
         'curve-style': 'bezier',
+        // V7.43 — reverted from V7.42 negative-distance experiment
+        // (which created its own gap because cytoscape clipped the
+        // line at the negative distance). Back to standard
+        // outside-to-node clamp + zero distance.
         'source-endpoint': 'outside-to-node',
         'target-endpoint': 'outside-to-node',
-        // V7.42 — negative distance pushes arrow tip 4px INSIDE the
-        // node perimeter, so the triangle's flat back sits cleanly on
-        // the border with the tip overlapping into the node body.
-        // No more "tip floats off the rounded corner" effect.
-        'source-distance-from-node': -3,
-        'target-distance-from-node': -4,
+        'source-distance-from-node': 0,
+        'target-distance-from-node': 0,
         'edge-distances': 'intersection',
         opacity: 0,
         'transition-property': 'opacity, width',

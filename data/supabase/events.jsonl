@@ -1,41 +1,8 @@
-{"t": "2026-05-28T10:48:25.997782+00:00", "phase": "pii", "status": "start"}
-{"t": "2026-05-28T10:48:26.002211+00:00", "phase": "pii", "status": "done", "redactions": 19}
-{"t": "2026-05-28T10:48:26.002823+00:00", "phase": "leak", "status": "start"}
-{"t": "2026-05-28T10:48:26.006444+00:00", "phase": "leak", "status": "done", "flags": []}
-{"t": "2026-05-28T10:48:26.007187+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
-{"t": "2026-05-28T10:48:26.007273+00:00", "phase": "dept", "dept": "finance", "status": "start"}
-{"t": "2026-05-28T10:48:26.007385+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
-{"t": "2026-05-28T10:48:26.007491+00:00", "phase": "dept", "dept": "security", "status": "start"}
-{"t": "2026-05-28T10:49:09.757653+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 14}
-{"t": "2026-05-28T10:49:35.399903+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 18}
-{"t": "2026-05-28T10:49:37.558302+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 26}
-{"t": "2026-05-28T10:49:38.242477+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 20}
-{"t": "2026-05-28T10:49:38.245254+00:00", "phase": "grounding", "status": "start"}
-{"t": "2026-05-28T10:49:38.333834+00:00", "phase": "grounding", "status": "done", "dropped": 17}
-{"t": "2026-05-28T10:49:38.334578+00:00", "phase": "cross_pollinate", "status": "start"}
-{"t": "2026-05-28T10:50:18.170803+00:00", "phase": "handoff", "from": "marketing", "to": "gtm", "message": "GTM's new enterprise sales team will be handicapped without a TCO calculator and industry-specific content; Marketing has identified this gap and must prioritize these assets to support the enterprise push."}
-{"t": "2026-05-28T10:50:18.171156+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Train the new enterprise sales hires to leverage the data loss and compliance risks of free/pro tiers, such as no automatic backups and short log retention, as specific upsell drivers for the enterprise plan."}
-{"t": "2026-05-28T10:50:18.171224+00:00", "phase": "handoff", "from": "gtm", "to": "marketing", "message": "GTM is successfully winning customers from Firebase, Fauna, and Pinecone, but Marketing must create direct competitor comparison pages to systematically capitalize on these proven migration paths."}
-{"t": "2026-05-28T10:50:18.171259+00:00", "phase": "handoff", "from": "security", "to": "marketing", "message": "Security is concerned that the platform's ease of use attracts beginners who may create security misconfigurations, so Marketing should use its community channels to proactively distribute content on security best practices."}
-{"t": "2026-05-28T10:50:18.171287+00:00", "phase": "synergy", "depts": ["gtm", "finance", "security"], "text": "Supabase is executing a classic bottom-up GTM motion, but its rapid enterprise push, fueled by a $5B valuation and sales hiring, is outpacing a brand perception still rooted in developer-friendliness and MVP projects, creating a credibility gap with large corporate buyers concerned about production readiness."}
-{"t": "2026-05-28T10:50:18.171319+00:00", "phase": "synergy", "depts": ["finance", "security"], "text": "The immense financial pressure from a rapid valuation jump to $5B creates a risk that the company will prioritize user growth over infrastructure stability, potentially exacerbating past service incidents and damaging its bid for enterprise clients."}
-{"t": "2026-05-28T10:50:18.171345+00:00", "phase": "synergy", "depts": ["marketing", "gtm", "finance"], "text": "By bundling vector embeddings directly with its core Postgres database offering, Supabase is embedding itself as foundational AI infrastructure, creating a strategic moat that goes beyond being a simple Firebase alternative and positions it to capture a new wave of AI-native developers."}
-{"t": "2026-05-28T10:50:18.171371+00:00", "phase": "synergy", "depts": ["security", "finance", "marketing"], "text": "Supabase is mitigating the existential threat from tech giants like Google and Microsoft not just on features, but by building a defensible moat through a loyal open-source community, even turning users into financial stakeholders\u2014a strategy its larger, closed-source competitors cannot easily replicate."}
-{"t": "2026-05-28T10:50:18.171413+00:00", "phase": "cross_pollinate", "status": "done", "source": "llm", "handoffs": 4, "synergies": 4}
-{"t": "2026-05-28T10:50:18.173236+00:00", "phase": "profile", "status": "start"}
-{"t": "2026-05-28T10:50:36.382130+00:00", "phase": "profile", "status": "done", "industry": "BaaS / Postgres development platform", "stage": "growth", "competitors": 1}
-{"t": "2026-05-28T10:50:36.385103+00:00", "phase": "expert_quotes", "status": "start"}
-{"t": "2026-05-28T10:50:45.319334+00:00", "phase": "expert_quotes", "status": "done", "count": 0}
-{"t": "2026-05-28T10:50:45.321627+00:00", "phase": "sector", "status": "start"}
-{"t": "2026-05-28T10:51:25.497058+00:00", "phase": "sector", "status": "done", "sector": "saas", "counts": "tiers=3 plg=6 logos=7"}
-{"t": "2026-05-28T10:51:25.498278+00:00", "phase": "pestle", "status": "start"}
-{"t": "2026-05-28T10:51:25.498311+00:00", "phase": "contradictions", "status": "start"}
-{"t": "2026-05-28T10:51:25.498360+00:00", "phase": "swot", "status": "start"}
-{"t": "2026-05-28T10:51:25.498340+00:00", "phase": "porter", "status": "start"}
-{"t": "2026-05-28T10:51:25.498379+00:00", "phase": "strategy", "status": "start"}
-{"t": "2026-05-28T10:51:59.160266+00:00", "phase": "strategy", "status": "done", "headline": "Supabase's $5B valuation is forcing a rushed enterprise GTM pivot, creating a critical Q3/Q4 window to influence their new Sales Lead and Enterprise AE's strategy before their playbook solidifies.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
-{"t": "2026-05-28T10:52:03.781932+00:00", "phase": "contradictions", "status": "done", "found": 1}
-{"t": "2026-05-28T10:52:20.051444+00:00", "phase": "pestle", "status": "done", "political": 1, "economic": 5, "social": 4, "technological": 5, "legal": 3, "environmental": 1}
-{"t": "2026-05-28T10:52:22.327892+00:00", "phase": "porter", "status": "done", "rivalry": 4, "new_entrants": 2, "supplier_power": 3, "buyer_power": 4, "substitutes": 4}
-{"t": "2026-05-28T10:52:24.375737+00:00", "phase": "swot", "status": "done", "s": 4, "w": 3, "o": 4, "t_": 4}
-{"t": "2026-05-28T10:52:24.385897+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 61, "mode": "target"}
+{"t": "2026-05-28T15:46:39.534465+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-28T15:46:39.545757+00:00", "phase": "pii", "status": "done", "redactions": 53}
+{"t": "2026-05-28T15:46:39.546519+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-28T15:46:39.557213+00:00", "phase": "leak", "status": "done", "flags": []}
+{"t": "2026-05-28T15:46:39.558115+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-28T15:46:39.558427+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-28T15:46:39.558589+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
+{"t": "2026-05-28T15:46:39.558717+00:00", "phase": "dept", "dept": "security", "status": "start"}
