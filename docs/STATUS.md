@@ -70,6 +70,21 @@ All V-phases complete. 117/117 tests pass.
 - **V7.39 arrow connect (final)** — ✅ `target-distance-from-node: 1 → 0`, `arrow-scale: 1.15 → 1.6`, `outside-to-node-or-label → outside-to-node`, `edge-distances: 'intersection'`, handoff arc distances `-45/-78/-110 → -32/-58/-84`. Arrows plug into node borders with no visible gap on Retina. Frontend-only.
 - **V7.40 cascade graph aesthetics** — ✅ Source node = `cut-rectangle` (data-entry distinction); brief node = bigger (184×58) + SHU vermilion tint + 24px SHU shadow. Sector satellite edges thinner (1.2 vs 1.8 dept) for visual hierarchy via new `.sector-edge` class. Per-arc-class label `text-margin-y` stagger so paired handoff/synergy labels stack at distinct y-rows. Frontend-only.
 - **V7.41 CLI parity with dashboard** — ✅ `run.py` now wires V7.22 SERP discovery + V7.33 academic/analyst overlays + V7.36 LLM industry queries (when `--industry` passed) + V7.38 post-cascade competitor enrichment. New CLI flags: `--industry`, `--region`, `--stage`, `--no-cache`. CLI mirrors `server.py` target-mode coverage end-to-end.
+- **V7.42 arrow + label specificity (rolled back partially in V7.43)** — Attempted negative `target-distance-from-node` for arrow tip overlap; clipped bezier endpoint and created its own visible gap → reverted to 0 distance + arrow-scale 1.5 in V7.43. Kept the `shortLabel` rewrite: handoff/synergy edge labels now pull the FIRST DISTINCTIVE clause from the message (drop stopword prefixes "we / the / as we / given / our"; take first 5 words; clamp to 42 chars). Per-company handoff labels read distinct on the cytoscape arcs.
+- **V7.43 restore + revert** — ✅ Critical recovery commit:
+  1. Restored `frontend/brief.json` to original Orchid SRL self-mode brief (default route `?case=orchid` + bare URL were rendering Pfizer because the V7.30→V7.40 refresh chain had overwritten brief.json with the last cascade output and committed it via `git add -A`).
+  2. Restored `frontend/briefs/{supabase,notion,pfizer}.json` to V7.29-pt3 distinct per-target briefs (the refresh chain used `python … | tail -40 && cp …` where `&&` checks tail's exit code not python's; failed BD-timeout runs left brief.json stale → all three cps got the same content). Trade-off: gallery is back to templated handoffs but each shows its own company. V7.35 LLM personalization still works for any FRESH cascade.
+  3. Reverted V7.42 negative distance experiment + V7.40 brief node SHU vermilion tint + heavy shadow (washed out the SHU-colored label text). Brief node kept larger size + thicker border + bold weight for emphasis.
+
+**SAFE refresh path for gallery (one at a time):**
+```bash
+rm data/<slug>/bundle.json
+.venv/bin/python run.py "<Target>" <url:site> --industry "..." --no-cache
+.venv/bin/python -c "import json; b=json.load(open('frontend/brief.json')); print(b.get('target'))"
+# only when target matches expected:
+cp frontend/brief.json frontend/briefs/<slug>.json
+git checkout 0afb135 -- frontend/brief.json    # restore Orchid as default
+```
 
 **Final test count V7.41:** 219/219 green excl. e2e (`test_cascade_brief.py`, +6 min) + 5 preexisting `test_server.py` auth-leak failures (TAKI_AUTH_TOKEN leaks from .env into test env; orthogonal to features).
 

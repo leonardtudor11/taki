@@ -8,7 +8,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)](#tests)
-[![Version](https://img.shields.io/badge/version-V7.40-shu)](#whats-new-in-v730v740)
+[![Version](https://img.shields.io/badge/version-V7.43-shu)](#whats-new-in-v730v740)
 [![Stack](https://img.shields.io/badge/stack-Python%203.14%20%C2%B7%20LangGraph%20%C2%B7%20Pydantic%20v2%20%C2%B7%20Flask%20%C2%B7%20Bright%20Data-black)](#tech-stack)
 
 🌐 **Live demo:** [`frontend-sage-pi.vercel.app`](https://frontend-sage-pi.vercel.app)
