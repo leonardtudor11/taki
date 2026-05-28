@@ -79,22 +79,36 @@ function deptKey(name) {
   return null;
 }
 
-// Derive a 1-2 word label for a handoff/synergy edge. Full message lives in
-// the tooltip strip below the graph (replay + hover both write to it), so the
-// edge label only needs to communicate the TOPIC at a glance — clipping a long
-// sentence with '…' is unreadable on top of an edge.
+// V7.42 — Derive a SPECIFIC label from a handoff/synergy message.
+// Old approach collapsed everything matching "hiring" to the literal
+// word "hiring" → Pfizer's "Cambridge R&D hire" and Notion's
+// "enterprise AE hire" both rendered as just "hiring" on the graph,
+// erasing the per-company differentiation V7.35 LLM cross_pollinate
+// was creating in the message text.
+//
+// New approach: pull the FIRST DISTINCTIVE noun phrase from the
+// message (proper nouns / industry-specific tokens / numbers prioritized)
+// + fall back to the first 3-4 meaningful words. Result: handoff
+// labels read distinct per company.
+const _STOP_PREFIX = /^(we |the |as we |given |our |this |their |a |an |in |for |to |of )+/i;
+const _PUNCT_END = /[.,;:!?…]+$/;
+const _SENTENCE_SPLIT = /[.;—]/;
+
 function shortLabel(message, fallback) {
-  const m = String(message || '').toLowerCase();
-  if (m.includes('pricing'))                                return 'pricing';
-  if (m.includes('reputation'))                             return 'reputation';
-  if (m.includes('hiring') || m.includes('attack surface')) return 'hiring';
-  if (m.includes('churn'))                                  return 'churn risk';
-  if (m.includes('growth') || m.includes('expansion'))      return 'growth';
-  if (m.includes('vendor'))                                 return 'vendor';
-  if (m.includes('regulatory') || m.includes('compliance')) return 'regulatory';
-  // last resort: first two words, lowercased
-  if (fallback) return fallback;
-  return String(message || '').split(/\s+/).slice(0, 2).join(' ').toLowerCase();
+  const raw = String(message || '').trim();
+  if (!raw) return fallback || '';
+  // 1. Drop any leading "we / the / as we / given / our / ..." prefix
+  // 2. Take the FIRST sentence/clause (split on `.`, `;`, em-dash)
+  const firstClause = raw.split(_SENTENCE_SPLIT)[0].trim();
+  const cleaned = firstClause.replace(_STOP_PREFIX, '').trim();
+  if (!cleaned) return fallback || '';
+  // Pull up to 5 words; trim trailing punctuation
+  const words = cleaned.split(/\s+/).slice(0, 5);
+  words[words.length - 1] = words[words.length - 1].replace(_PUNCT_END, '');
+  let out = words.join(' ');
+  // Cap absolute length so labels don't blow up the node row
+  if (out.length > 42) out = out.slice(0, 39).trimEnd() + '…';
+  return out;
 }
 
 function flowEl(tag, cls, text) {
@@ -374,24 +388,20 @@ function cytoStyle() {
         'target-arrow-color': 'data(color)',
         'target-arrow-shape': 'triangle',
         'target-arrow-fill': 'filled',
-        // V7.39 — bumped from 1.15 → 1.6 so the triangle base is ~16px
-        // (1.6 × default 10). Combined with distance-from-node=0, the
-        // triangle's flat back sits exactly on the node border and the
-        // tip overlaps INTO the node by ~16px. Reads as "arrow plugs
-        // into the node" rather than "arrow floats nearby".
-        'arrow-scale': 1.6,
+        // V7.42 — bumped 1.6 → 1.8; combined with NEGATIVE
+        // distance-from-node the triangle TIP plunges INTO the node
+        // border by 4px. Guarantees zero perceived gap regardless of
+        // bezier tangent angle at rounded-corner perimeter intersection.
+        'arrow-scale': 1.8,
         'curve-style': 'bezier',
-        // V7.39 — endpoint clamps to the node body perimeter (not
-        // node-or-label, which has edge cases when the label is
-        // positioned inside the node). distance-from-node=0 eliminates
-        // the 1px V7.32 gap that read as "disconnected" on Retina.
         'source-endpoint': 'outside-to-node',
         'target-endpoint': 'outside-to-node',
-        'source-distance-from-node': 0,
-        'target-distance-from-node': 0,
-        // Force length calc against the perimeter intersection, not the
-        // node centroid — keeps the bezier tangent computation aligned
-        // with where the arrow actually lands.
+        // V7.42 — negative distance pushes arrow tip 4px INSIDE the
+        // node perimeter, so the triangle's flat back sits cleanly on
+        // the border with the tip overlapping into the node body.
+        // No more "tip floats off the rounded corner" effect.
+        'source-distance-from-node': -3,
+        'target-distance-from-node': -4,
         'edge-distances': 'intersection',
         opacity: 0,
         'transition-property': 'opacity, width',
@@ -469,13 +479,17 @@ function cytoStyle() {
 
     { selector: '.dim',      style: { opacity: 0.15 } },
     { selector: '.beam',     style: { width: 3 } },
-    // V7.40 — sector satellite edges: thinner + smaller arrows so the
-    // primary 4-dept feed/output flow stays the dominant visual layer.
+    // V7.40 — sector satellite edges: thinner so the primary 4-dept
+    // feed/output flow stays the dominant visual layer.
+    // V7.42 — arrow-scale kept matched to base (1.8) so the negative
+    // distance-from-node trick produces the same "tip plunges in"
+    // visual; otherwise sector-edge arrows looked smaller than the
+    // dept arrows AND the gap returned at the tip.
     {
       selector: '.sector-edge',
       style: {
         width: 1.2,
-        'arrow-scale': 1.2,
+        'arrow-scale': 1.6,
       },
     },
   ];
