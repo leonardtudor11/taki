@@ -341,17 +341,25 @@ function cytoStyle() {
         'target-arrow-color': 'data(color)',
         'target-arrow-shape': 'triangle',
         'target-arrow-fill': 'filled',
-        'arrow-scale': 1.15,
+        // V7.39 — bumped from 1.15 → 1.6 so the triangle base is ~16px
+        // (1.6 × default 10). Combined with distance-from-node=0, the
+        // triangle's flat back sits exactly on the node border and the
+        // tip overlaps INTO the node by ~16px. Reads as "arrow plugs
+        // into the node" rather than "arrow floats nearby".
+        'arrow-scale': 1.6,
         'curve-style': 'bezier',
-        // V7.32 — force the arrow tip to land exactly on the node border
-        // and the source to leave the node border cleanly. Without these,
-        // cytoscape sometimes routes the arrow to the node centroid and
-        // the triangle floats a few pixels off the node, reading as
-        // "disconnected" on the dashboard.
-        'source-endpoint': 'outside-to-node-or-label',
-        'target-endpoint': 'outside-to-node-or-label',
-        'source-distance-from-node': 1,
-        'target-distance-from-node': 1,
+        // V7.39 — endpoint clamps to the node body perimeter (not
+        // node-or-label, which has edge cases when the label is
+        // positioned inside the node). distance-from-node=0 eliminates
+        // the 1px V7.32 gap that read as "disconnected" on Retina.
+        'source-endpoint': 'outside-to-node',
+        'target-endpoint': 'outside-to-node',
+        'source-distance-from-node': 0,
+        'target-distance-from-node': 0,
+        // Force length calc against the perimeter intersection, not the
+        // node centroid — keeps the bezier tangent computation aligned
+        // with where the arrow actually lands.
+        'edge-distances': 'intersection',
         opacity: 0,
         'transition-property': 'opacity, width',
         'transition-duration': '0.25s',
@@ -383,12 +391,15 @@ function cytoStyle() {
       },
     },
     // Stagger handoff arcs so labels don't pile on the same curve.
-    // V7.32 — tightened from -60/-98/-136 to -45/-78/-110 so arcs land
-    // on target nodes at a gentler angle (steep angles made cytoscape's
-    // arrow tip appear to "float" off the node corner).
-    { selector: 'edge.arc-1', style: { 'control-point-distances': [-45] } },
-    { selector: 'edge.arc-2', style: { 'control-point-distances': [-78] } },
-    { selector: 'edge.arc-3', style: { 'control-point-distances': [-110] } },
+    // V7.32 — tightened from -60/-98/-136 to -45/-78/-110.
+    // V7.39 — tightened further to -32/-58/-84. The shallower the arc,
+    // the closer the end-tangent stays to horizontal — and the
+    // straighter the arrow tip's approach angle into the target node
+    // perimeter. Steep tangents made the arrow look like it was
+    // landing "off-corner".
+    { selector: 'edge.arc-1', style: { 'control-point-distances': [-32] } },
+    { selector: 'edge.arc-2', style: { 'control-point-distances': [-58] } },
+    { selector: 'edge.arc-3', style: { 'control-point-distances': [-84] } },
 
     {
       selector: 'edge[type="synergy"]',
@@ -416,8 +427,11 @@ function cytoStyle() {
         'text-margin-y': 3,
       },
     },
-    { selector: 'edge.syn-arc-1', style: { 'control-point-distances': [70] } },
-    { selector: 'edge.syn-arc-2', style: { 'control-point-distances': [108] } },
+    // V7.39 — tightened synergy arcs from 70/108 → 52/82 to match the
+    // shallower handoff curves above and keep arrow tangents close to
+    // axis-aligned for clean perimeter landings.
+    { selector: 'edge.syn-arc-1', style: { 'control-point-distances': [52] } },
+    { selector: 'edge.syn-arc-2', style: { 'control-point-distances': [82] } },
 
     { selector: '.dim',      style: { opacity: 0.15 } },
     { selector: '.beam',     style: { width: 3 } },
