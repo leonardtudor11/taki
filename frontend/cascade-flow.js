@@ -220,17 +220,22 @@ function buildElements(brief) {
           count: count,
         },
       });
+      // V7.40 — sector-edge class flags these as visually subordinate
+      // to the primary 4-dept fan-in/out; CSS rule makes them thinner
+      // so the dept signal flow stays the dominant visual.
       els.push({
         data: {
           id: `e_src_${n.id}`, source: 'source', target: n.id,
           type: 'feed', color: def.color,
         },
+        classes: 'sector-edge',
       });
       els.push({
         data: {
           id: `e_${n.id}_brief`, source: n.id, target: 'brief',
           type: 'output', color: def.color,
         },
+        classes: 'sector-edge',
       });
     }
   }
@@ -304,8 +309,36 @@ function cytoStyle() {
         'transition-duration': '0.2s',
       },
     },
-    { selector: 'node[type="source"]', style: { width: 140, height: 38 } },
-    { selector: 'node[type="brief"]',  style: { width: 160, height: 50, 'border-width': 3, 'font-size': 12 } },
+    // V7.40 — source node: cut-rectangle (corner-cut) signals "data
+    // entry point" without looking the same as the dept nodes.
+    {
+      selector: 'node[type="source"]',
+      style: {
+        width: 144, height: 38,
+        'shape': 'cut-rectangle',
+        'font-size': 10.5,
+        'font-weight': 500,
+        'background-color': 'rgba(184,178,164,0.04)',  // subtle PAPER_DIM tint
+      },
+    },
+    // V7.40 — brief node: bigger, thicker SHU border, gentle SHU tint
+    // background, and a soft shadow. Emphasizes "this is the deliverable
+    // the whole cascade was building toward."
+    {
+      selector: 'node[type="brief"]',
+      style: {
+        width: 184, height: 58,
+        'border-width': 4,
+        'font-size': 13,
+        'font-weight': 600,
+        'background-color': 'rgba(232,74,58,0.06)',    // subtle SHU vermilion tint
+        'shadow-blur': 24,
+        'shadow-color': SHU,
+        'shadow-opacity': 0.18,
+        'shadow-offset-x': 0,
+        'shadow-offset-y': 0,
+      },
+    },
     {
       selector: 'node[type="dept"]:selected',
       style: { 'border-width': 4, 'background-color': 'rgba(255,255,255,0.04)' },
@@ -391,15 +424,14 @@ function cytoStyle() {
       },
     },
     // Stagger handoff arcs so labels don't pile on the same curve.
-    // V7.32 — tightened from -60/-98/-136 to -45/-78/-110.
-    // V7.39 — tightened further to -32/-58/-84. The shallower the arc,
-    // the closer the end-tangent stays to horizontal — and the
-    // straighter the arrow tip's approach angle into the target node
-    // perimeter. Steep tangents made the arrow look like it was
-    // landing "off-corner".
-    { selector: 'edge.arc-1', style: { 'control-point-distances': [-32] } },
-    { selector: 'edge.arc-2', style: { 'control-point-distances': [-58] } },
-    { selector: 'edge.arc-3', style: { 'control-point-distances': [-84] } },
+    // V7.32 — tightened -60/-98/-136 → -45/-78/-110.
+    // V7.39 — tightened further to -32/-58/-84 for shallower tangents.
+    // V7.40 — added per-arc text-margin-y so multi-handoff labels stack
+    // VERTICALLY along the arc apex instead of overlapping at the
+    // same y-pixel-row above the dept line.
+    { selector: 'edge.arc-1', style: { 'control-point-distances': [-32], 'text-margin-y': -2 } },
+    { selector: 'edge.arc-2', style: { 'control-point-distances': [-58], 'text-margin-y': -10 } },
+    { selector: 'edge.arc-3', style: { 'control-point-distances': [-84], 'text-margin-y': -18 } },
 
     {
       selector: 'edge[type="synergy"]',
@@ -430,11 +462,22 @@ function cytoStyle() {
     // V7.39 — tightened synergy arcs from 70/108 → 52/82 to match the
     // shallower handoff curves above and keep arrow tangents close to
     // axis-aligned for clean perimeter landings.
-    { selector: 'edge.syn-arc-1', style: { 'control-point-distances': [52] } },
-    { selector: 'edge.syn-arc-2', style: { 'control-point-distances': [82] } },
+    // V7.40 — added text-margin-y stagger so paired synergy labels
+    // stack BELOW the dept line at distinct y-rows.
+    { selector: 'edge.syn-arc-1', style: { 'control-point-distances': [52], 'text-margin-y': 6 } },
+    { selector: 'edge.syn-arc-2', style: { 'control-point-distances': [82], 'text-margin-y': 16 } },
 
     { selector: '.dim',      style: { opacity: 0.15 } },
     { selector: '.beam',     style: { width: 3 } },
+    // V7.40 — sector satellite edges: thinner + smaller arrows so the
+    // primary 4-dept feed/output flow stays the dominant visual layer.
+    {
+      selector: '.sector-edge',
+      style: {
+        width: 1.2,
+        'arrow-scale': 1.2,
+      },
+    },
   ];
 }
 

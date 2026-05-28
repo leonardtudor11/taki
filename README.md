@@ -7,13 +7,44 @@
 *Built for the Bright Data — Web Data UNLOCKED hackathon. Tracks 1 + 2 + 3 in a single product.*
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-150%20passing-brightgreen)](#tests)
+[![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)](#tests)
+[![Version](https://img.shields.io/badge/version-V7.40-shu)](#whats-new-in-v730v740)
 [![Stack](https://img.shields.io/badge/stack-Python%203.14%20%C2%B7%20LangGraph%20%C2%B7%20Pydantic%20v2%20%C2%B7%20Flask%20%C2%B7%20Bright%20Data-black)](#tech-stack)
 
 🌐 **Live demo:** [`frontend-sage-pi.vercel.app`](https://frontend-sage-pi.vercel.app)
 📓 **Build journey:** [`docs/JOURNEY.md`](docs/JOURNEY.md) · **Deep architecture:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 </div>
+
+---
+
+## What's new in V7.30→V7.40
+
+Eleven version bumps closing the "thoroughness gap" so any new business
+gets a truly personalized, well-researched brief — not a templated one.
+
+| V | Title | Why it matters for a new-business analysis |
+|---|---|---|
+| **V7.30** | JS-chrome detection + Wikipedia/Wayback fallback | Pfizer.com / Notion.so and any JS-blocked SPA target no longer starve the dept agents — Wikipedia + Wayback snapshots are fetched automatically when the primary URL returns a "you need to enable JavaScript" shell. |
+| **V7.31** | Target-mode sub-page auto-discovery | First user URL on a target triggers a concept-walk: /about /team /pricing /careers /investors /research /blog (+ 4 more groups, ~50 paths total). First synonym per concept wins. The cascade reads depth pages, not just the homepage. |
+| **V7.32** | Per-case graph differentiation + arrow fix | Each dept node label carries the brief's actual per-dept signal count (Marketing · 19 / GTM · 12 / etc.) so two same-sector cases read distinct. Empty sector buckets dim. |
+| **V7.33** | Academic + analyst SERP overlays | Always-on: Google Scholar (date-tightened 2024+) + Semantic Scholar + sector-conditional PubMed/arXiv/SSRN/IEA-IRENA. Analyst voice: Gartner/Forrester/IDC + Hacker News + Reddit + LinkedIn pulse + podcasts. |
+| **V7.34** | Expert quotes agent + panel | New LLM agent scans the bundle for verbatim attributed quotes (CEOs, analysts, regulators, journalists). Frontend panel sits above departments. Strict prompt enforces "named individual + verbatim text + citation URL". |
+| **V7.35** | **LLM-driven cross-pollination** | **Replaces the V7.0 templated handoff/synergy strings** ("Pricing change detected — adjust outreach timing/messaging" etc.) with a per-cascade LLM call that emits company-specific handoffs grounded in the actual dept claims. Pfizer's handoffs reference HYMPAVZI / EU approval / R&D AI; Notion's reference Notion Agents / SAML SSO / tool consolidation. |
+| **V7.36** | Dynamic LLM-generated SERP query bank | When the cascade has an industry hint (any string: "EV charging" / "cybersecurity" / "vertical AI" / "hospitality tech"), an LLM generates 8 industry-defining Google queries (with site: / filetype:pdf / date qualifiers). In-process cache per (target, industry, region, stage). |
+| **V7.37** | Per-cascade bundle stats + trust strip | Every brief carries `bundle_stats`: tier breakdown (T1 regulator / T2 academic / T3 news-of-record / etc.), sub-page count, chrome-fallback count, expert-quote count. Dashboard renders a single-row chip strip at the top so judges see "Built on 22 sources: 3 T3 · 5 T4 · 5 T5" at a glance. |
+| **V7.38** | Competitor mini-bundle | For each name in `profile.competitor_names` (capped at 3): SERP for primary URL → scrape homepage (w/ V7.30 chrome fallback) → 1 LLM call → positioning + pricing + stage + a "why_relevant" tying back to the target. Frontend side-by-side comparison panel. ~$0.15/cascade cost cap. |
+| **V7.39** | Arrow-connect cytoscape polish | `target-distance-from-node` → 0, `arrow-scale` 1.15 → 1.6, endpoint clamp `outside-to-node`, handoff arc distances tightened -45/-78/-110 → -32/-58/-84. Arrows plug cleanly into node borders; no more "floating triangle" gap on Retina. |
+| **V7.40** | Cascade graph aesthetics | Source = `cut-rectangle` (data-entry distinction); brief = larger + SHU shadow (deliverable emphasis); sector edges thinner (visual subordination); per-arc-class label `text-margin-y` stagger so paired handoff/synergy labels stack at distinct y-rows. |
+
+**Tests:** 219 / 219 green (excl. e2e + preexisting test_server auth-leak failures unrelated to features).
+
+**End-to-end live path:** `https://frontend-sage-pi.vercel.app/?key=<TAKI_AUTH_TOKEN>` → 🚀 analyze my business → fill `target` + `urls` + `industry` + `region` + `stage` → submit. ~3-5 min wall clock, all V7.30-V7.40 features fire. Or via CLI (V7.41 parity):
+
+```bash
+.venv/bin/python run.py "AcmeCorp" https://acmecorp.com/:site \
+  --industry "EV charging hardware" --region US --stage growth
+```
 
 ---
 
@@ -57,19 +88,23 @@ Three demo flows are wired into the page:
 
 ## What you'll see on the dashboard
 
-Top to bottom, the page renders 11 sections, all driven by the single `frontend/brief.json` shipped at deploy time:
+Top to bottom, the page renders **14 sections**, all driven by the single `frontend/brief.json` shipped at deploy time:
 
-1. **Strategic plan hero** — headline · narrative · ICP-fit / deal-size / urgency stat cards (with count-up animation) · 3-5 prioritized plays, P1 expanded by default, click-to-expand on the rest
-2. **Gantt timeline** — bars across a 0-180 day scale, color-coded by primary owner dept · click a bar to scroll-to and expand the matching play card
-3. **Cascade flow** — phase pip strip + cytoscape graph (Bright Data → 4 depts → brief) · the `▶ replay cascade` button animates the entire pipeline live
-4. **3D claim-breakdown chart** — ECharts-GL `bar3D` showing grounded claim counts per (dept × signal type)
-5. **Synergies** — clickable cards that open a side drawer with the grounding citations + every related claim across all four depts
-6. **Contradictions** — opposing-source pairs surfaced by a dedicated agent (e.g. *"company's marketing claims HIPAA out of the box"* vs *"pricing page says HIPAA is enterprise-tier only"*)
-7. **Porter's 5 Forces** — ECharts radar polygon + 5 force cards with intensity meters (1-5) and grounded assessments
-8. **SWOT** — 2×2 quadrant grid with per-cell items + impact-colored left borders
-9. **PESTLE** — 2×3 macro-environment grid · each factor has pressure 1-5 + direction (tailwind ↑ / headwind ↓ / neutral →) + citations
-10. **Department panels** — Marketing / GTM / Finance / Security · claim cards with hover-lift + dept-color glow + verified citation chips
-11. **Dropped claims drawer** — every claim the grounding guard killed, verbatim, with the snippet the LLM tried to slip past
+1. **Bundle stats trust strip** *(V7.37)* — single-row chip strip: `Built on N sources · A T1 · B T2 · C T3 · D T5 · E sub-pages · F fallbacks · G quotes`. The audit signal first.
+2. **Strategic plan hero** — headline · narrative · ICP-fit / deal-size / urgency stat cards (with count-up animation) · 3-5 prioritized plays, P1 expanded by default, click-to-expand on the rest
+3. **Gantt timeline** — bars across a 0-180 day scale, color-coded by primary owner dept · click a bar to scroll-to and expand the matching play card
+4. **Cascade flow** — phase pip strip + cytoscape graph (Bright Data → 4 depts → sector satellites → brief) · the `▶ replay cascade` button animates the entire pipeline live. Dept node labels carry per-case signal counts so two same-sector cases read distinct *(V7.32)*.
+5. **3D claim-breakdown chart** — ECharts-GL `bar3D` showing grounded claim counts per (dept × signal type)
+6. **Synergies** — clickable cards that open a side drawer with the grounding citations + every related claim across all four depts. V7.35 LLM-driven content — each card references the company's actual facts, not boilerplate.
+7. **Contradictions** — opposing-source pairs surfaced by a dedicated agent (e.g. *"company's marketing claims HIPAA out of the box"* vs *"pricing page says HIPAA is enterprise-tier only"*)
+8. **Porter's 5 Forces** — ECharts radar polygon + 5 force cards with intensity meters (1-5) and grounded assessments
+9. **SWOT** — 2×2 quadrant grid with per-cell items + impact-colored left borders
+10. **PESTLE** — 2×3 macro-environment grid · each factor has pressure 1-5 + direction (tailwind ↑ / headwind ↓ / neutral →) + citations
+11. **Sector signal panel** — pharma / saas / energy / generic — typed sub-pipeline output (pipeline + submissions + partners for pharma; tiers + PLG metrics + reference logos for saas; etc.)
+12. **Expert voices** *(V7.34)* — verbatim attributed quotes (analysts, regulators, journalists, named executives) with source links
+13. **Named competitors** *(V7.38)* — side-by-side mini-snapshots: positioning + pricing + stage + a "why-relevant" sentence tying each rival back to the target
+14. **Department panels** — Marketing / GTM / Finance / Security · claim cards with hover-lift + dept-color glow + verified citation chips
+15. **Dropped claims drawer** — every claim the grounding guard killed, verbatim, with the snippet the LLM tried to slip past
 
 Every citation chip is a real outbound link. On the current Orchid brief, citations resolve to **IRENA** publications, **IEA** European wind statistics, the Stockholm Environment Institute, the European Environmental Bureau, the EU Green Deal policy archive, WindEurope industry events, and the Romanian energy trade press (`energynomics.ro`) — among others.
 
@@ -126,7 +161,7 @@ If you'd rather read source than click through the UI:
 - `services/brightdata.py` — tier classifier + industry-aware SERP + spend tracker
 - `guardrails/grounding.py` — claim + citation-level grounding
 - `agents/schemas.py` — every Pydantic schema in the system
-- `tests/` — 150 tests, all green (`. venv/bin/python -m pytest -q`)
+- `tests/` — 219 tests, all green (`.venv/bin/python -m pytest -q --ignore=tests/test_cascade_brief.py --ignore=tests/test_server.py`)
 
 For a deeper technical reference: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (666 lines, judge-grade detail on every node, prompt, schema, and SSE event).
 

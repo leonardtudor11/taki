@@ -663,4 +663,197 @@ The single-slot run lock (`_run_lock`) ensures at most one cascade is in flight 
 
 ---
 
+# V7.30 → V7.41 — Personalization & infrastructure (delta)
+
+This appendix documents the V7.30 through V7.41 additions on top of the
+V7.29-pt3 architecture above. Eleven version bumps that took the system
+from "templates + cached briefs" to "truly personalized per-business
+analysis for any new target".
+
+## New agents
+
+### `agents/cross_pollinate_llm.py` (V7.35) — replaces templated cross-talk
+
+One LLM call per cascade reading all 4 dept claim sets + `BusinessProfile`
++ sector signal. Emits up to 6 `HandoffMessage` and 4 `SynergySignal`
+items whose **content** references the company's actual facts — no more
+"Pricing change detected — adjust outreach timing/messaging" identical
+across every brief.
+
+Hallucination defense: refs URLs on handoffs + citation URLs on synergies
+are filtered against the union of URLs the LLM was actually shown in
+the prompt. The LLM CAN'T invent URLs.
+
+`cascade_graph.cross_node` tries the LLM first; if both arrays return
+empty, falls back to the deterministic `_templated_cross_pollinate()`
+helper (identical behaviour to the pre-V7.35 path). Cascade never ends
+up with empty cross-talk.
+
+### `agents/expert_quotes.py` (V7.34) — verbatim attribution layer
+
+One LLM call extracting NAMED-INDIVIDUAL verbatim quotes from the
+bundle. Strict prompt: quote text in quotation marks OR clearly
+attributed via "said X" / "according to X". Returns `list[ExpertQuote]`
+{ name, role, organization, quote, citation }. Capped at 12 quotes per
+cascade; dedupes by verbatim text.
+
+Wired serially as `expert_quotes_pass` between `profile_extract` and
+`sector_pass` so the post-sector 5-way fan-in into assemble stays
+equal-depth (V7.29-pt3 lesson: Vertex degrades on >5-way fan-out).
+
+### `agents/query_generator.py` (V7.36) — dynamic industry SERP queries
+
+One LLM call given `target/industry/region/stage` returns 5-8 highly
+tailored Google search queries (with `site:` operators, `filetype:pdf`,
+date qualifiers). Replaces the hardcoded `_industry_template_for()`
+limit — ANY industry now gets tailored coverage.
+
+Per-(target, industry, region, stage) in-process memo. Same-target
+reruns skip the LLM.
+
+Server target-mode (and V7.41 CLI) concat the LLM-generated queries
+to `default_external_queries` output before `discover_external_sources`
+fires.
+
+### `agents/competitor_summary.py` (V7.38) — post-cascade competitor enrichment
+
+Lightweight implementation of gap #3 (full per-competitor 3-page
+cascade was $0.30/run + 4h build; this is $0.15/run + 1d build).
+
+For each name in `business_profile.competitor_names` (capped at 3):
+
+1. SERP for `"{name}" official site` → first non-Google result whose
+   hostname plausibly matches the competitor's brand
+2. Unlock the URL → V7.30 chrome fallback if SPA-blocked
+3. ONE LLM call extracting `CompetitorSummary` { positioning,
+   pricing_hint, stage_hint, why_relevant, citation }
+
+`why_relevant` MUST mention the target — forces a relevance statement,
+not generic boilerplate.
+
+Runs post-cascade (server.py + run.py) because
+`profile_extract.competitor_names` is only populated mid-cascade.
+
+## New BD-layer behaviour
+
+### V7.30 JS-chrome detection + fallback
+
+`services.brightdata.looks_like_js_chrome(text)` runs AFTER
+`is_low_quality` passes; trims known SPA boilerplate then flags as
+chrome if the trimmed text is `< 1500 chars` OR matches a JS-required
+phrase like "you need to enable JavaScript".
+
+`fetch_js_chrome_fallbacks(target, chrome_url, client)` pulls
+en.wikipedia.org/{target} + web.archive.org/web/2025/{chrome_url} via
+the existing Web Unlocker zone. Returns 0-2 supplementary `SourceItem`
+records.
+
+`build_bundle` wires this up via `chrome_fallback=True` and fires AT
+MOST ONCE per bundle. Server emits `phase=chrome_fallback` SSE events.
+
+### V7.31 sub-page concept walk
+
+`discover_subpages(base_url, client, subject, ...)` extracted from
+the V7.12 self-mode `_expand` closure to a module-level helper. For
+each of 11 concept groups (about / projects / references / products /
+certifications / news / team / careers / pricing / investors /
+research / blog) walks synonym paths in order; first that scrapes +
+clears `is_low_quality` wins the concept.
+
+`build_bundle` calls this on `expand_url` (defaults to first user URL)
+for target-mode. Server pins `expand_url=user_urls[0][0]` so
+SERP-discovered externals never drive expansion.
+
+### V7.33 academic + analyst SERP overlays
+
+`default_external_queries(target, industry, region)` now layers:
+
+1. `base` (2) — filings + newspaper-of-record
+2. `academic_queries` (2-5) — Scholar (date-tightened) + Semantic
+   Scholar + sector-conditional PubMed/biorxiv / arXiv / SSRN / IEA-IRENA
+3. `analyst_queries` (4-5) — Gartner/Forrester/IDC + HN + Reddit +
+   LinkedIn pulse + podcast/conference + optional regional overlay
+4. `industry_layer` (0-12) — existing per-sector template OR V7.28
+   generic fallback
+
+Total: 14-24 queries per cascade (was 15 pre-V7.33).
+
+## New brief surface area
+
+### `CascadeBrief.bundle_stats: Optional[BundleStats]` (V7.37)
+
+```python
+BundleStats {
+  sources_total:      int
+  by_tier:            dict[str, int]   # {"T1": 2, "T2": 1, ...}
+  by_subject:         dict[str, int]
+  by_source_type:     dict[str, int]
+  expanded_subpages:  int   # V7.31 hits
+  chrome_fallbacks:   int   # V7.30 hits
+  expert_quote_count: int   # V7.34 count
+}
+```
+
+### `CascadeBrief.expert_quotes: list[ExpertQuote]` (V7.34)
+
+```python
+ExpertQuote { name, role, organization, quote, citation }
+```
+
+### `CascadeBrief.competitor_summaries: list[CompetitorSummary]` (V7.38)
+
+```python
+CompetitorSummary {
+  name, url, positioning, pricing_hint, stage_hint,
+  why_relevant, citation
+}
+```
+
+## Cascade topology (V7.41)
+
+```
+URL audit → BD fetch (w/ V7.30 chrome + V7.31 sub-pages + V7.33 SERP overlays + V7.36 LLM queries)
+    ↓
+SharedBundle
+    ↓ PII → leak
+    ↓ (parallel — 4 dept agents)
+[Marketing] [GTM] [Finance] [Security]
+    ↓ grounding (claim + cite level)
+    ↓ V7.35 cross_pollinate (LLM, fallback templated)
+    ↓ profile_extract
+    ↓ V7.34 expert_quotes_pass
+    ↓ sector_pass (pharma | saas | energy | generic)
+    ↓ (parallel — 5 reasoning agents, equal-depth fan-in)
+[Strategy] [Contradictions] [Porter] [SWOT] [PESTLE]
+    ↓ assemble (+ V7.37 bundle_stats)
+    ↓ [post-cascade] V7.38 competitor_summary
+    ↓ SSE → cytoscape + dashboard re-render
+```
+
+## Frontend deltas
+
+- **V7.32** — dept node labels carry per-brief signal counts; sector
+  satellite labels always show `· N` (dim on zero).
+- **V7.34** — `renderExpertQuotes` panel above departments.
+- **V7.37** — `renderBundleStats` chip strip at top (above plan hero).
+- **V7.38** — `renderCompetitorSummaries` card panel.
+- **V7.39** — `target-distance-from-node: 0`, `arrow-scale: 1.6`,
+  `outside-to-node` clamp. Arrows plug into node borders.
+- **V7.40** — source = `cut-rectangle`, brief = bigger + SHU shadow,
+  sector edges thinner (`.sector-edge`), per-arc-class label
+  `text-margin-y` stagger.
+
+## CLI (V7.41 parity)
+
+```
+.venv/bin/python run.py "Target" \
+  https://target.com:site https://target.com/pricing:pricing \
+  --industry "..." --region "US" --stage "growth" \
+  [--no-cache]
+```
+
+End-to-end parity w/ `server.py` target-mode.
+
+---
+
 For the design narrative ("why did we build it this way at all"), see [`JOURNEY.md`](JOURNEY.md). For the per-session build log, see [`STATUS.md`](STATUS.md). For the lablab.ai form drafts + video script, see [`PRESENTATION.md`](PRESENTATION.md).
