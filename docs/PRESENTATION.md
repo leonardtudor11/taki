@@ -3,13 +3,14 @@
 lablab.ai form text, 5-min video script, and slide deck outline for the Bright Data
 **Web Data UNLOCKED** 2026 hackathon. Paste, record, ship.
 
-**Current state (V7.41):**
-- 13 LLM agents + 1 post-cascade competitor enrichment
+**Current state (V7.47):**
+- 14 Gemini 2.5 Pro agents on Vertex AI + 1 post-cascade competitor enrichment per named competitor
 - 5-layer guardrail (PII / leak / claim-level grounding / citation-level grounding / hallucinated-URL filter on V7.35 cross-talk)
 - 219/219 tests green (excl. e2e + preexisting test_server auth-leak)
 - Live frontend: `https://frontend-sage-pi.vercel.app` (gallery: orchid / supabase / notion / pfizer)
-- Live backend: `https://taki-backend-xmkvqnh62a-uc.a.run.app` (Cloud Run, bearer-token gated)
-- Eleven V7.30→V7.40 enrichment layers shipped: JS chrome fallback, target sub-page discovery, academic + analyst SERP overlays, dynamic LLM-generated industry SERP queries, expert-quote agent, LLM-driven cross-pollination (replaces templated handoffs), per-cascade source quality stats, competitor mini-bundle, cascade graph visual polish.
+- Live backend: `https://taki-backend-xmkvqnh62a-uc.a.run.app` (Cloud Run revision `taki-backend-00006-7n5`, bearer-token gated)
+- Seventeen V7.30→V7.47 enrichment + reliability layers shipped: JS chrome fallback, target sub-page discovery, academic + analyst SERP overlays, dynamic LLM-generated industry SERP queries, expert-quote agent, LLM-driven cross-pollination, per-cascade source quality stats, competitor mini-bundle, cascade graph visual polish, sign-corrected per-edge arc geometry (no labels behind dept nodes), LLM list-shape unwrap in both `parse_into` and `cross_pollinate`, and BD-unlock resilience so one slow URL no longer aborts the cascade.
+- Gallery: 3/4 cases (Notion / Supabase / Pfizer) refreshed with V7.30+ enrichment; Supabase + Pfizer show V7.35 LLM-personalized handoffs naming PwC/McDonald's and Starboard Value/Eliquis/BioNTech respectively.
 
 ---
 

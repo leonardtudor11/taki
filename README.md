@@ -2,13 +2,13 @@
 
 # Taki (滝 — *"cascade"*)
 
-**Five AI departments cascading live web intelligence into one grounded strategic plan.**
+**14 Gemini 2.5 Pro agents cascading live web intelligence into one grounded strategic plan.**
 
 *Built for the Bright Data — Web Data UNLOCKED hackathon. Tracks 1 + 2 + 3 in a single product.*
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-219%20passing-brightgreen)](#tests)
-[![Version](https://img.shields.io/badge/version-V7.43-shu)](#whats-new-in-v730v740)
+[![Version](https://img.shields.io/badge/version-V7.47-shu)](#whats-new-in-v730v747)
 [![Stack](https://img.shields.io/badge/stack-Python%203.14%20%C2%B7%20LangGraph%20%C2%B7%20Pydantic%20v2%20%C2%B7%20Flask%20%C2%B7%20Bright%20Data-black)](#tech-stack)
 
 🌐 **Live demo:** [`frontend-sage-pi.vercel.app`](https://frontend-sage-pi.vercel.app)
@@ -18,10 +18,16 @@
 
 ---
 
-## What's new in V7.30→V7.40
+## What's new in V7.30→V7.47
 
-Eleven version bumps closing the "thoroughness gap" so any new business
+Seventeen version bumps closing the "thoroughness gap" so any new business
 gets a truly personalized, well-researched brief — not a templated one.
+V7.44→V7.47 are the final-stretch fixes: cascade graph aesthetics, sign-
+corrected per-edge arc geometry (labels no longer hide behind dept nodes),
+list-unwrap in parse_into so LLM list-shape responses don't crash agents,
+mirror unwrap in cross_pollinate so personalized handoffs aren't silently
+dropped, and BD-unlock resilience so one slow URL no longer aborts the
+whole cascade.
 
 | V | Title | Why it matters for a new-business analysis |
 |---|---|---|
@@ -36,6 +42,12 @@ gets a truly personalized, well-researched brief — not a templated one.
 | **V7.38** | Competitor mini-bundle | For each name in `profile.competitor_names` (capped at 3): SERP for primary URL → scrape homepage (w/ V7.30 chrome fallback) → 1 LLM call → positioning + pricing + stage + a "why_relevant" tying back to the target. Frontend side-by-side comparison panel. ~$0.15/cascade cost cap. |
 | **V7.39** | Arrow-connect cytoscape polish | `target-distance-from-node` → 0, `arrow-scale` 1.15 → 1.6, endpoint clamp `outside-to-node`, handoff arc distances tightened -45/-78/-110 → -32/-58/-84. Arrows plug cleanly into node borders; no more "floating triangle" gap on Retina. |
 | **V7.40** | Cascade graph aesthetics | Source = `cut-rectangle` (data-entry distinction); brief = larger + SHU shadow (deliverable emphasis); sector edges thinner (visual subordination); per-arc-class label `text-margin-y` stagger so paired handoff/synergy labels stack at distinct y-rows. |
+| **V7.41** | CLI parity with dashboard | `run.py` now wires V7.22 SERP discovery + V7.33 academic/analyst overlays + V7.36 LLM industry queries (when `--industry` passed) + V7.38 post-cascade competitor enrichment. New CLI flags: `--industry`, `--region`, `--stage`, `--no-cache`. |
+| **V7.43** | Gallery + visual restore | Restored `frontend/brief.json` to Orchid default + `briefs/{supabase,notion,pfizer}.json` to V7.29-pt3 distinct per-target after a refresh-chain bug overwrote them; reverted V7.42 negative-distance arrow experiment that clipped bezier endpoints. |
+| **V7.44** | Cascade graph aesthetics (round 2) | Source node label visible (dropped `rgba(184,178,164,0.04)` tint cytoscape was ignoring → opaque tan-on-tan); sector satellite row visible (added `node[type="sector"]` to fade-in stage so feed/output edges no longer arrowed into invisible nodes); container 460→540px; widened label staggers + `text-max-width:110` ellipsis. |
+| **V7.45** | Sign-corrected per-edge arc geometry | Handoff/synergy `control-point-distances` follows a clockwise-perpendicular sign convention — same value bulges DIFFERENT ways for L→R vs R→L edges. Class-based stagger landed `security→gtm` labels ON the Finance node. Fix: compute cpDist + tmY per-edge from canonical dept x-order; drop `text-rotation:autorotate` so margins are predictable canvas-space. |
+| **V7.46** | `parse_into` list-unwrap | LLM responses occasionally arrive as `[{...}]` instead of `{...}` (observed crashing Pfizer Finance with Pydantic `input_type=list`). One-line unwrap before validation, parallel to V7.15 dict-wrap fallback. Also: `services/brightdata.py` build_bundle wraps the primary unlock loop in try/except so a single 30s × 3-retry timeout no longer aborts the whole 75-URL cascade. |
+| **V7.47** | `cross_pollinate` list-unwrap | Mirrors V7.46. The cross-pollination LLM also returns `[{handoffs: [], synergies: []}]` on some runs; the dict-shape gate at line 254 was silently dropping to templated fallback. Adding the same unwrap reduces the rate at which gallery briefs show identical templated cross-talk. |
 
 **Tests:** 219 / 219 green (excl. e2e + preexisting test_server auth-leak failures unrelated to features).
 

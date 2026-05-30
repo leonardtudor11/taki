@@ -1,8 +1,41 @@
-{"t": "2026-05-28T15:46:39.534465+00:00", "phase": "pii", "status": "start"}
-{"t": "2026-05-28T15:46:39.545757+00:00", "phase": "pii", "status": "done", "redactions": 53}
-{"t": "2026-05-28T15:46:39.546519+00:00", "phase": "leak", "status": "start"}
-{"t": "2026-05-28T15:46:39.557213+00:00", "phase": "leak", "status": "done", "flags": []}
-{"t": "2026-05-28T15:46:39.558115+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
-{"t": "2026-05-28T15:46:39.558427+00:00", "phase": "dept", "dept": "finance", "status": "start"}
-{"t": "2026-05-28T15:46:39.558589+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
-{"t": "2026-05-28T15:46:39.558717+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-28T17:47:17.348523+00:00", "phase": "pii", "status": "start"}
+{"t": "2026-05-28T17:47:17.357870+00:00", "phase": "pii", "status": "done", "redactions": 41}
+{"t": "2026-05-28T17:47:17.358576+00:00", "phase": "leak", "status": "start"}
+{"t": "2026-05-28T17:47:17.366718+00:00", "phase": "leak", "status": "done", "flags": []}
+{"t": "2026-05-28T17:47:17.367440+00:00", "phase": "dept", "dept": "gtm", "status": "start"}
+{"t": "2026-05-28T17:47:17.367718+00:00", "phase": "dept", "dept": "finance", "status": "start"}
+{"t": "2026-05-28T17:47:17.367935+00:00", "phase": "dept", "dept": "marketing", "status": "start"}
+{"t": "2026-05-28T17:47:17.368097+00:00", "phase": "dept", "dept": "security", "status": "start"}
+{"t": "2026-05-28T17:48:32.491134+00:00", "phase": "dept", "dept": "gtm", "status": "done", "claims": 11}
+{"t": "2026-05-28T17:48:38.915496+00:00", "phase": "dept", "dept": "finance", "status": "done", "claims": 17}
+{"t": "2026-05-28T17:49:32.727601+00:00", "phase": "dept", "dept": "security", "status": "done", "claims": 19}
+{"t": "2026-05-28T17:49:38.840377+00:00", "phase": "dept", "dept": "marketing", "status": "done", "claims": 28}
+{"t": "2026-05-28T17:49:38.844848+00:00", "phase": "grounding", "status": "start"}
+{"t": "2026-05-28T17:49:38.987394+00:00", "phase": "grounding", "status": "done", "dropped": 7}
+{"t": "2026-05-28T17:49:38.988093+00:00", "phase": "cross_pollinate", "status": "start"}
+{"t": "2026-05-28T17:50:35.150093+00:00", "phase": "handoff", "from": "security", "to": "gtm", "message": "Your enterprise account executives need to be aware that user reports of service instability and unreported outages are creating a credibility risk that directly contradicts our enterprise-ready messaging and uptime SLAs."}
+{"t": "2026-05-28T17:50:35.152090+00:00", "phase": "handoff", "from": "finance", "to": "marketing", "message": "User criticism of high add-on costs, specifically the $100/mo Point-in-Time-Recovery feature, is creating negative sentiment and undermining our core message of predictable pricing."}
+{"t": "2026-05-28T17:50:35.152232+00:00", "phase": "handoff", "from": "marketing", "to": "gtm", "message": "The market has a shortage of skilled Supabase developers, so our new Solutions Architects should focus on enabling customers with best practices, especially around complex areas like RLS security and performance optimization."}
+{"t": "2026-05-28T17:50:35.152287+00:00", "phase": "handoff", "from": "gtm", "to": "marketing", "message": "The sales team is encountering user objections about compute limitations and database migration challenges; we need content that provides official workarounds or clarifies the roadmap to address these known product gaps."}
+{"t": "2026-05-28T17:50:35.152329+00:00", "phase": "synergy", "depts": ["gtm", "finance", "security"], "text": "Supabase's aggressive enterprise push and 'enterprise-ready' messaging are on a collision course with user-reported reliability issues and operational complexities, creating a significant risk of churn for high-value customers who discover the platform is not as production-ready as marketed."}
+{"t": "2026-05-28T17:50:35.152376+00:00", "phase": "synergy", "depts": ["gtm", "finance", "marketing"], "text": "The platform's primary competitive advantage of predictable pricing is being undermined by expensive add-ons and poorly documented service limits, turning a strategic strength into a source of customer frustration and brand distrust."}
+{"t": "2026-05-28T17:50:35.152414+00:00", "phase": "synergy", "depts": ["gtm", "marketing", "security"], "text": "Current hyper-growth, fueled by marketing Supabase as an easy-to-use platform for everyone, is attracting a large base of less-experienced users who are unprepared for the platform's underlying complexity, creating a future support crisis and reputational risk when these users hit scaling or security walls."}
+{"t": "2026-05-28T17:50:35.152450+00:00", "phase": "synergy", "depts": ["marketing", "finance", "security"], "text": "Supabase's open-source nature, a key driver of community trust and adoption, is funded by a venture capital model that creates inevitable pressure for monetization, setting up a potential future conflict between user expectations of openness and investor demands for returns."}
+{"t": "2026-05-28T17:50:35.152514+00:00", "phase": "cross_pollinate", "status": "done", "source": "llm", "handoffs": 4, "synergies": 4}
+{"t": "2026-05-28T17:50:35.154859+00:00", "phase": "profile", "status": "start"}
+{"t": "2026-05-28T17:50:45.791556+00:00", "phase": "profile", "status": "done", "industry": "BaaS / Postgres development platform", "stage": "growth", "competitors": 0}
+{"t": "2026-05-28T17:50:45.793123+00:00", "phase": "expert_quotes", "status": "start"}
+{"t": "2026-05-28T17:50:57.530277+00:00", "phase": "expert_quotes", "status": "done", "count": 0}
+{"t": "2026-05-28T17:50:57.532594+00:00", "phase": "sector", "status": "start"}
+{"t": "2026-05-28T17:51:35.280470+00:00", "phase": "sector", "status": "done", "sector": "saas", "counts": "tiers=3 plg=7 logos=2"}
+{"t": "2026-05-28T17:51:35.286067+00:00", "phase": "strategy", "status": "start"}
+{"t": "2026-05-28T17:51:35.286171+00:00", "phase": "contradictions", "status": "start"}
+{"t": "2026-05-28T17:51:35.286302+00:00", "phase": "swot", "status": "start"}
+{"t": "2026-05-28T17:51:35.286250+00:00", "phase": "porter", "status": "start"}
+{"t": "2026-05-28T17:51:35.287341+00:00", "phase": "pestle", "status": "start"}
+{"t": "2026-05-28T17:52:19.432335+00:00", "phase": "contradictions", "status": "done", "found": 4}
+{"t": "2026-05-28T17:52:35.258332+00:00", "phase": "porter", "status": "done", "rivalry": 5, "new_entrants": 3, "supplier_power": 2, "buyer_power": 4, "substitutes": 5}
+{"t": "2026-05-28T17:52:38.721278+00:00", "phase": "strategy", "status": "done", "headline": "Supabase's aggressive push to land enterprise clients like PwC and McDonald's is creating an immediate need to manage the reputational and churn risk from growing user reports of service instability.", "plays": 4, "icp_fit": "high", "urgency": "act this quarter"}
+{"t": "2026-05-28T17:52:43.551369+00:00", "phase": "pestle", "status": "done", "political": 1, "economic": 5, "social": 4, "technological": 5, "legal": 3, "environmental": 1}
+{"t": "2026-05-28T17:52:58.030231+00:00", "phase": "swot", "status": "done", "s": 4, "w": 4, "o": 3, "t_": 3}
+{"t": "2026-05-28T17:52:58.036902+00:00", "phase": "assemble", "status": "done", "passed": false, "claims": 68, "mode": "target"}
